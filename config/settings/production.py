@@ -8,10 +8,9 @@ import dj_database_url
 import os
 
 # ========================================
-# DEBUG - Turn OFF in production
+# DEBUG - allow override from Env Vars
 # ========================================
-
-DEBUG = False
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 
 # ========================================
 # ALLOWED HOSTS
