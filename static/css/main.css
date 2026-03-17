@@ -246,7 +246,7 @@ textarea::placeholder {
 
 /* Base select styling */
 
-select {
+:where(select) {
     /* Remove default appearance */
     appearance: none;
     -webkit-appearance: none;
@@ -273,7 +273,7 @@ select {
 
 /* Hover state */
 
-select:hover {
+:where(select:hover) {
     border-color: #17cf17;
     box-shadow: 0 1px 2px 0 rgba(23, 207, 23, 0.1);
 }
@@ -281,7 +281,7 @@ select:hover {
 
 /* Focus state */
 
-select:focus {
+:where(select:focus) {
     outline: none;
     border-color: #17cf17;
     box-shadow: 0 0 0 3px rgba(23, 207, 23, 0.1);
@@ -290,19 +290,19 @@ select:focus {
 
 /* Dark mode */
 
-.dark select {
+:where(.dark select) {
     color: #f1f5f9;
     background-color: #1e293b;
     border-color: #334155;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
 }
 
-.dark select:hover {
+:where(.dark select:hover) {
     border-color: #17cf17;
     background-color: #0f172a;
 }
 
-.dark select:focus {
+:where(.dark select:focus) {
     border-color: #17cf17;
     box-shadow: 0 0 0 3px rgba(23, 207, 23, 0.15);
 }
@@ -310,14 +310,14 @@ select:focus {
 
 /* Disabled state */
 
-select:disabled {
+:where(select:disabled) {
     background-color: #f1f5f9;
-    color: #94a3b8;
+    color: #475569;
     cursor: not-allowed;
     opacity: 0.6;
 }
 
-.dark select:disabled {
+:where(.dark select:disabled) {
     background-color: #0f172a;
     color: #475569;
 }
@@ -330,7 +330,7 @@ select:disabled {
 
 /* Style the dropdown options */
 
-select option {
+:where(select option) {
     padding: 0.75rem 1rem;
     font-size: 0.875rem;
     font-weight: 500;
@@ -341,9 +341,9 @@ select option {
 
 /* Hover/Selected option */
 
-select option:hover,
-select option:focus,
-select option:checked {
+:where(select option:hover),
+:where(select option:focus),
+:where(select option:checked) {
     background-color: #e8f9e8 !important;
     /* Light green background */
     color: #17cf17 !important;
@@ -354,14 +354,14 @@ select option:checked {
 
 /* Dark mode options */
 
-.dark select option {
+:where(.dark select option) {
     color: #f1f5f9;
     background-color: #1e293b;
 }
 
-.dark select option:hover,
-.dark select option:focus,
-.dark select option:checked {
+:where(.dark select option:hover),
+:where(.dark select option:focus),
+:where(.dark select option:checked) {
     background-color: rgba(23, 207, 23, 0.15) !important;
     color: #17cf17 !important;
 }
@@ -369,8 +369,8 @@ select option:checked {
 
 /* Firefox-specific option styling */
 
-@-moz-document url-prefix() {
-    select option:checked {
+@supports (-moz-appearance: none) {
+    :where(select option:checked) {
         background: #e8f9e8 linear-gradient(0deg, #e8f9e8 0%, #e8f9e8 100%);
         color: #17cf17;
         font-weight: 600;
@@ -382,14 +382,14 @@ select option:checked {
    INPUT & TEXTAREA CONSISTENCY
    ============================================ */
 
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="number"],
-input[type="tel"],
-input[type="url"],
-input[type="date"],
-textarea {
+:where(input[type="text"]),
+:where(input[type="email"]),
+:where(input[type="password"]),
+:where(input[type="number"]),
+:where(input[type="tel"]),
+:where(input[type="url"]),
+:where(input[type="date"]),
+:where(textarea) {
     width: 100%;
     padding: 0.75rem 1rem;
     font-size: 0.875rem;
@@ -401,13 +401,13 @@ textarea {
     transition: all 0.2s ease;
 }
 
-input:hover,
-textarea:hover {
+:where(input:hover),
+:where(textarea:hover) {
     border-color: #cbd5e1;
 }
 
-input:focus,
-textarea:focus {
+:where(input:focus),
+:where(textarea:focus) {
     outline: none;
     border-color: #17cf17;
     box-shadow: 0 0 0 3px rgba(23, 207, 23, 0.1);
@@ -416,26 +416,26 @@ textarea:focus {
 
 /* Dark mode inputs */
 
-.dark input[type="text"],
-.dark input[type="email"],
-.dark input[type="password"],
-.dark input[type="number"],
-.dark input[type="tel"],
-.dark input[type="url"],
-.dark input[type="date"],
-.dark textarea {
+:where(.dark input[type="text"]),
+:where(.dark input[type="email"]),
+:where(.dark input[type="password"]),
+:where(.dark input[type="number"]),
+:where(.dark input[type="tel"]),
+:where(.dark input[type="url"]),
+:where(.dark input[type="date"]),
+:where(.dark textarea) {
     color: #f1f5f9;
     background-color: #1e293b;
     border-color: #334155;
 }
 
-.dark input:hover,
-.dark textarea:hover {
+:where(.dark input:hover),
+:where(.dark textarea:hover) {
     border-color: #475569;
 }
 
-.dark input:focus,
-.dark textarea:focus {
+:where(.dark input:focus),
+:where(.dark textarea:focus) {
     border-color: #17cf17;
     box-shadow: 0 0 0 3px rgba(23, 207, 23, 0.15);
 }

@@ -35,23 +35,29 @@
 
     .input-premium {
         width: 100%;
-        padding: 0 1.5rem;
+        padding: 0 1.25rem;
         background: #f8fafc;
         border: 1.5px solid #e2e8f0;
-        border-radius: 1rem;
+        border-radius: 12px;
         font-size: 0.875rem;
         font-weight: 600;
         color: #1e293b;
-        transition: all 0.3s;
+        transition: all 0.3s ease;
         outline: none !important;
-        height: 53px; /* Refined height */
-        display: flex;
-        align-items: center;
+        height: 50px;
     }
     .dark .input-premium {
         background: #111827;
         border-color: #374151;
         color: #f3f4f6;
+    }
+    .input-premium:focus {
+        background: #ffffff;
+        border-color: #17cf17;
+        box-shadow: 0 0 0 4px rgba(23, 207, 23, 0.1);
+    }
+    .dark .input-premium:focus {
+        background: #0f172a;
     }
 
     /* Focus handled by global base.html */
@@ -174,16 +180,15 @@
     .input-module {
         background: #ffffff;
         border: 1.5px solid #e2e8f0;
-        border-radius: 1.25rem;
-        padding: 0 1.5rem;
+        border-radius: 12px;
+        padding: 0 1.25rem;
         font-size: 0.875rem;
         font-weight: 600;
         color: #1e293b;
         width: 100%;
-        transition: all 0.3s;
-        height: 53px; /* Refined height */
-        display: flex;
-        align-items: center;
+        transition: all 0.3s ease;
+        height: 50px;
+        line-height: normal;
     }
 
     .dark .input-module {
@@ -208,7 +213,7 @@
         letter-spacing: 0.05em;
         cursor: pointer;
         transition: all 0.3s;
-        height: 53px; /* Refined height */
+        height: 50px;
     }
 
     .dark .upload-button {
@@ -460,15 +465,16 @@
     .custom-select-box {
         background: #f8fafc;
         border: 1.5px solid #e2e8f0;
-        border-radius: 1.25rem;
-        padding: 1.25rem 1.5rem;
+        border-radius: 12px;
+        padding: 0 1.25rem;
         display: flex;
         align-items: center;
         gap: 1rem;
         cursor: pointer;
         font-size: 0.875rem;
-        font-weight: 800;
+        font-weight: 600;
         color: #1e293b;
+        height: 50px;
     }
 
     .dark .custom-select-box {
@@ -546,11 +552,11 @@
 
                     <!-- Sync Logic Toggle -->
                     <div class="flex items-center justify-center py-2">
-                        <label class="flex items-center gap-3 bg-slate-50 dark:bg-slate-900/50 p-4 px-8 rounded-2xl border border-slate-100 dark:border-slate-800 cursor-pointer hover:bg-slate-100 transition-all shadow-sm">
-                            <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest leading-none">Same as registration?</span>
-                            <div class="relative inline-flex items-center cursor-pointer">
-                                {{ form.use_registration_details }}
-                            </div>
+                        <label for="id_use_registration_details" class="flex items-center gap-4 bg-slate-50 dark:bg-slate-900/50 p-4 px-10 rounded-2xl border border-slate-100 dark:border-slate-800 cursor-pointer hover:bg-slate-100 transition-all shadow-sm group">
+                            <span class="text-[11px] font-black text-slate-500 group-hover:text-primary transition-colors uppercase tracking-widest leading-none">Same as registration?</span>
+                            <input type="checkbox" name="use_registration_details" id="id_use_registration_details" 
+                                   {% if form.use_registration_details.value %}checked{% endif %}
+                                   class="w-5 h-5 rounded border-2 border-slate-300 text-primary focus:ring-primary focus:ring-offset-0 cursor-pointer transition-all box-content">
                         </label>
                     </div>
 
@@ -923,7 +929,7 @@
 {% block extra_js %}
 <script>
     // Logic for "Same as Registration" checkbox
-    const useRegDetails = document.getElementById('use_reg_details');
+    const useRegDetails = document.getElementById('id_use_registration_details');
     const contactSyncFields = document.getElementById('contactSyncFields');
     const fieldMap = {
         'id_contact_person': '{{ reg_data.name|escapejs }}',
