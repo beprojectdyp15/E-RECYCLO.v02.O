@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Decline Re-evaluation - eRecyclo{% endblock %}
+{% block page_title %}Decline Re-evaluation{% endblock %}
+{% block page_subtitle %}Officially decline to provide a higher valuation for this item{% endblock %}
+
+{% block extra_css %}
+<style>
+    .premium-card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        border-radius: 1.5rem;
+    }
+
+    .dark .premium-card {
+        background: #1e293b;
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="max-w-3xl mx-auto space-y-8 pb-24 px-4 sm:px-0">
+
+    <!-- ── ITEM QUICK VIEW (MATCHES ITEM_DETAIL) ── -->
+    <div class="premium-card overflow-hidden !rounded-[1.5rem]">
+        <div class="md:flex items-stretch">
+            <div class="md:w-2/5 p-6 sm:p-8 bg-slate-50/50 dark:bg-slate-900/30">
+                <div class="aspect-square rounded-[1rem] overflow-hidden bg-white dark:bg-slate-800 shadow-inner p-4 border border-slate-100 dark:border-slate-700">
+                    {% if item.photo %}
+                    <img src="{{ item.photo.url }}" alt="{{ item.title }}" class="w-full h-full object-cover rounded-[0.8rem] shadow-sm">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-700">
+                        <span class="material-symbols-outlined text-4xl">devices</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="md:w-3/5 p-8 sm:p-10 flex flex-col">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1 min-w-0">
+                        <h2 class="text-2xl font-extrabold text-slate-700 dark:text-white leading-tight truncate">{{ item.title }}</h2>
+                        <div class="flex flex-wrap gap-4 items-center mt-2">
+                             <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Item ID #{{ item.pk }}</p>
+                             <span class="size-1 bg-slate-200 rounded-full"></span>
+                             <span class="text-[10px] font-black text-amber-500 uppercase tracking-widest">Multiple Round Rejection</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-grow">
+                    <div class="mb-8">
+                        <p class="text-[11px] font-extrabold uppercase tracking-[0.15em] text-slate-400 mb-2">Description</p>
+                        <p class="text-slate-600 dark:text-slate-400 text-[15px] leading-relaxed font-semibold">
+                            {{ item.description|default:"No details provided." }}
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-6 mb-8 -mt-2">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Quantity</p>
+                            <p class="text-sm font-black text-slate-800 dark:text-slate-200">{{ item.quantity }} Unit{{ item.quantity|pluralize }}</p>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">AI Category</p>
+                            <p class="text-sm font-black text-slate-800 dark:text-white truncate">{{ item.get_ai_category_display }}</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">AI Condition</p>
+                            <p class="text-sm font-black text-slate-800 dark:text-white">{{ item.get_ai_condition_display }}</p>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-slate-100 dark:border-slate-700 flex flex-wrap gap-8 items-center">
+                        <div class="flex items-center gap-4">
+                            <div class="size-11 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700">
+                                <span class="material-symbols-outlined text-slate-400 text-xl font-bold">smart_toy</span>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest leading-none mb-1.5">Predicted Value</p>
+                                <p class="text-xl font-extrabold text-slate-700 dark:text-white">₹{{ item.ai_estimated_value }}</p>
+                            </div>
+                        </div>
+
+                        {% if history %}
+                        <div class="flex-grow flex items-center justify-end gap-3">
+                             <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Your History</p>
+                             <div class="flex -space-x-2">
+                                {% for h in history %}
+                                <div class="size-8 rounded-full bg-white dark:bg-slate-900 border-2 border-slate-50 dark:border-slate-800 flex items-center justify-center text-[9px] font-black text-slate-500 shadow-sm" title="Round {{ forloop.revcounter }}: ₹{{ h.vendor_final_value }}">
+                                    #{{ forloop.revcounter }}
+                                </div>
+                                {% endfor %}
+                             </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── CONSEQUENCE MATRIX ── -->
+    <div class="premium-card p-8 info-gradient border-none overflow-hidden relative group bg-slate-50 dark:bg-slate-900/40">
+        <div class="absolute -right-10 -top-10 size-40 bg-primary/5 rounded-full blur-3xl"></div>
+        <div class="flex items-start gap-5 relative z-10">
+            <div class="size-12 rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center text-slate-400 shadow-sm border border-slate-100 dark:border-slate-800">
+                <span class="material-symbols-outlined text-2xl">event_repeat</span>
+            </div>
+            <div>
+                <h4 class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-3">Post-Decline Client Options</h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-1">
+                        <p class="text-[11px] font-black text-slate-700 dark:text-white mb-0.5">Final Acceptance</p>
+                        <p class="text-[10px] font-bold text-slate-500 leading-relaxed italic">Accept the preserved offer as final settlement.</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[11px] font-black text-slate-700 dark:text-white mb-0.5">Asset Reversal</p>
+                        <p class="text-[10px] font-bold text-slate-500 leading-relaxed italic">Request physical return of the item to origin.</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[11px] font-black text-slate-700 dark:text-white mb-0.5">Peer Transfer</p>
+                        <p class="text-[10px] font-bold text-slate-500 leading-relaxed italic">Transfer to local facility for fresh evaluation.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── FORM SECTION ── -->
+    <div class="premium-card p-10 space-y-8">
+        <div class="flex items-center gap-4">
+            <div class="size-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500">
+                <span class="material-symbols-outlined text-2xl font-black">block</span>
+            </div>
+            <div>
+                <h2 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-widest">Decline Justification</h2>
+                <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase">Reason for not providing a higher offer</p>
+            </div>
+        </div>
+
+        <form method="POST" id="declineForm" class="space-y-8">
+            {% csrf_token %}
+            <div class="space-y-4">
+                <textarea 
+                    name="decline_reason" 
+                    rows="5" 
+                    required
+                    class="w-full px-6 py-5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl text-[14px] font-semibold text-slate-800 dark:text-slate-200 placeholder:text-slate-400 placeholder:font-semibold focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/40 transition-all resize-none"
+                    placeholder="Provide professional justification for why a higher offer is not possible..."
+                ></textarea>
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest px-2 italic">This explanation will be shown to the client for their final decision.</p>
+            </div>
+        </form>
+    </div>
+
+    <div class="pt-8 flex flex-col items-center gap-6">
+        <button type="submit" form="declineForm" class="w-[310px] h-16 bg-slate-900 hover:bg-black text-white rounded-xl text-[11px] font-black uppercase tracking-[0.15em] shadow-xl shadow-slate-900/10 transition-all hover:scale-105 flex items-center justify-center gap-3">
+            <span class="material-symbols-outlined font-black">block</span>
+            Confirm Decline
+        </button>
+        <a href="{% url 'vendor:item_detail' item.pk %}" class="text-[11px] font-black text-slate-400 uppercase tracking-widest hover:text-primary transition-colors">
+            Go Back to Details
+        </a>
+    </div>
+
+    <div class="text-center">
+        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            Changed your mind? 
+            <a href="{% url 'vendor:evaluate_item' item.pk %}" class="text-primary hover:underline ml-1">Submit Higher Offer</a>
+        </p>
+    </div>
+
+</div>
+{% endblock %}

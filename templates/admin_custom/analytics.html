@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block page_title %}Platform Analytics{% endblock %}
+{% block page_subtitle %}Deep insights and system metrics for {{ current_year }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .analytics-hero-bg {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+        border-radius: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .premium-card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 2.5rem;
+    }
+    .dark .premium-card {
+        background: #1e293b;
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+    .glass-pill {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 9999px;
+    }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 pb-20">
+    <!-- ── ANALYTICS HERO ── -->
+    <div class="analytics-hero-bg py-16 px-12 text-white relative group shadow-2xl animate-in fade-in slide-in-from-top-4 duration-700">
+        <!-- Floating Elements -->
+        <div class="absolute top-0 right-0 w-80 h-80 bg-primary/20 rounded-full -mr-20 -mt-20 blur-[120px] animate-pulse"></div>
+        <div class="absolute bottom-0 right-1/4 w-60 h-60 bg-blue-500/10 rounded-full blur-[100px]"></div>
+        
+        <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12">
+            <div class="space-y-6 flex-1">
+                <div class="inline-flex items-center gap-3 glass-pill px-5 py-2">
+                    <span class="material-symbols-outlined text-[20px] text-primary">analytics</span>
+                    <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90">Real-time Data Processing</span>
+                </div>
+                <h1 class="text-6xl font-black tracking-tighter leading-none mt-2">Neural<span class="text-primary">.</span>Insights</h1>
+                <p class="text-white/50 text-sm font-bold max-w-sm leading-relaxed pt-2">
+                    Visualizing the ecosystem's digital pulse. Select a user category below to filter the growth curve.
+                </p>
+                
+                <!-- FILTER TABS -->
+                <div class="flex flex-wrap items-center gap-3 pt-4">
+                    <a href="?user_type=all" class="px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all {% if user_type == 'all' %}bg-primary text-white shadow-xl shadow-primary/20{% else %}bg-white/5 text-white/40 hover:bg-white/10{% endif %}">Global</a>
+                    <a href="?user_type=client" class="px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all {% if user_type == 'client' %}bg-primary text-white shadow-xl shadow-primary/20{% else %}bg-white/5 text-white/40 hover:bg-white/10{% endif %}">Clients</a>
+                    <a href="?user_type=vendor" class="px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all {% if user_type == 'vendor' %}bg-primary text-white shadow-xl shadow-primary/20{% else %}bg-white/5 text-white/40 hover:bg-white/10{% endif %}">Vendors</a>
+                    <a href="?user_type=collector" class="px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all {% if user_type == 'collector' %}bg-primary text-white shadow-xl shadow-primary/20{% else %}bg-white/5 text-white/40 hover:bg-white/10{% endif %}">Collectors</a>
+                </div>
+            </div>
+
+            <!-- QUICK TOTALS -->
+            <div class="relative z-10 grid grid-cols-2 gap-4">
+                <div class="premium-card !bg-white/5 backdrop-blur-md p-8 border-white/10 flex flex-col gap-1 w-44">
+                    <p class="text-[9px] font-black text-white/40 uppercase tracking-widest">Yearly Volume</p>
+                    <p class="text-3xl font-black text-white tracking-tighter">{{ monthly_uploads|sum_field:'count' }}</p>
+                </div>
+                <div class="premium-card !bg-white/5 backdrop-blur-md p-8 border-white/10 flex flex-col gap-1 w-44">
+                    <p class="text-[9px] font-black text-white/40 uppercase tracking-widest">Global Value</p>
+                    <p class="text-3xl font-black text-white tracking-tighter">₹{{ total_value|floatformat:0 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── DATA VISUALIZATION ── -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <!-- Monthly Growth Graph (Users) -->
+        <div class="premium-card p-10 shadow-sm overflow-hidden">
+            <div class="flex items-center justify-between mb-10">
+                <div>
+                    <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Growth Mastery</h3>
+                    <p class="text-xl font-black text-slate-800 dark:text-white tracking-tight">{{ user_type|upper }} Registrations ({{ current_year }})</p>
+                </div>
+                <div class="size-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                    <span class="material-symbols-outlined text-2xl">person_add</span>
+                </div>
+            </div>
+            
+            <div class="space-y-8">
+                {% for month in monthly_users %}
+                <div class="space-y-3 group/row">
+                    <div class="flex justify-between items-end">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover/row:text-primary transition-colors">{{ month.month|date:"F"|upper }}</p>
+                        <p class="text-[12px] font-black text-slate-800 dark:text-white">{{ month.count }} New</p>
+                    </div>
+                    <div class="h-2 w-full bg-slate-50 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-blue-500 rounded-full transition-all duration-1000 shadow-[0_0_12px_rgba(59,130,246,0.2)]" 
+                             style="width: {{ month.count|percentage:max_users }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Monthly Uploads Graph -->
+        <div class="premium-card p-10 shadow-sm overflow-hidden">
+            <div class="flex items-center justify-between mb-10">
+                <div>
+                    <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Recycling Pulse</h3>
+                    <p class="text-xl font-black text-slate-800 dark:text-white tracking-tight">System Uploads ({{ current_year }})</p>
+                </div>
+                <div class="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined text-2xl">recycling</span>
+                </div>
+            </div>
+            
+            <div class="space-y-8">
+                {% for month in monthly_uploads %}
+                <div class="space-y-3 group/row">
+                    <div class="flex justify-between items-end">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover/row:text-primary transition-colors">{{ month.month|date:"F"|upper }}</p>
+                        <p class="text-[12px] font-black text-slate-800 dark:text-white">{{ month.count }} Verified</p>
+                    </div>
+                    <div class="h-2 w-full bg-slate-50 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-primary rounded-full transition-all duration-1000 shadow-[0_0_12px_rgba(23,207,23,0.2)]" 
+                             style="width: {{ month.count|percentage:max_uploads }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ── PLATFORM HEALTH ── -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div class="premium-card p-8 flex flex-col items-center text-center gap-4">
+            <div class="size-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+                <span class="material-symbols-outlined">identity_platform</span>
+            </div>
+            <div>
+                <p class="text-2xl font-black text-slate-800 dark:text-white">{{ counts.all }}</p>
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Identity Node</p>
+            </div>
+        </div>
+        <div class="premium-card p-8 flex flex-col items-center text-center gap-4">
+             <div class="size-12 rounded-2xl bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center text-blue-500">
+                <span class="material-symbols-outlined">person</span>
+            </div>
+            <div>
+                <p class="text-2xl font-black text-slate-800 dark:text-white">{{ counts.clients }}</p>
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Verified Clients</p>
+            </div>
+        </div>
+        <div class="premium-card p-8 flex flex-col items-center text-center gap-4">
+             <div class="size-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-500">
+                <span class="material-symbols-outlined">business</span>
+            </div>
+            <div>
+                <p class="text-2xl font-black text-slate-800 dark:text-white">{{ counts.vendors }}</p>
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Recycling Hubs</p>
+            </div>
+        </div>
+        <div class="premium-card p-8 flex flex-col items-center text-center gap-4">
+             <div class="size-12 rounded-2xl bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center text-purple-500">
+                <span class="material-symbols-outlined">local_shipping</span>
+            </div>
+            <div>
+                <p class="text-2xl font-black text-slate-800 dark:text-white">{{ counts.collectors }}</p>
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Logistics Partners</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

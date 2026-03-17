@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Business Intelligence - eRecyclo{% endblock %}
+{% block page_title %}Financial Analytics{% endblock %}
+{% block page_subtitle %}Quarterly performance and revenue distribution reports{% endblock %}
+
+{% block extra_css %}
+<style>
+    .premium-card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 1.5rem;
+    }
+
+    .dark .premium-card {
+        background: #1e293b;
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    .table-header {
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: #94a3b8;
+    }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="max-w-6xl mx-auto space-y-10 pb-24 px-4 sm:px-0">
+
+    <!-- ── AGGREGATE PERFORMANCE ── -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="premium-card p-8 group">
+            <div class="size-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-6 transition-transform group-hover:scale-110">
+                <span class="material-symbols-outlined text-2xl font-black">check_circle</span>
+            </div>
+            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">Total Procurement</h4>
+            <p class="text-[42px] font-black text-slate-800 dark:text-white leading-none tracking-tighter">{{ total_accepted }}</p>
+            <p class="text-[11px] font-bold text-slate-400 mt-4">Successfully accepted items</p>
+        </div>
+
+        <div class="premium-card p-8 group">
+            <div class="size-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500 mb-6 transition-transform group-hover:scale-110">
+                <span class="material-symbols-outlined text-2xl font-black">cancel</span>
+            </div>
+            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">Passed Items</h4>
+            <p class="text-[42px] font-black text-slate-800 dark:text-white leading-none tracking-tighter">{{ total_rejected }}</p>
+            <p class="text-[11px] font-bold text-slate-400 mt-4">Items declined after review</p>
+        </div>
+
+        <div class="premium-card p-8 group border-primary/20 bg-primary/[0.01]">
+            <div class="size-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6 transition-transform group-hover:scale-110">
+                <span class="material-symbols-outlined text-2xl font-black">payments</span>
+            </div>
+            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">Total Gross Value</h4>
+            <p class="text-[42px] font-black text-primary leading-none tracking-tighter">₹{{ total_revenue|default:"0" }}</p>
+            <p class="text-[11px] font-bold text-slate-400 mt-4 whitespace-nowrap overflow-hidden text-ellipsis">Lifetime evaluated transaction value</p>
+        </div>
+    </div>
+
+    <!-- ── MONTHLY GROWTH DATA ── -->
+    <div class="premium-card overflow-hidden">
+        <div class="px-8 py-6 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between">
+            <div>
+                <h3 class="text-base font-black text-slate-800 dark:text-white uppercase tracking-widest">Growth Matrix</h3>
+                <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tight">Fiscal Year {{ current_year }} Performance</p>
+            </div>
+            <div class="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
+                <span class="material-symbols-outlined text-primary text-base">calendar_today</span>
+                <span class="text-[11px] font-black text-slate-600 dark:text-slate-400">{{ current_year }}</span>
+            </div>
+        </div>
+        
+        <div class="p-0 overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-slate-50/50 dark:bg-slate-900/30">
+                        <th class="text-left px-8 py-5 table-header">Month</th>
+                        <th class="text-center px-8 py-5 table-header">Asset Count</th>
+                        <th class="text-right px-8 py-5 table-header">Market Value</th>
+                        <th class="text-right px-8 py-5 table-header">Performance</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                    {% for stat in monthly_stats %}
+                        <tr class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                            <td class="px-8 py-5 text-[13px] font-black text-slate-700 dark:text-white uppercase tracking-wider">{{ stat.month|date:"F" }}</td>
+                            <td class="text-center px-8 py-5">
+                                <span class="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-[11px] font-black text-slate-600 dark:text-slate-400">{{ stat.count }} unit{{ stat.count|pluralize }}</span>
+                            </td>
+                            <td class="text-right px-8 py-5 text-[14px] font-black text-slate-800 dark:text-white">₹{{ stat.value }}</td>
+                            <td class="text-right px-8 py-5">
+                                <div class="flex items-center justify-end gap-2 text-emerald-500">
+                                    <span class="material-symbols-outlined text-base">trending_up</span>
+                                    <span class="text-[10px] font-black uppercase">Active</span>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="px-8 py-20 text-center opacity-40">
+                                <span class="material-symbols-outlined text-4xl mb-2">analytics</span>
+                                <p class="text-xs font-black uppercase tracking-widest">Insufficient data for current year</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ── INSIGHTS SECTION ── -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="premium-card p-8 bg-slate-900 text-white relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-8 opacity-10 group-hover:rotate-12 transition-transform pointer-events-none">
+                 <span class="material-symbols-outlined text-[120px]">lightbulb</span>
+            </div>
+            <h4 class="text-xs font-black text-primary uppercase tracking-widest mb-4">Strategic Insight</h4>
+            <p class="text-sm font-bold text-slate-300 leading-relaxed mb-6">
+                Your highest volume of incoming assets is peaking during the middle of the quarter. Consider scaling operations during these periods to optimize turnaround time.
+            </p>
+            <div class="pt-6 border-t border-slate-800 flex items-center justify-between">
+                 <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Efficiency Rating</span>
+                 <div class="flex gap-1 text-primary">
+                    <span class="material-symbols-outlined text-base">star</span>
+                    <span class="material-symbols-outlined text-base">star</span>
+                    <span class="material-symbols-outlined text-base">star</span>
+                    <span class="material-symbols-outlined text-base">star</span>
+                    <span class="material-symbols-outlined text-base opacity-30">star</span>
+                 </div>
+            </div>
+        </div>
+
+        <div class="premium-card p-8 bg-emerald-600 text-white group overflow-hidden relative">
+            <div class="absolute inset-0 bg-black/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+            <div class="relative z-10">
+                <h4 class="text-xs font-black text-white/70 uppercase tracking-widest mb-4">Environmental Impact</h4>
+                <p class="text-2xl font-black mb-2">{{ total_accepted }} Items Saved</p>
+                <p class="text-sm font-bold text-emerald-50/70 leading-relaxed mb-8">
+                    Your facility has prevented hundreds of hazardous components from entering metropolitan landfills this year.
+                </p>
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 rounded-xl">
+                    <span class="material-symbols-outlined text-base font-black">eco</span>
+                    <span class="text-[10px] font-black uppercase tracking-widest">Top 5% Facilitator</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

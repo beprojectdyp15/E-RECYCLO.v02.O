@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}{{ model_name }}{% endblock %}
+{% block page_subtitle %}{{ app_label|upper }} / {{ model_meta_name|upper }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .model-hero-bg {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+        border-radius: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .premium-card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 2.5rem;
+    }
+    .dark .premium-card {
+        background: #1e293b;
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+    .glass-pill {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 9999px;
+    }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 pb-24">
+    <!-- ── ENTITY HERO ── -->
+    <div class="model-hero-bg py-12 px-10 text-white relative group animate-in fade-in slide-in-from-top-4 duration-700 shadow-2xl">
+        <!-- Decor -->
+        <div class="absolute top-0 right-0 w-60 h-60 bg-primary/10 rounded-full -mr-16 -mt-16 blur-[100px] animate-pulse"></div>
+        
+        <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div class="space-y-4 flex-1">
+                <a href="{% url 'admin_custom:model_list' %}" class="inline-flex items-center gap-2 glass-pill px-4 py-1.5 hover:bg-white/10 transition-colors group/back">
+                    <span class="material-symbols-outlined text-[16px] text-primary group-hover/back:-translate-x-0.5 transition-transform">arrow_back</span>
+                    <span class="text-[9px] font-black uppercase tracking-[0.2em] text-white/90">System Registry</span>
+                </a>
+                <h1 class="text-5xl font-black tracking-tighter leading-none mt-2">{{ model_name }}</h1>
+                <p class="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">Module: <span class="text-white/60">{{ app_label }}</span> · Global Class: <span class="text-white/60">{{ model_meta_name }}</span></p>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <!-- Search Bar -->
+                <form action="." method="GET" class="relative group h-[55px]">
+                    <span class="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-primary transition-colors">search</span>
+                    <input type="text" name="q" value="{{ search_query }}" placeholder="Search entries..." 
+                        class="h-full pl-14 pr-6 py-2.5 text-[13px] font-black bg-white/5 border-white/10 glass-pill text-white placeholder-white/20 focus:bg-white/10 focus:border-primary/50 focus:ring-4 focus:ring-primary/20 w-full sm:w-64 transition-all">
+                </form>
+
+                <a href="{% url 'admin_custom:model_add' app_label model_meta_name %}" 
+                   class="bg-primary text-white px-8 h-[55px] rounded-full font-black text-[11px] uppercase tracking-widest flex items-center gap-2 shadow-xl shadow-primary/25 hover:scale-[1.03] active:scale-[0.98] transition-all">
+                    <span class="material-symbols-outlined text-[18px]">add_circle</span> New Record
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── DATA TABLE ── -->
+    <div class="premium-card overflow-hidden shadow-sm border-none">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800/60">
+                        <th class="px-8 py-5 text-[9px] uppercase tracking-[0.2em] font-black text-slate-400">ID Node</th>
+                        {% for header in headers %}
+                        <th class="px-8 py-5 text-[9px] uppercase tracking-[0.2em] font-black text-slate-400">{{ header }}</th>
+                        {% endfor %}
+                        <th class="px-8 py-5 text-[9px] uppercase tracking-[0.2em] font-black text-slate-400 text-right">Ops. Center</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50 dark:divide-slate-800/40">
+                    {% for item in items_data %}
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all group">
+                        <td class="px-8 py-6">
+                            <span class="text-[14px] font-black text-slate-800 dark:text-white leading-none">#{{ item.id }}</span>
+                        </td>
+                        
+                        {% for val in item.fields %}
+                        <td class="px-8 py-6">
+                            <span class="text-[13px] font-bold text-slate-600 dark:text-slate-400 leading-none truncate block max-w-[200px]">{{ val|default:"-" }}</span>
+                        </td>
+                        {% endfor %}
+
+                        <td class="px-8 py-6 text-right">
+                            <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                                <a href="{% url 'admin_custom:model_edit' app_label model_meta_name item.id %}" 
+                                   class="size-10 bg-primary/5 text-primary border border-primary/20 rounded-xl flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-sm">
+                                    <span class="material-symbols-outlined text-[18px]">edit_square</span>
+                                </a>
+                                <a href="{% url 'admin_custom:model_delete' app_label model_meta_name item.id %}" 
+                                   class="size-10 bg-red-50 text-red-500 border border-red-100 rounded-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm">
+                                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="100%" class="px-8 py-24 text-center">
+                            <div class="flex flex-col items-center gap-4 opacity-40">
+                                <div class="size-20 bg-slate-50 dark:bg-slate-800/50 rounded-3xl flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-4xl">inventory_2</span>
+                                </div>
+                                <div>
+                                    <p class="text-base font-black text-slate-800 dark:text-white uppercase tracking-tighter">Null Dataset</p>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">No registered entries for {{ model_name }}.</p>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page_obj.has_other_pages %}
+        <div class="p-8 bg-slate-50/30 dark:bg-slate-800/10 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between">
+            <div class="flex flex-col gap-1">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Dataset Progress</span>
+                <span class="text-[12px] font-black text-slate-800 dark:text-white leading-none">Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+            </div>
+            
+            <div class="flex gap-4">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                   class="h-12 px-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700/50 rounded-2xl text-[11px] font-black text-slate-600 dark:text-slate-300 hover:border-primary/40 hover:text-primary transition-all flex items-center gap-2 shadow-sm">
+                   <span class="material-symbols-outlined text-[18px]">chevron_left</span> Previous
+                </a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                   class="h-12 px-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700/50 rounded-2xl text-[11px] font-black text-slate-600 dark:text-slate-300 hover:border-primary/40 hover:text-primary transition-all flex items-center gap-2 shadow-sm">
+                   Next <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

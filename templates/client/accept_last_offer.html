@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+
+{% block title %}Accept Previous Offer - eRecyclo{% endblock %}
+
+{% block page_title %}Accept Last Offer{% endblock %}
+{% block page_subtitle %}Review and finalize the last valuation for your item{% endblock %}
+
+{% block extra_css %}
+<style>
+    .premium-card {
+        background: #fbfffb;
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.04);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 1.5rem;
+    }
+
+    .premium-card:hover {
+        box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.06);
+        transform: translateY(-2px);
+    }
+
+    .dark .premium-card {
+        background: #1e293b;
+        border-color: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .status-badge {
+        font-size: 8px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        padding: 5px 12px;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        backdrop-filter: blur(4px);
+    }
+
+    .offer-glow {
+        box-shadow: 0 0 20px rgba(23, 207, 23, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="max-w-4xl mx-auto space-y-6 pb-20 px-4 sm:px-0">
+
+    <!-- Header Summary Card -->
+    <div class="premium-card overflow-hidden group">
+        <div class="flex flex-col md:flex-row items-stretch min-h-[250px]">
+            <!-- IMAGE SIDE -->
+            <div class="md:w-[35%] p-6 md:pr-0 flex items-center justify-center">
+                <div class="size-48 rounded-[1.2rem] overflow-hidden bg-white dark:bg-slate-900 shadow-inner p-2.5 border border-slate-100 dark:border-slate-800 shrink-0 relative">
+                    {% if post.photo %}
+                    <img src="{{ post.photo.url }}" alt="{{ post.title }}"
+                         class="w-full h-full object-cover rounded-[1rem] group-hover:scale-105 transition-transform duration-700">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-700">
+                        <span class="material-symbols-outlined text-4xl">devices</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- CONTENT SIDE -->
+            <div class="flex-1 p-8 md:pl-6 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-start justify-between gap-4 mb-4">
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-xl font-extrabold text-slate-800 dark:text-white leading-tight group-hover:text-primary transition-colors truncate mb-1">{{ post.title }}</h3>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ post.created_at|date:"M d, Y" }} · #{{ post.pk }}</p>
+                        </div>
+                        <div class="shrink-0 flex items-center h-7">
+                            <span class="status-badge bg-red-50 text-red-600 border border-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800 py-1 px-3 text-[9px] font-black uppercase tracking-wider rounded-lg leading-none whitespace-nowrap">
+                                Re-evaluation Declined
+                            </span>
+                        </div>
+                    </div>
+
+                    <p class="text-[12px] text-slate-500 font-semibold mb-6 leading-relaxed">
+                        The vendor has finalized this offer. You can accept it to receive instant payment into your digital wallet.
+                    </p>
+
+                    <div class="flex gap-4 sm:gap-6 mt-4 mb-8 border-y border-slate-50 dark:border-slate-800/50 py-4">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Qty</p>
+                            <p class="text-[12px] sm:text-[13px] font-black text-slate-700 dark:text-slate-200">{{ post.quantity }} Unit{{ post.quantity|pluralize }}</p>
+                        </div>
+                        <div class="flex-[1.5] min-w-0 -ml-[34px]">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Category</p>
+                            <p class="text-[12px] sm:text-[13px] font-black text-slate-700 dark:text-slate-200 truncate">{{ post.get_ai_category_display }}</p>
+                        </div>
+                        <div class="flex-[1.5] min-w-0">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Condition</p>
+                            <p class="text-[12px] sm:text-[13px] font-black text-slate-700 dark:text-slate-200 truncate">{{ post.get_ai_condition_display }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-6 border-t border-slate-100 dark:border-slate-800">
+                    <div class="flex items-center gap-2.5 shrink-0">
+                         <div class="size-8 rounded-lg bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center border border-slate-200/40">
+                             <span class="material-symbols-outlined text-[16px] text-slate-400">storefront</span>
+                         </div>
+                         <div class="hidden sm:block">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Assessed By</p>
+                            <p class="text-[12px] font-black text-slate-700 dark:text-white leading-none truncate max-w-[120px]">{{ post.vendor.get_full_name }}</p>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+
+    <!-- Final Offer Breakdown -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Points Card -->
+        <div class="premium-card p-8 flex flex-col items-center justify-center text-center group border-amber-100 dark:border-amber-900/30">
+            <div class="size-16 rounded-2xl bg-amber-50 dark:bg-amber-900/20 text-amber-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-3xl">eco</span>
+            </div>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 leading-none">Appreciation Points</p>
+            <h4 class="text-4xl font-black text-amber-600 dark:text-amber-400 tracking-tighter">{{ last_offer.eco_points_awarded|default:0 }}</h4>
+            <div class="mt-4 px-3 py-1 bg-amber-500/10 rounded-full">
+                <p class="text-[10px] font-bold text-amber-600">Eco Rewards</p>
+            </div>
+        </div>
+
+        <!-- Cash Value Card -->
+        <div class="premium-card p-8 flex flex-col items-center justify-center text-center group border-emerald-100 dark:border-emerald-900/30 offer-glow">
+            <div class="size-16 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-3xl">payments</span>
+            </div>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 leading-none">Instant Cash Value</p>
+            <h4 class="text-4xl font-black text-emerald-600 dark:text-emerald-400 tracking-tighter">₹{{ last_offer.vendor_final_value|default:"0" }}</h4>
+            <div class="mt-4 px-3 py-1 bg-emerald-500/10 rounded-full">
+                <p class="text-[10px] font-bold text-emerald-600">Credit to Wallet</p>
+            </div>
+        </div>
+
+        
+    </div>
+
+    <!-- Vendor Remarks -->
+    {% if last_offer.vendor_remarks %}
+    <div class="bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800 rounded-3xl p-6 shadow-md">
+        <div class="flex items-start gap-4">
+            <div class="size-10 rounded-xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-slate-400 border border-slate-100 dark:border-slate-700 shrink-0">
+                <span class="material-symbols-outlined text-[20px]">chat_bubble_outline</span>
+            </div>
+            <div class="flex-1">
+                <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Assessment Feedback</h4>
+                <p class="text-[13px] font-semibold text-slate-600 dark:text-slate-300 leading-relaxed">
+                    "{{ last_offer.vendor_remarks }}"
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+
+    <!-- Secondary Actions (Return/Transfer) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <a href="{% url 'client:request_return' post.pk %}" class="premium-card p-5 flex items-center gap-4 hover:border-orange-200 group transition-all">
+            <div class="size-12 rounded-xl bg-orange-50 dark:bg-orange-900/10 text-orange-500 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined transition-transform group-hover:rotate-[-12deg]">undo</span>
+            </div>
+            <div class="min-w-0">
+                <h5 class="text-[13px] font-black text-slate-800 dark:text-white leading-tight">Recall Item</h5>
+                <p class="text-[11px] font-semibold text-slate-400 truncate">Request return delivery</p>
+            </div>
+        </a>
+
+        <a href="{% url 'client:transfer_to_vendor' post.pk %}" class="premium-card p-5 flex items-center gap-4 hover:border-blue-200 group transition-all">
+            <div class="size-12 rounded-xl bg-blue-50 dark:bg-blue-900/10 text-blue-500 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined transition-transform group-hover:rotate-[180deg]">swap_horiz</span>
+            </div>
+            <div class="min-w-0">
+                <h5 class="text-[13px] font-black text-slate-800 dark:text-white leading-tight">Vendor Transfer</h5>
+                <p class="text-[11px] font-semibold text-slate-400 truncate">Move to another nearby recycler</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- Final Approval Action -->
+    <div class="py-10 px-6">
+        <div class="text-center max-w-lg mx-auto mb-10">
+            <p class="text-[14px] font-bold text-slate-600 dark:text-slate-300 leading-relaxed opacity-80">
+                Accepting this offer will immediately credit <span class="text-primary font-black">₹{{ last_offer.vendor_final_value }}</span> to your wallet and complete the recycling process.
+            </p>
+        </div>
+
+        <form method="POST" class="flex flex-col items-center gap-8">
+            {% csrf_token %}
+            <button type="submit"
+                    class="group relative h-16 px-12 flex items-center justify-center bg-primary hover:bg-forest text-white rounded-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden min-w-[320px] shadow-lg shadow-primary/20 border border-primary/20">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                <span class="material-symbols-outlined mr-2 transition-transform group-hover:scale-110">check_circle</span>
+                <span class="text-xs font-black uppercase tracking-widest">Accept Last Offer</span>
+            </button>
+            
+            <a href="{% url 'client:upload_detail' post.pk %}" class="inline-flex items-center gap-2 text-xs font-black text-slate-400 hover:text-primary transition-colors uppercase tracking-widest group">
+                <span class="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                Cancel & Go Back
+            </a>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

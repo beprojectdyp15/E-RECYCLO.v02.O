@@ -1,0 +1,239 @@
+{% extends "base_public.html" %}
+{% block title %}FAQ — eRecyclo{% endblock %}
+
+{% block extra_style %}
+.faq-item summary { list-style: none; cursor: pointer; }
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item[open] .faq-icon { transform: rotate(45deg); }
+.faq-icon { transition: transform 0.3s ease; }
+{% endblock %}
+
+{% block page_content %}
+<main class="pt-28">
+
+<!-- Hero -->
+<section class="py-20 px-6 text-center" style="background: radial-gradient(circle at 50% 0%, #17cf1710 0%, transparent 60%);">
+    <div class="max-w-3xl mx-auto">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-100 shadow-sm mb-8">
+            <span class="material-symbols-outlined text-primary text-[16px]">help</span>
+            <span class="text-[9px] font-black uppercase tracking-[0.15em] text-slate-500">Frequently Asked Questions</span>
+        </div>
+        <h1 class="text-5xl md:text-6xl font-black tracking-tighter text-slate-900 mb-6 leading-[1.05]">
+            Got Questions? <span class="text-primary">We Have Answers.</span>
+        </h1>
+        <p class="text-[14px] font-semibold text-slate-500 max-w-xl mx-auto leading-relaxed">
+            Everything you need to know about using eRecyclo — from uploading your first device to getting paid.
+        </p>
+    </div>
+</section>
+
+<!-- FAQ Sections -->
+<section class="py-16 px-6 pb-24">
+    <div class="max-w-4xl mx-auto space-y-12">
+
+        <!-- Getting Started -->
+        <div>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="size-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
+                    <span class="material-symbols-outlined text-[18px]">rocket_launch</span>
+                </div>
+                <h2 class="text-[13px] font-black uppercase tracking-widest text-slate-500">Getting Started</h2>
+            </div>
+            <div class="space-y-3">
+                {% for q in faq_general %}
+                <details class="faq-item premium-card overflow-hidden group">
+                    <summary class="flex items-center justify-between p-7 gap-4">
+                        <h3 class="text-[14px] font-black text-slate-800 leading-snug">{{ q.q }}</h3>
+                        <span class="material-symbols-outlined faq-icon text-slate-400 shrink-0 size-8 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100">add</span>
+                    </summary>
+                    <div class="px-7 pb-7">
+                        <p class="text-[13px] font-semibold text-slate-500 leading-relaxed border-t border-slate-50 pt-5">{{ q.a }}</p>
+                    </div>
+                </details>
+                {% empty %}
+                <details class="faq-item premium-card overflow-hidden">
+                    <summary class="flex items-center justify-between p-7 gap-4">
+                        <h3 class="text-[14px] font-black text-slate-800">Is eRecyclo free to use?</h3>
+                        <span class="material-symbols-outlined faq-icon text-slate-400 shrink-0">add</span>
+                    </summary>
+                    <div class="px-7 pb-7 border-t border-slate-50">
+                        <p class="text-[13px] font-semibold text-slate-500 leading-relaxed pt-5">Yes. Creating an account and listing your devices is completely free. eRecyclo earns a platform fee from vendors and collectors — users always pay nothing and receive the full agreed value.</p>
+                    </div>
+                </details>
+                <details class="faq-item premium-card overflow-hidden">
+                    <summary class="flex items-center justify-between p-7 gap-4">
+                        <h3 class="text-[14px] font-black text-slate-800">Who can use eRecyclo?</h3>
+                        <span class="material-symbols-outlined faq-icon text-slate-400 shrink-0">add</span>
+                    </summary>
+                    <div class="px-7 pb-7 border-t border-slate-50">
+                        <p class="text-[13px] font-semibold text-slate-500 leading-relaxed pt-5">Anyone in India with old or broken electronic devices. Individuals, households, offices, and businesses of any size are welcome. You simply need a valid email address and a photo of your device to get started.</p>
+                    </div>
+                </details>
+                <details class="faq-item premium-card overflow-hidden">
+                    <summary class="flex items-center justify-between p-7 gap-4">
+                        <h3 class="text-[14px] font-black text-slate-800">What types of devices can I recycle?</h3>
+                        <span class="material-symbols-outlined faq-icon text-slate-400 shrink-0">add</span>
+                    </summary>
+                    <div class="px-7 pb-7 border-t border-slate-50">
+                        <p class="text-[13px] font-semibold text-slate-500 leading-relaxed pt-5">We accept 13 categories of e-waste: smartphones, laptops, desktop computers, tablets, monitors and TVs, batteries and chargers, computer peripherals, audio and cameras, storage and networking equipment, gaming consoles, large appliances, small appliances (including microwaves), and cables and components.</p>
+                    </div>
+                </details>
+                <details class="faq-item premium-card overflow-hidden">
+                    <summary class="flex items-center justify-between p-7 gap-4">
+                        <h3 class="text-[14px] font-black text-slate-800">Do I need to clean or wipe my device before pickup?</h3>
+                        <span class="material-symbols-outlined faq-icon text-slate-400 shrink-0">add</span>
+                    </summary>
+                    <div class="px-7 pb-7 border-t border-slate-50">
+                        <p class="text-[13px] font-semibold text-slate-500 leading-relaxed pt-5">We strongly recommend performing a factory reset and removing personal data before handing your device over. While our vendors are certified professionals bound by data handling policies, clearing your device is best practice for your own peace of mind.</p>
+                    </div>
+                </details>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Pricing & Payment -->
+        <div>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="size-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
+                    <span class="material-symbols-outlined text-[18px]">payments</span>
+                </div>
+                <h2 class="text-[13px] font-black uppercase tracking-widest text-slate-500">Pricing & Payment</h2>
+            </div>
+            <div class="space-y-3">
+                <details class="faq-item premium-card overflow-hidden">
+                    <summary class="flex items-center justify-between p-7 gap-4">
+                        <h3 class="text-[14px] font-black text-slate-800">How does the AI estimate my device's value?</h3>
+                        <span class="material-symbols-outlined faq-icon text-slate-400 shrink-0">add</span>
+                    </summary>
+                    <div class="px-7 pb-7 border-t border-slate-50">
+                        <p class="text-[13px] font-semibold text-slate-500 leading-relaxed pt-5">Our AI identifies the category and type of device from the photo, then cross-references current market rates for recoverable raw materials (metals, components). The estimate is a range — the exact final price is determined when a vendor makes their offer, based on closer inspection of condition and details.</p>
+                    </div>
+                </details>
+                <details class="faq-item premium-card overflow-hidden">
+                    <summary class="flex items-center justify-between p-7 gap-4">
+                        <h3 class="text-[14px] font-black text-slate-800">Can a vendor change the price after I accept?</h3>
+                        <span class="material-symbols-outlined faq-icon text-slate-400 shrink-0">add</span>
+                    </summary>
+                    <div class="px-7 pb-7 border-t border-slate-50">
+                        <p class="text-[13px] font-semibold text-slate-500 leading-relaxed pt-5">No. Once you accept a vendor's offer, the price is locked. The exact amount is credited to your wallet the moment your device is verified at pickup. There is no renegotiation, no underpaying on delivery.</p>
+                    </div>
+                </details>
+                <details class="faq-item premium-card overflow-hidden">
+                    <summary class="flex items-center justify-between p-7 gap-4">
+                        <h3 class="text-[14px] font-black text-slate-800">How do I get the money from my wallet?</h3>
+                        <span class="material-symbols-outlined faq-icon text-slate-400 shrink-0">add</span>
+                    </summary>
+                    <div class="px-7 pb-7 border-t border-slate-50">
+                        <p class="text-[13px] font-semibold text-slate-500 leading-relaxed pt-5">Your wallet balance can be transferred to your registered bank account directly from the Wallet section of your dashboard. Withdrawals are processed within 1–2 business days. There are no transfer fees.</p>
+                    </div>
+                </details>
+                <details class="faq-item premium-card overflow-hidden">
+                    <summary class="flex items-center justify-between p-7 gap-4">
+                        <h3 class="text-[14px] font-black text-slate-800">What if I'm not happy with any vendor offer?</h3>
+                        <span class="material-symbols-outlined faq-icon text-slate-400 shrink-0">add</span>
+                    </summary>
+                    <div class="px-7 pb-7 border-t border-slate-50">
+                        <p class="text-[13px] font-semibold text-slate-500 leading-relaxed pt-5">You are never obligated to accept an offer. You can reject it and wait for other vendors to bid, or you can close the listing and try again later. There is no penalty for rejecting offers.</p>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <!-- Pickup Process -->
+        <div>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="size-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
+                    <span class="material-symbols-outlined text-[18px]">local_shipping</span>
+                </div>
+                <h2 class="text-[13px] font-black uppercase tracking-widest text-slate-500">Pickup & Collection</h2>
+            </div>
+            <div class="space-y-3">
+                <details class="faq-item premium-card overflow-hidden">
+                    <summary class="flex items-center justify-between p-7 gap-4">
+                        <h3 class="text-[14px] font-black text-slate-800">Is the pickup free?</h3>
+                        <span class="material-symbols-outlined faq-icon text-slate-400 shrink-0">add</span>
+                    </summary>
+                    <div class="px-7 pb-7 border-t border-slate-50">
+                        <p class="text-[13px] font-semibold text-slate-500 leading-relaxed pt-5">Yes. Doorstep collection is completely free for users. Our collectors are compensated directly by the platform per delivery. You will never pay a logistics or service fee.</p>
+                    </div>
+                </details>
+                <details class="faq-item premium-card overflow-hidden">
+                    <summary class="flex items-center justify-between p-7 gap-4">
+                        <h3 class="text-[14px] font-black text-slate-800">How does the OTP verification work?</h3>
+                        <span class="material-symbols-outlined faq-icon text-slate-400 shrink-0">add</span>
+                    </summary>
+                    <div class="px-7 pb-7 border-t border-slate-50">
+                        <p class="text-[13px] font-semibold text-slate-500 leading-relaxed pt-5">When a collector arrives, a unique One-Time Password is generated in your dashboard. You share this OTP with the collector verbally — they enter it into their app to confirm handoff. This ensures your device is only transferred to the correct, verified collector assigned to your job.</p>
+                    </div>
+                </details>
+                <details class="faq-item premium-card overflow-hidden">
+                    <summary class="flex items-center justify-between p-7 gap-4">
+                        <h3 class="text-[14px] font-black text-slate-800">What if the collector doesn't arrive?</h3>
+                        <span class="material-symbols-outlined faq-icon text-slate-400 shrink-0">add</span>
+                    </summary>
+                    <div class="px-7 pb-7 border-t border-slate-50">
+                        <p class="text-[13px] font-semibold text-slate-500 leading-relaxed pt-5">If a collector fails to show up, you can report the issue through the platform. Your accepted offer remains valid. The job will be reassigned to another collector, and your payment is unaffected.</p>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <!-- Account & Privacy -->
+        <div>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="size-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
+                    <span class="material-symbols-outlined text-[18px]">shield</span>
+                </div>
+                <h2 class="text-[13px] font-black uppercase tracking-widest text-slate-500">Account & Privacy</h2>
+            </div>
+            <div class="space-y-3">
+                <details class="faq-item premium-card overflow-hidden">
+                    <summary class="flex items-center justify-between p-7 gap-4">
+                        <h3 class="text-[14px] font-black text-slate-800">Is my personal data safe?</h3>
+                        <span class="material-symbols-outlined faq-icon text-slate-400 shrink-0">add</span>
+                    </summary>
+                    <div class="px-7 pb-7 border-t border-slate-50">
+                        <p class="text-[13px] font-semibold text-slate-500 leading-relaxed pt-5">Yes. We collect only the minimum information needed to operate the platform. Your data is never sold or shared with third parties for marketing purposes. Read our Privacy Policy for full details.</p>
+                    </div>
+                </details>
+                <details class="faq-item premium-card overflow-hidden">
+                    <summary class="flex items-center justify-between p-7 gap-4">
+                        <h3 class="text-[14px] font-black text-slate-800">Can I delete my account?</h3>
+                        <span class="material-symbols-outlined faq-icon text-slate-400 shrink-0">add</span>
+                    </summary>
+                    <div class="px-7 pb-7 border-t border-slate-50">
+                        <p class="text-[13px] font-semibold text-slate-500 leading-relaxed pt-5">Yes. You can request account deletion by contacting us at hello@erecyclo.in. We will deactivate your account and delete your personal data within 14 days, subject to any active transactions being completed.</p>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <!-- Still have questions -->
+        <div class="premium-card p-10 text-center">
+            <div class="size-16 rounded-[1.25rem] bg-[#ecfdf5] border border-[#a7f3d0] text-primary flex items-center justify-center mx-auto mb-6">
+                <span class="material-symbols-outlined text-[28px]">chat</span>
+            </div>
+            <h3 class="text-2xl font-black text-slate-900 mb-3 tracking-tight">Still Have Questions?</h3>
+            <p class="text-[13px] font-semibold text-slate-500 mb-8 leading-relaxed max-w-md mx-auto">Our team is happy to help. Drop us a message and we'll get back to you within 24 hours.</p>
+            <a href="{% url 'pages:contact' %}" class="bg-primary hover:bg-forest text-white px-8 py-4 rounded-2xl text-[12px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 transition-all inline-flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">mail</span>
+                Contact Us
+            </a>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<script>
+document.querySelectorAll('.faq-item').forEach(item => {
+    item.addEventListener('toggle', function() {
+        if(this.open) {
+            document.querySelectorAll('.faq-item[open]').forEach(other => {
+                if(other !== this) other.removeAttribute('open');
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Procurement Confirmation - eRecyclo{% endblock %}
+{% block page_title %}Accept Asset Request{% endblock %}
+{% block page_subtitle %}Final review of the e-waste opportunity before commitment{% endblock %}
+
+{% block extra_css %}
+<style>
+    .premium-card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        border-radius: 1.5rem;
+    }
+
+    .dark .premium-card {
+        background: #1e293b;
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="max-w-4xl mx-auto space-y-8 pb-24 px-4 sm:px-0">
+
+    <!-- ── ASSET OVERVIEW CARD ── -->
+    <div class="premium-card overflow-hidden group">
+        <div class="md:flex items-stretch min-h-[350px]">
+            <!-- IMAGE PREVIEW -->
+            <div class="md:w-[45%] p-6 md:pr-0 flex items-center justify-center relative">
+                <div class="size-full rounded-2xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-inner p-2.5">
+                    {% if item.photo %}
+                    <img src="{{ item.photo.url }}" alt="{{ item.title }}" class="size-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-1000">
+                    {% else %}
+                    <div class="size-full flex items-center justify-center text-slate-300">
+                        <span class="material-symbols-outlined text-5xl">devices</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- ASSET SPECS -->
+            <div class="flex-1 p-8 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800 dark:text-white leading-tight mb-2">{{ item.title }}</h2>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Asset ID #{{ item.pk }} · Available Since {{ item.created_at|date:"M d, Y" }}</p>
+                    
+                    <div class="grid grid-cols-2 gap-y-6 gap-x-12 pt-6 border-t border-slate-50 dark:border-slate-800/50">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-sm text-slate-400">person</span>
+                            <div>
+                                <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Ownership</p>
+                                <p class="text-[12px] font-black text-slate-700 dark:text-white">{{ item.user.get_full_name }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-sm text-slate-400">category</span>
+                            <div>
+                                <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Class</p>
+                                <p class="text-[12px] font-black text-slate-700 dark:text-white">{{ item.get_ai_category_display }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-sm text-slate-400">speed</span>
+                            <div>
+                                <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">State</p>
+                                <p class="text-[12px] font-black text-slate-700 dark:text-white">{{ item.get_ai_condition_display }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-sm text-slate-400">inventory_2</span>
+                            <div>
+                                <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Volume</p>
+                                <p class="text-[12px] font-black text-slate-700 dark:text-white">{{ item.quantity }} Unit{{ item.quantity|pluralize }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-slate-50 dark:border-slate-800/50">
+                    <div class="bg-blue-600 p-5 rounded-2xl text-white shadow-xl shadow-blue-600/20 relative overflow-hidden group">
+                         <div class="absolute -right-6 -top-6 size-24 bg-white/10 rounded-full blur-2xl"></div>
+                         <div class="relative z-10">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="material-symbols-outlined text-sm font-black">smart_toy</span>
+                                <p class="text-[9px] font-black uppercase tracking-widest opacity-80">AI Internal Estimate</p>
+                            </div>
+                            <p class="text-3xl font-black">₹{{ item.ai_estimated_value }}</p>
+                            <p class="text-[10px] font-bold opacity-60 mt-1">Final valuation subject to physical inspection.</p>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── LOGISTICS CONFIRMATION ── -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="premium-card p-6 flex flex-col justify-center">
+            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 leading-none">Logistics Protocol</p>
+            <ul class="space-y-3">
+                <li class="flex items-center gap-3 text-[11px] font-black text-slate-700 dark:text-slate-300">
+                    <span class="size-6 rounded-lg bg-primary/10 flex items-center justify-center text-primary text-[14px] font-black">1</span>
+                    Collector Triggered on Acceptance
+                </li>
+                <li class="flex items-center gap-3 text-[11px] font-black text-slate-700 dark:text-slate-300">
+                    <span class="size-6 rounded-lg bg-primary/10 flex items-center justify-center text-primary text-[14px] font-black">2</span>
+                    Real-time GPS Tracking Available
+                </li>
+                <li class="flex items-center gap-3 text-[11px] font-black text-slate-700 dark:text-slate-300">
+                    <span class="size-6 rounded-lg bg-primary/10 flex items-center justify-center text-primary text-[14px] font-black">3</span>
+                    Secure OTP Handover Enforcement
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Address Context -->
+        <div class="premium-card p-6 bg-slate-50 dark:bg-slate-900 border-dashed border-2 flex flex-col justify-center">
+            <div class="flex items-center gap-3 mb-2 text-slate-400">
+                <span class="material-symbols-outlined text-[18px]">location_on</span>
+                <p class="text-[10px] font-black uppercase tracking-widest">Client Service Location</p>
+            </div>
+            <p class="text-[12px] font-bold text-slate-500 leading-relaxed">{{ item.address }}</p>
+        </div>
+    </div>
+
+    <!-- ── ACTION SUBMISSION ── -->
+    <form method="POST" class="pt-6">
+        {% csrf_token %}
+        <div class="flex flex-col sm:flex-row gap-4">
+            <button type="submit" class="flex-1 h-16 bg-primary hover:bg-forest text-white rounded-2xl text-[13px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 transition-all hover:-translate-y-1 flex items-center justify-center gap-3">
+                <span class="material-symbols-outlined font-black">fact_check</span> Secure Procurement Rights
+            </button>
+            <a href="{% url 'vendor:pending_requests' %}" class="px-12 h-16 border border-slate-200 dark:border-slate-700 text-slate-500 rounded-2xl text-[11px] font-black uppercase tracking-widest flex items-center justify-center hover:bg-slate-50 transition-all">
+                Decline
+            </a>
+        </div>
+        <p class="text-[10px] font-bold text-slate-400 text-center mt-6 italic">By securing procurement rights, you commit to evaluating the asset within 24 hours of delivery.</p>
+    </form>
+
+</div>
+{% endblock %}

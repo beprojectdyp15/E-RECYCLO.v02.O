@@ -1,0 +1,1426 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Business Profile - eRecyclo{% endblock %}
+{% block page_title %}Vendor Profile{% endblock %}
+{% block page_subtitle %}Complete your profile to get verified{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --premium-bg: #f8fafc;
+        --primary-green: #17cf17;
+    }
+
+    html.dark {
+        --premium-bg: #0f172a;
+    }
+
+    body {
+        background-color: var(--premium-bg) !important;
+    }
+
+    .premium-card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.03);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 1.5rem;
+    }
+
+    .dark .premium-card {
+        background: #1e293b;
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .input-premium {
+        width: 100%;
+        padding: 0 1.5rem;
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #1e293b;
+        transition: all 0.3s;
+        outline: none !important;
+        height: 53px; /* Refined height */
+        display: flex;
+        align-items: center;
+    }
+    .dark .input-premium {
+        background: #111827;
+        border-color: #374151;
+        color: #f3f4f6;
+    }
+
+    /* Focus handled by global base.html */
+
+    .input-premium:invalid:not(:placeholder-shown) {
+        border-color: #ef4444;
+        background: rgba(239, 68, 68, 0.02);
+    }
+
+    .section-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(23, 207, 23, 0.08);
+        color: var(--primary-green);
+    }
+
+    .upload-zone {
+        border: 2px dashed #e2e8f0;
+        border-radius: 1.25rem;
+        padding: 1rem;
+        text-align: center;
+        transition: all 0.3s;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .dark .upload-zone {
+        border-color: #374151;
+    }
+
+    .upload-zone.uploaded {
+        border-style: solid;
+        border-color: var(--primary-green);
+        background: rgba(23, 207, 23, 0.03);
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+    
+    .progress-shimmer {
+        background: linear-gradient(90deg, #17cf17 0%, #34d399 50%, #17cf17 100%);
+        background-size: 200% 100%;
+        animation: shimmer 2s infinite linear;
+    }
+
+    .modal-backdrop {
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(8px);
+    }
+
+    /* New Module Styles */
+    .module-card {
+        background: #ffffff;
+        border-radius: 2.5rem;
+        padding: 2.5rem;
+        border: 2px solid #f1f5f9;
+        transition: all 0.4s ease;
+        position: relative;
+    }
+
+    .dark .module-card {
+        background: #1e293b;
+        border-color: #334155;
+    }
+
+    .module-card.critical {
+        border: 2px solid #17cf17;
+        box-shadow: 0 0 30px rgba(23, 207, 23, 0.05);
+    }
+
+    .module-subtitle {
+        color: #94a3b8;
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 0.15em;
+        margin-bottom: 1.5rem;
+        display: block;
+    }
+
+    .critical .module-subtitle {
+        color: #17cf17;
+    }
+
+    .module-title {
+        color: #1e293b;
+        font-size: 1.125rem;
+        font-weight: 900;
+        letter-spacing: -0.01em;
+        margin-bottom: 0.25rem;
+    }
+
+    .dark .module-title {
+        color: #f1f5f9;
+    }
+
+    .module-desc {
+        color: #94a3b8;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
+    }
+
+    .field-label {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.75rem;
+        display: block;
+        padding-left: 0.5rem;
+    }
+
+    .input-module {
+        background: #ffffff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 1.25rem;
+        padding: 0 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #1e293b;
+        width: 100%;
+        transition: all 0.3s;
+        height: 53px; /* Refined height */
+        display: flex;
+        align-items: center;
+    }
+
+    .dark .input-module {
+        background: #111827;
+        border-color: #374151;
+        color: #f3f4f6;
+    }
+
+    /* Focus handled by global base.html */
+
+    .upload-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 1rem;
+        border: 1.5px dashed #e2e8f0;
+        border-radius: 1rem;
+        color: #64748b;
+        font-size: 0.65rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        transition: all 0.3s;
+        height: 53px; /* Refined height */
+    }
+
+    .dark .upload-button {
+        border-color: #475569;
+        color: #94a3b8;
+    }
+
+    .upload-button.active {
+        background: #f0fdf4;
+        border: 1.5px solid #17cf17;
+        color: #17cf17;
+    }
+
+    .upload-button.secured {
+        background: #f8fafc;
+        border: 1.5px solid #17cf17;
+        border-style: solid;
+        color: #17cf17;
+    }
+
+    .view-badge {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #f0fdf4;
+        color: #17cf17;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .view-badge:hover {
+        transform: scale(1.1);
+        background: #17cf17;
+        color: #ffffff;
+    }
+
+    /* Flatpickr Premium Theme Customization */
+    .flatpickr-calendar {
+        background: #ffffff;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        border: 1px solid rgba(0,0,0,0.05);
+        border-radius: 1.25rem;
+        padding: 5px;
+    }
+    .dark .flatpickr-calendar {
+        background: #1e293b;
+        border-color: rgba(255,255,255,0.05);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+    .flatpickr-day.selected {
+        background: #17cf17 !important;
+        border-color: #17cf17 !important;
+        box-shadow: 0 4px 12px rgba(23, 207, 23, 0.15);
+    }
+    .flatpickr-day.today { border-color: #17cf17 !important; color: #17cf17 !important; }
+    
+    /* Month & Year Selection Header */
+    .flatpickr-months {
+        padding: 5px 12px !important;
+        background: #f8fafc;
+        border-radius: 12px 12px 0 0;
+        border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .dark .flatpickr-months { background: #0f172a; border-bottom-color: rgba(255,255,255,0.05); }
+    
+    .flatpickr-calendar, .flatpickr-innerContainer, .flatpickr-months, .flatpickr-month, .flatpickr-current-month {
+        overflow: visible !important;
+    }
+
+    .flatpickr-current-month {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        padding: 0 !important;
+        height: auto !important;
+        width: auto !important;
+    }
+
+    .flatpickr-current-month .cur-month {
+        font-weight: 900 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px;
+        color: #1e293b !important;
+        background: rgba(0,0,0,0.03) !important;
+        padding: 4px 22px 4px 8px !important;
+        border-radius: 8px !important;
+        cursor: pointer;
+        font-size: 13px !important;
+        margin-right: 4px !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='14px' viewBox='0 -960 960 960' width='14px' fill='%2317cf17'%3E%3Cpath d='M480-345 240-585l56-56 184 184 184-184 56 56-240 240Z'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 4px center !important;
+        display: inline-block !important;
+        transition: all 0.2s ease;
+    }
+    .flatpickr-current-month .cur-month:hover { background-color: rgba(23, 207, 23, 0.08) !important; }
+    .dark .flatpickr-current-month .cur-month { color: #f1f5f9 !important; background: rgba(255,255,255,0.05) !important; }
+    
+    /* Month Menu Style */
+    .flatpickr-month-menu {
+        position: absolute;
+        top: 38px;
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+        background-color: #ffffff !important;
+        border-radius: 12px;
+        border: 1px solid rgba(0,0,0,0.1);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        z-index: 999999 !important;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 150px;
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 8px;
+    }
+    .flatpickr-month-menu.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+    .dark .flatpickr-month-menu { background-color: #1e293b !important; border-color: rgba(255,255,255,0.1); }
+    
+    .month-item {
+        padding: 10px 12px;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #64748b;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: all 0.2s;
+        text-align: center;
+    }
+    .month-item:hover { background: #f0faf0; color: #17cf17; }
+    .dark .month-item:hover { background: #0f172a; }
+    .month-item.active { background: #17cf17; color: white; }
+
+    .numInputWrapper {
+        width: 75px !important;
+        background: rgba(0,0,0,0.03) !important;
+        border-radius: 8px;
+        padding: 2px 0;
+        position: relative;
+    }
+    .numInputWrapper span { display: none !important; } /* Hidden tacky arrows */
+    .dark .numInputWrapper { background: rgba(255,255,255,0.05) !important; }
+
+    .numInput.cur-year {
+        font-weight: 900 !important;
+        color: #1e293b !important;
+        font-size: 13px !important;
+        background: rgba(0,0,0,0.03) !important;
+        border: none !important;
+        padding: 4px 12px !important;
+        border-radius: 8px !important;
+        cursor: pointer;
+        width: 70px !important;
+        outline: none !important;
+        transition: all 0.2s ease;
+    }
+    .numInput.cur-year:hover { background-color: rgba(23, 207, 23, 0.08) !important; color: #17cf17 !important; }
+    .dark .numInput.cur-year { color: #f1f5f9 !important; background: rgba(255,255,255,0.05) !important; }
+
+    /* Year Menu Style */
+    .flatpickr-year-menu {
+        position: absolute;
+        top: 38px;
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+        background-color: #ffffff !important;
+        border-radius: 12px;
+        border: 1px solid rgba(0,0,0,0.1);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        z-index: 999999 !important;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 100px;
+        max-height: 250px;
+        overflow-y: auto;
+        padding: 8px;
+    }
+    .flatpickr-year-menu.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+    .dark .flatpickr-year-menu { background-color: #1e293b !important; border-color: rgba(255,255,255,0.1); }
+    
+    .year-item {
+        padding: 10px 12px;
+        font-size: 11px;
+        font-weight: 800;
+        color: #64748b;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: all 0.2s;
+        text-align: center;
+    }
+    .year-item:hover { background: #f0faf0; color: #17cf17; }
+    .dark .year-item:hover { background: #0f172a; }
+    .year-item.active { background: #17cf17; color: white; }
+
+    .flatpickr-weekday { font-weight: 900 !important; color: #94a3b8 !important; font-size: 9px !important; text-transform: uppercase !important; padding-top: 10px !important; }
+    .flatpickr-day.today { color: #17cf17 !important; font-weight: 900 !important; border-color: #17cf17 !important; }
+    
+    .flatpickr-months .flatpickr-prev-month:hover, .flatpickr-months .flatpickr-next-month:hover {
+        background: rgba(23, 207, 23, 0.15);
+        border-radius: 10px;
+        color: #17cf17;
+    }
+
+    /* Premium Toggle Design */
+    .switch-premium {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+    }
+    .switch-premium input { opacity: 0; width: 0; height: 0; }
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: #e2e8f0;
+        transition: .4s;
+        border-radius: 34px;
+    }
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px; width: 18px;
+        left: 3px; bottom: 3px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    input:checked + .slider { background-color: #17cf17; }
+    input:checked + .slider:before { transform: translateX(20px); }
+
+    .custom-select-wrapper {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .custom-select-box {
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 1.25rem;
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 800;
+        color: #1e293b;
+    }
+
+    .dark .custom-select-box {
+        background: #0f172a;
+        border-color: #1e293b;
+        color: #f1f5f9;
+    }
+
+    .custom-select-icon {
+        color: #17cf17;
+        font-size: 1.25rem;
+    }
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+{% endblock %}
+
+{% block page_content %}
+<div class="max-w-7xl mx-auto space-y-8 pb-24 px-4 sm:px-6 mt-6">
+    
+
+    <!-- ── PROGRESS HEADER ── -->
+    <div class="premium-card p-6 md:p-8 flex flex-col md:flex-row items-center gap-6">
+        <div class="flex-1 space-y-2 text-center md:text-left">
+            <h1 class="text-2xl font-black text-slate-800 dark:text-white">Vendor Profile Authentication</h1>
+            <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Finalize your facility credentials for operational approval</p>
+        </div>
+        
+        <div class="flex items-center gap-6 w-full md:w-auto">
+            <div class="flex-1 md:w-64">
+                <div class="flex justify-between mb-2">
+                    <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Profile Score</span>
+                    <span class="text-xs font-black text-primary uppercase">{{ completion_percentage }}%</span>
+                </div>
+                <div class="h-3 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-1000 {% if completion_percentage == 100 %}bg-primary{% else %}progress-shimmer{% endif %}" 
+                         style="width: {{ completion_percentage }}%"></div>
+                </div>
+            </div>
+            <div class="size-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                <span class="material-symbols-outlined text-3xl">verified</span>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" id="vendorProfileForm" class="space-y-8" novalidate>
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- LEFT: BASIC DETAILS -->
+            <div class="premium-card p-8 space-y-8">
+                <div class="flex items-center gap-4">
+                    <div class="section-icon">
+                        <span class="material-symbols-outlined">person</span>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-widest">Basic Details *</h3>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Primary Contact Info</p>
+                    </div>
+                </div>
+
+                <div class="space-y-8">
+                    <!-- Contact Discovery Row -->
+                    <div id="contactSyncFields" class="grid grid-cols-1 md:grid-cols-2 gap-6 transition-all duration-500">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Full Name *</label>
+                            <input type="text" name="contact_person" id="id_contact_person" value="{{ form.contact_person.value|default:'' }}" class="input-premium" placeholder="Your Name">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Mobile No. *</label>
+                            <input type="tel" name="alternate_phone" id="id_alternate_phone" value="{{ form.alternate_phone.value|default:'' }}" class="input-premium" placeholder="10-digit No">
+                        </div>
+                    </div>
+
+                    <!-- Sync Logic Toggle -->
+                    <div class="flex items-center justify-center py-2">
+                        <label class="flex items-center gap-3 bg-slate-50 dark:bg-slate-900/50 p-4 px-8 rounded-2xl border border-slate-100 dark:border-slate-800 cursor-pointer hover:bg-slate-100 transition-all shadow-sm">
+                            <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest leading-none">Same as registration?</span>
+                            <div class="relative inline-flex items-center cursor-pointer">
+                                {{ form.use_registration_details }}
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Business Identity Row -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Shop/Business Name *</label>
+                            <input type="text" name="company_name" id="id_company_name" value="{{ form.company_name.value|default:'' }}" class="input-premium" placeholder="Business Name"
+                                   {% if profile_completion.approval_status == 'approved' or profile_completion.approval_status == 'pending' %}readonly{% endif %}>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Birth Date *</label>
+                            <input type="text" name="date_of_birth" id="id_date_of_birth" value="{{ form.date_of_birth.value|date:'Y-m-d'|default:'' }}" 
+                                   class="input-premium" placeholder="Select Date" readonly
+                                   {% if profile_completion.approval_status == 'approved' or profile_completion.approval_status == 'pending' %}disabled{% endif %}>
+                            <p id="dobError" class="text-[9px] font-bold text-red-500 uppercase px-1 hidden">Must be 18+ years old</p>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <!-- RIGHT: BUSINESS ADDRESS -->
+            <div class="premium-card p-8 space-y-8">
+                <div class="flex items-center gap-4">
+                    <div class="section-icon bg-blue-500/10 text-blue-500">
+                        <span class="material-symbols-outlined">location_on</span>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-widest">Business Address *</h3>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Physical facility location where items will be received</p>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Full address textarea -->
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Full Address *</label>
+                        <textarea name="business_address" class="input-premium !py-4 min-h-[100px] resize-none" placeholder="Enter complete address..." required>{{ form.business_address.value|default:'' }}</textarea>
+                    </div>
+
+                    <!-- Location coordinates card -->
+                    <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 space-y-5">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Location Coordinates *</h4>
+                            <!-- Auto-Sync toggle (existing) -->
+                            <div class="flex items-center gap-3">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Auto-Sync</span>
+                                <label class="switch-premium">
+                                    <input type="checkbox" id="locationToggle" onclick="handleLocationToggle(this)">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Display fields (readonly) -->
+                        <div class="grid grid-cols-2 gap-6">
+                            {{ form.latitude }}
+                            {{ form.longitude }}
+                            <div class="space-y-1">
+                                <p class="text-[9px] font-black text-slate-400 uppercase px-1">Latitude</p>
+                                <input type="text" id="lat_display" readonly class="input-module !h-[53px] !text-xs !bg-white/50" placeholder="Pending...">
+                            </div>
+                            <div class="space-y-1">
+                                <p class="text-[9px] font-black text-slate-400 uppercase px-1">Longitude</p>
+                                <input type="text" id="lng_display" readonly class="input-module !h-[53px] !text-xs !bg-white/50" placeholder="Pending...">
+                            </div>
+                        </div>
+
+                        <!-- ★ NEW: Set Location on Map button ★ -->
+                        <button type="button" id="vendorOpenMapBtn"
+                                class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary/5 border border-primary/20 hover:bg-primary/10 hover:border-primary/40 text-primary rounded-xl transition-all group">
+                            <span class="material-symbols-outlined text-base group-hover:scale-110 transition-transform">location_on</span>
+                            <span class="text-[10px] font-black uppercase tracking-widest">Set Location on Map</span>
+                        </button>
+
+                        
+                    </div>
+                </div>
+            </div>
+
+            {# ── Include the map modal ONCE near the end of the form ── #}
+            {# (Add this line just before the closing </form> tag if not already included) #}
+            {% include "components/map_picker_modal.html" %}
+
+            {# ── Init script ── #}
+            <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Pre-fill display fields from existing saved values
+                const savedLat = document.getElementById('id_latitude')?.value;
+                const savedLng = document.getElementById('id_longitude')?.value;
+                if (savedLat) document.getElementById('lat_display').value = savedLat;
+                if (savedLng) document.getElementById('lng_display').value = savedLng;
+
+                initMapPicker({
+                    triggerBtn   : '#vendorOpenMapBtn',
+                    latInput     : '#id_latitude',
+                    lngInput     : '#id_longitude',
+                    latDisplay   : '#lat_display',
+                    lngDisplay   : '#lng_display',
+                    addressField : '[name="business_address"]',
+                    defaultLat   : 20.5937,
+                    defaultLng   : 78.9629,
+                    zoom         : 14,
+                });
+            });
+            </script>
+
+            <!-- FULL WIDTH: COMPLIANCE ASSETS -->
+            <div class="lg:col-span-2 premium-card p-8 space-y-8">
+                <div class="flex items-center gap-4">
+                    <div class="section-icon bg-amber-500/10 text-amber-500">
+                        <span class="material-symbols-outlined">description</span>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-widest">Compliance Assets</h3>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Regulatory vault & identification</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    
+                    <!-- MODULE 01: AADHAAR -->
+                    <div class="module-card">
+                        <h2 class="module-title uppercase">Aadhaar Identification <span class="text-rose-500">*</span></h2>
+                        <p class="module-desc">Primary Identity Authentication</p>
+                        
+                        <div id="aadhaar_preview_btn" class="view-badge {% if not form.instance.aadhaar_card %}hidden{% endif %}" onclick="previewDoc('{% if form.instance.aadhaar_card %}{{ form.instance.aadhaar_card.url }}{% endif %}'); event.stopPropagation();">
+                            <span class="material-symbols-outlined text-[20px]">visibility</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-[2.5fr_1fr] gap-6 mt-8">
+                            <div class="space-y-1">
+                                <label class="field-label">UID Number <span class="text-rose-500">*</span></label>
+                                <input type="text" name="aadhaar_number_doc" maxlength="12" 
+                                       pattern="[2-9]{1}[0-9]{11}"
+                                       oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                       value="{{ form.aadhaar_number.value|default:'' }}" 
+                                       class="input-module" placeholder="12-digit UID No">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="field-label">Upload <span class="text-rose-500">*</span></label>
+                                <div class="upload-button {% if form.instance.aadhaar_card %}secured{% endif %}" onclick="triggerFileInput('id_aadhaar_card')">
+                                    <input type="file" name="aadhaar_card" id="id_aadhaar_card" class="hidden" onchange="handleFileChange(this, 'aadhaar_status')">
+                                    <span id="aadhaar_status" class="uppercase">{% if form.instance.aadhaar_card %}✓{% else %}Select{% endif %}</span>
+                                </div>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase mt-2 leading-tight">PDF, JPG, PNG <br> Max 250KB</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MODULE 02: PAN -->
+                    <div class="module-card">
+                        <h2 class="module-title uppercase">Business PAN <span class="text-rose-500">*</span></h2>
+                        <p class="module-desc">Income Tax Registration Card</p>
+
+                        <div id="pan_preview_btn" class="view-badge {% if not form.instance.pan_card %}hidden{% endif %}" onclick="previewDoc('{% if form.instance.pan_card %}{{ form.instance.pan_card.url }}{% endif %}'); event.stopPropagation();">
+                            <span class="material-symbols-outlined text-[20px]">visibility</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-[2.5fr_1fr] gap-6 mt-8">
+                            <div class="space-y-1">
+                                <label class="field-label">PAN Number <span class="text-rose-500">*</span></label>
+                                <input type="text" name="pan_number_doc" id="id_pan_number_doc" maxlength="10" 
+                                       pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$"
+                                       oninput="let panV = this.value.toUpperCase(); 
+                                                if(panV.length <= 5) panV = panV.replace(/[^A-Z]/g, '');
+                                                else if(panV.length <= 9) panV = panV.substring(0,5) + panV.substring(5).replace(/[^0-9]/g, '');
+                                                else panV = panV.substring(0,9) + panV.substring(9).replace(/[^A-Z]/g, '');
+                                                this.value = panV;"
+                                       value="{{ form.pan_number.value|default:'' }}" 
+                                       class="input-module" placeholder="ABCDE1234F">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="field-label">Upload <span class="text-rose-500">*</span></label>
+                                <div class="upload-button {% if form.instance.pan_card %}secured{% endif %}" 
+                                     {% if profile_completion.approval_status != 'approved' and profile_completion.approval_status != 'pending' %}onclick="triggerFileInput('id_pan_card')"{% endif %}>
+                                    <input type="file" name="pan_card" id="id_pan_card" class="hidden" onchange="handleFileChange(this, 'pan_status')"
+                                           {% if profile_completion.approval_status == 'approved' or profile_completion.approval_status == 'pending' %}disabled{% endif %}>
+                                    <span id="pan_status" class="uppercase">{% if form.instance.pan_card %}✓{% else %}Select{% endif %}</span>
+                                </div>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase mt-2 leading-tight">PDF, JPG, PNG <br> Max 250KB</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MODULE 03: GSTIN -->
+                    <div class="module-card">
+                        <h2 class="module-title uppercase">GSTIN Certificate <span class="text-rose-500">*</span></h2>
+                        <p class="module-desc">Indirect Tax Identification</p>
+
+                        <div id="gst_preview_btn" class="view-badge {% if not form.instance.gst_certificate %}hidden{% endif %}" onclick="previewDoc('{% if form.instance.gst_certificate %}{{ form.instance.gst_certificate.url }}{% endif %}'); event.stopPropagation();">
+                            <span class="material-symbols-outlined text-[20px]">visibility</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-[2.5fr_1fr] gap-6 mt-8">
+                            <div class="space-y-1">
+                                <label class="field-label">GSTIN <span class="text-rose-500">*</span></label>
+                                <input type="text" name="gstin_number_doc" id="id_gstin_number_doc" maxlength="15" 
+                                       pattern="^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$"
+                                       oninput="let gstV = this.value.toUpperCase();
+                                                if(gstV.length <= 2) gstV = gstV.replace(/[^0-9]/g, '');
+                                                else if(gstV.length <= 7) gstV = gstV.substring(0,2) + gstV.substring(2).replace(/[^A-Z]/g, '');
+                                                else if(gstV.length <= 11) gstV = gstV.substring(0,7) + gstV.substring(7).replace(/[^0-9]/g, '');
+                                                this.value = gstV;"
+                                       value="{{ form.gstin_number.value|default:'' }}" 
+                                       class="input-module" placeholder="27AABCU9603R1ZM">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="field-label">Upload <span class="text-rose-500">*</span></label>
+                                <div class="upload-button {% if form.instance.gst_certificate %}secured{% endif %}" 
+                                     {% if profile_completion.approval_status != 'approved' and profile_completion.approval_status != 'pending' %}onclick="triggerFileInput('id_gst_certificate')"{% endif %}>
+                                    <input type="file" name="gst_certificate" id="id_gst_certificate" class="hidden" onchange="handleFileChange(this, 'gst_status')"
+                                           {% if profile_completion.approval_status == 'approved' or profile_completion.approval_status == 'pending' %}disabled{% endif %}>
+                                    <span id="gst_status" class="uppercase">{% if form.instance.gst_certificate %}✓{% else %}Select{% endif %}</span>
+                                </div>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase mt-2 leading-tight">PDF, JPG, PNG <br> Max 250KB</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MODULE 04: E-WASTE -->
+                    <div class="module-card critical">
+                        <h2 class="module-title uppercase">E-Waste Authorization <span class="text-rose-500">*</span></h2>
+                        <p class="module-desc">Environmental Regulatory Vault Entry</p>
+
+                        <div id="ewaste_preview_btn" class="view-badge {% if not form.instance.ewaste_authorization %}hidden{% endif %}" onclick="previewDoc('{% if form.instance.ewaste_authorization %}{{ form.instance.ewaste_authorization.url }}{% endif %}'); event.stopPropagation();">
+                            <span class="material-symbols-outlined text-[20px]">visibility</span>
+                        </div>
+
+                        <div class="mt-8 space-y-8">
+                            <!-- Custom Dropdown Container -->
+                            <div class="custom-select-wrapper relative">
+                                <div class="custom-select-box" style="height: 53px;" 
+                                    {% if profile_completion.approval_status != 'approved' and profile_completion.approval_status != 'pending' %}onclick="toggleCustomSelect()"{% endif %}>
+                                    <span class="material-symbols-outlined custom-select-icon">verified_user</span>
+                                    <span id="selected_auth_label" class="flex-1 uppercase text-[10px]">
+                                        {% if form.ewaste_auth_type.value %}
+                                            {% for val, label in form.fields.ewaste_auth_type.choices %}{% if form.ewaste_auth_type.value == val %}{{ label }}{% endif %}{% endfor %}
+                                        {% else %}
+                                            Choose Category
+                                        {% endif %}
+                                    </span>
+                                    <span class="material-symbols-outlined text-slate-400">expand_more</span>
+                                </div>
+                                <input type="hidden" name="ewaste_auth_type" id="id_ewaste_auth_type" value="{{ form.ewaste_auth_type.value|default:'' }}">
+                                <div id="custom_auth_menu" class="absolute left-0 right-0 mt-2 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl shadow-xl z-20 hidden max-h-60 overflow-y-auto no-scrollbar">
+                                    {% if profile_completion.approval_status != 'approved' and profile_completion.approval_status != 'pending' %}
+                                    {% for val, label in form.fields.ewaste_auth_type.choices %}
+                                        {% if val %}
+                                        <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer border-b border-slate-50 dark:border-slate-700 last:border-0 uppercase text-[10px] font-bold"
+                                            onclick="selectAuthType('{{ val }}', '{{ label }}')">
+                                            {{ label }}
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-[2.5fr_1fr] gap-6">
+                                <div class="space-y-1">
+                                    <label class="field-label">Registry ID <span class="text-rose-500">*</span></label>
+                                    <input type="text" name="ewaste_auth_id" id="id_ewaste_auth_id" 
+                                           oninput="updateAuthValidation()"
+                                           value="{{ form.ewaste_auth_id.value|default:'' }}" 
+                                           class="input-module" placeholder="MH/EW/2024/XXX"
+                                           {% if profile_completion.approval_status == 'approved' or profile_completion.approval_status == 'pending' %}readonly{% endif %}>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="field-label">Upload <span class="text-rose-500">*</span></label>
+                                    <div class="upload-button {% if form.instance.ewaste_authorization %}secured{% endif %}" 
+                                         {% if profile_completion.approval_status != 'approved' and profile_completion.approval_status != 'pending' %}onclick="triggerFileInput('id_ewaste_authorization')"{% endif %}>
+                                        <input type="file" name="ewaste_authorization" id="id_ewaste_authorization" class="hidden" onchange="handleFileChange(this, 'ewaste_status')"
+                                               {% if profile_completion.approval_status == 'approved' or profile_completion.approval_status == 'pending' %}disabled{% endif %}>
+                                        <span id="ewaste_status" class="uppercase">{% if form.instance.ewaste_authorization %}✓{% else %}Select{% endif %}</span>
+                                    </div>
+                                    <p class="text-[9px] font-bold text-slate-400 uppercase mt-2 leading-tight">PDF, JPG, PNG <br> Max 250KB</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Submit Buttons -->
+        <div id="form-actions-container" class="flex flex-col md:flex-row items-center justify-center gap-6 pt-10">
+            {% if profile_completion.approval_status == 'approved' %}
+                <div class="flex flex-col items-center gap-4 py-8 px-12 bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 rounded-3xl text-emerald-600">
+                    <div class="size-16 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center mb-2">
+                        <span class="material-symbols-outlined text-3xl font-variation-settings-'FILL'-1">verified</span>
+                    </div>
+                    <h3 class="text-sm font-black uppercase tracking-[0.2em]">Security Clearance Granted</h3>
+                    <p class="text-[10px] font-bold text-emerald-500/80 uppercase tracking-widest text-center">Your profile has been verified and approved. No further actions required.</p>
+                </div>
+            {% elif profile_completion.approval_status == 'pending' %}
+                <div class="flex flex-col items-center gap-4 py-8 px-12 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-3xl text-amber-600">
+                    <div class="size-16 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center mb-2">
+                        <span class="material-symbols-outlined text-3xl animate-pulse">hourglass_top</span>
+                    </div>
+                    <h3 class="text-sm font-black uppercase tracking-[0.2em]">Profile submitted for approval</h3>
+                    <p class="text-[10px] font-bold text-amber-500/80 uppercase tracking-widest text-center">Your credentials are currently in the regulatory vault for admin verification.</p>
+                </div>
+            {% else %}
+                <div class="flex flex-col items-center gap-8 w-full">
+                    {% if profile_completion.admin_remarks or profile_completion.rejection_reason %}
+                        <div class="flex flex-col items-center gap-4 py-8 px-12 bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/30 rounded-3xl text-rose-600 w-full max-w-2xl mx-auto mb-8">
+                            <div class="size-16 rounded-full bg-rose-100 dark:bg-rose-900/40 flex items-center justify-center mb-2">
+                                <span class="material-symbols-outlined text-3xl">gpp_maybe</span>
+                            </div>
+                            <h3 class="text-sm font-black uppercase tracking-[0.2em]">Profile Rejection Reason</h3>
+                            <p class="text-[10px] font-bold text-rose-500/80 uppercase tracking-widest text-center italic leading-relaxed">"{{ profile_completion.admin_remarks|default:profile_completion.rejection_reason }}"</p>
+                        </div>
+                    {% endif %}
+
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-6 w-full">
+                        <button type="submit" name="action" value="save_draft" id="btn-save-draft" formnovalidate class="flex items-center gap-3 px-10 py-5 bg-slate-800 dark:bg-slate-900/20 text-slate-700 dark:text-slate-300 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] border border-slate-200/50 dark:border-slate-700">
+                            <span class="material-symbols-outlined text-lg text-slate-200">save</span>
+                            <span class="text-xs font-semibold text-white uppercase tracking-[0.2em]">Save Profile Progress</span>
+                        </button>
+
+                        <button type="submit" name="action" value="submit" id="btn-submit-main" class="group relative px-12 py-5 bg-primary text-white rounded-xl overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98] shadow-2xl shadow-emerald-200/50 dark:shadow-none">
+                            <div class="relative z-10 flex items-center gap-3">
+                                <span class="text-xs font-black uppercase tracking-[0.2em]">Submit for Approval</span>
+                                <span class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">send</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div id="submission-message" class="hidden flex-col items-center gap-4 py-8 px-12 bg-primary/5 border border-primary/20 rounded-3xl text-primary pt-10 mt-10">
+            <div class="size-16 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                <span class="material-symbols-outlined text-3xl animate-bounce">rocket_launch</span>
+            </div>
+            <h3 class="text-sm font-black uppercase tracking-[0.2em]">Processing Security Submission</h3>
+            <p class="text-[10px] font-bold text-primary/80 uppercase tracking-widest text-center">Verifying credentials and synchronizing with the central registry...</p>
+        </div>
+
+        <div class="flex justify-center mt-6">
+            <a href="{% url 'vendor:dashboard' %}" class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hover:text-rose-500 transition-colors">
+                Cancel and go back
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Modal for Document Preview -->
+<div id="previewModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
+    <div class="absolute inset-0 modal-backdrop" onclick="closeModal()"></div>
+    <div class="relative bg-white dark:bg-slate-900 w-full max-w-4xl max-h-[90vh] rounded-3xl overflow-hidden flex flex-col shadow-2xl">
+        <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <h3 class="text-xs font-black uppercase text-slate-500 tracking-widest">Document Artifact</h3>
+            <button onclick="closeModal()" class="size-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">
+                <span class="material-symbols-outlined text-sm">close</span>
+            </button>
+        </div>
+        <div class="flex-1 overflow-auto bg-slate-50 dark:bg-slate-950 p-8 flex items-center justify-center">
+            <img id="previewImage" src="" class="max-w-full h-auto rounded-xl hidden">
+            <iframe id="previewPDF" src="" class="w-full h-full min-h-[600px] hidden"></iframe>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Logic for "Same as Registration" checkbox
+    const useRegDetails = document.getElementById('use_reg_details');
+    const contactSyncFields = document.getElementById('contactSyncFields');
+    const fieldMap = {
+        'id_contact_person': '{{ reg_data.name|escapejs }}',
+        'id_alternate_phone': '{{ reg_data.phone|escapejs }}'
+    };
+
+    function toggleFields() {
+        if (useRegDetails.checked) {
+            contactSyncFields.style.opacity = '0.5';
+            contactSyncFields.style.pointerEvents = 'none';
+            // Auto-fill
+            document.getElementById('id_contact_person').value = fieldMap['id_contact_person'];
+            document.getElementById('id_alternate_phone').value = fieldMap['id_alternate_phone'];
+        } else {
+            contactSyncFields.style.opacity = '1';
+            contactSyncFields.style.pointerEvents = 'auto';
+        }
+    }
+
+    useRegDetails.addEventListener('change', toggleFields);
+    document.addEventListener('DOMContentLoaded', toggleFields);
+
+    // E-Waste Validation Mapping
+    const authTypeSelect = document.getElementById('id_ewaste_auth_type');
+    const authIdInput = document.getElementById('id_ewaste_auth_id');
+
+    const authConfig = {
+        'spcb': {
+            placeholder: "e.g., SPCB/MH/12345678",
+            pattern: "^SPCB/[A-Z]{2}/[0-9A-Z/]{5,20}$"
+        },
+        'cpcb': {
+            placeholder: "e.g., 16-000-07-AAUFPS4170-22",
+            pattern: "^[0-9]{2}-[0-9]{3}-[0-9]{2}-[A-Z0-9]{10}-[0-9]{2}$"
+        },
+        'cto': {
+            placeholder: "e.g., MH/CONSENT/2024/XYZ",
+            pattern: "^[A-Z]{2}/CONSENT/[0-9]{4}/[A-Z0-9]{3,15}$"
+        },
+        'hazardous': {
+            placeholder: "e.g., HWM/TN/66554433",
+            pattern: "^HWM/[A-Z]{2}/[0-9A-Z]{6,15}$"
+        }
+    };
+
+    function updateAuthValidation() {
+        const type = authTypeSelect.value;
+        const config = authConfig[type] || authConfig['spcb'];
+        authIdInput.placeholder = config.placeholder;
+        
+        let val = authIdInput.value.toUpperCase();
+        
+        // 1. Character Type Restriction & Auto-Masking Logic
+        if (type === 'cpcb') {
+            // Pattern: 16-000-07-AAUFPS4170-22 (Numeric-Numeric-Numeric-Alphanumeric-Numeric)
+            val = val.replace(/[^A-Z0-9]/g, ''); // Strip everything first
+            let masked = '';
+            if (val.length > 0) masked += val.substring(0, 2);
+            if (val.length > 2) masked += '-' + val.substring(2, 5);
+            if (val.length > 5) masked += '-' + val.substring(5, 7);
+            if (val.length > 7) masked += '-' + val.substring(7, 17);
+            if (val.length > 17) masked += '-' + val.substring(17, 19);
+            val = masked;
+        } 
+        else if (type === 'spcb') {
+            // Pattern: SPCB/MH/12345678
+            if (!val.startsWith('SPCB/')) {
+                val = 'SPCB/' + val.replace(/^SPCB\//g, '').replace(/[^A-Z0-9/]/g, '');
+            } else {
+                let parts = val.split('/');
+                if (parts[1]) parts[1] = parts[1].replace(/[^A-Z]/g, '').substring(0, 2);
+                if (parts[2]) parts[2] = parts[2].replace(/[^A-Z0-9]/g, '');
+                val = parts.filter((p, i) => i < 3).join('/');
+            }
+        }
+        else if (type === 'cto') {
+            // Pattern: MH/CONSENT/2024/XYZ
+            val = val.replace(/[^A-Z0-9/]/g, ''); 
+            if (val.length > 2 && val.charAt(2) !== '/') val = val.substring(0, 2) + '/' + val.substring(2);
+            if (val.length > 10 && !val.includes('/CONSENT/')) {
+                 if (val.startsWith(val.substring(0,3) + 'CONSENT')) val = val.substring(0,3) + 'CONSENT/' + val.substring(10);
+            }
+        }
+        else if (type === 'hazardous') {
+            // Pattern: HWM/TN/66554433
+            if (!val.startsWith('HWM/')) {
+                val = 'HWM/' + val.replace(/^HWM\//g, '').replace(/[^A-Z0-9/]/g, '');
+            }
+        }
+
+        authIdInput.value = val;
+
+        // 2. Visual Validation State
+        if (val) {
+            const regex = new RegExp(config.pattern);
+            if (!regex.test(val)) {
+                authIdInput.classList.add('!border-red-500');
+            } else {
+                authIdInput.classList.remove('!border-red-500');
+            }
+        } else {
+            authIdInput.classList.remove('!border-red-500');
+        }
+    }
+    authTypeSelect.addEventListener('change', (e) => {
+        authIdInput.value = ''; // Reset on type change for safety
+        updateAuthValidation();
+    });
+    authIdInput.addEventListener('input', updateAuthValidation);
+    document.addEventListener('DOMContentLoaded', updateAuthValidation);
+
+    // Date Picker Logic with 18+ Validation
+    flatpickr("#id_date_of_birth", {
+        dateFormat: "Y-m-d",
+        altInput: true,
+        altFormat: "F j, Y",
+        animate: true,
+        disableMobile: true,
+        monthSelectorType: "static", // Custom month switcher logic
+        maxDate: new Date().fp_incr(-6574.5), // Approx 18 years ago
+        onReady: function(selectedDates, dateStr, instance) {
+            instance.calendarContainer.classList.add('animate-in', 'fade-in', 'zoom-in-95', 'duration-200');
+            
+            // 1. Create Custom Month Dropdown
+            const curMonth = instance.calendarContainer.querySelector('.cur-month');
+            if(!curMonth) return;
+
+            const menu = document.createElement('div');
+            menu.className = 'flatpickr-month-menu no-scrollbar';
+            
+            const months = instance.l10n.months.longhand;
+            months.forEach((m, i) => {
+                const item = document.createElement('div');
+                item.className = 'month-item' + (i === instance.currentMonth ? ' active' : '');
+                item.innerText = m;
+                item.onclick = (e) => {
+                    e.stopPropagation();
+                    instance.changeMonth(i, false);
+                    menu.classList.remove('show');
+                };
+                menu.appendChild(item);
+            });
+
+            curMonth.parentElement.style.position = 'relative';
+            curMonth.parentElement.style.zIndex = '1000';
+            curMonth.parentElement.appendChild(menu);
+
+            // 2. Toggle Logic
+            curMonth.onclick = (e) => {
+                e.stopPropagation();
+                const yMenu = instance.calendarContainer.querySelector('.flatpickr-year-menu');
+                if (yMenu) yMenu.classList.remove('show');
+                menu.classList.toggle('show');
+            };
+
+            // 3. Update active state on change
+            instance.config.onMonthChange.push(() => {
+                menu.querySelectorAll('.month-item').forEach((it, idx) => {
+                    it.classList.toggle('active', idx === instance.currentMonth);
+                });
+            });
+
+            // 4. Global close
+            document.addEventListener('click', () => menu.classList.remove('show'));
+
+            // 5. Create Custom Year Dropdown
+            const curYear = instance.calendarContainer.querySelector('.numInput.cur-year');
+            if(curYear) {
+                const yearMenu = document.createElement('div');
+                yearMenu.className = 'flatpickr-year-menu no-scrollbar';
+                
+                const currentYear = new Date().getFullYear();
+                const latestYear = currentYear - 18;
+                for(let y = latestYear; y >= 1950; y--) {
+                    const yItem = document.createElement('div');
+                    yItem.className = 'year-item' + (y === instance.currentYear ? ' active' : '');
+                    yItem.innerText = y;
+                    yItem.onclick = (e) => {
+                        e.stopPropagation();
+                        instance.changeYear(y);
+                        yearMenu.classList.remove('show');
+                    };
+                    yearMenu.appendChild(yItem);
+                }
+
+                curYear.parentElement.style.position = 'relative';
+                curYear.parentElement.style.zIndex = '1000';
+                curYear.parentElement.appendChild(yearMenu);
+
+                curYear.onclick = (e) => {
+                    e.stopPropagation();
+                    menu.classList.remove('show'); // close month
+                    yearMenu.classList.toggle('show');
+                };
+
+                instance.config.onYearChange.push(() => {
+                    yearMenu.querySelectorAll('.year-item').forEach((it) => {
+                        it.classList.toggle('active', parseInt(it.innerText) === instance.currentYear);
+                    });
+                    const active = yearMenu.querySelector('.year-item.active');
+                    if(active) yearMenu.scrollTop = active.offsetTop - 100;
+                });
+                
+                document.addEventListener('click', () => yearMenu.classList.remove('show'));
+            }
+        },
+        onChange: function(selectedDates, dateStr, instance) {
+            const birthDate = selectedDates[0];
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+            
+            const errorEl = document.getElementById('dobError');
+            if (age < 18) {
+                errorEl.classList.remove('hidden');
+                instance.altInput.classList.add('!border-red-500');
+            } else {
+                errorEl.classList.add('hidden');
+                instance.altInput.classList.remove('!border-red-500');
+            }
+        }
+    });
+
+    // Handle Form Submission Validation
+    document.getElementById('vendorProfileForm').addEventListener('submit', function(e) {
+        let isValid = true;
+        let firstError = null;
+
+        // 1. Age Validation
+        const dobInput = document.getElementById('id_date_of_birth');
+        const dob = dobInput.value;
+        if (dob) {
+            const birthDate = new Date(dob);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+            
+            if (age < 18) {
+                isValid = false;
+                showToast("❌ AGE MUST BE 18+ FOR APPROVAL");
+                firstError = dobInput;
+            }
+        }
+        
+        // 2. PAN validation
+        const pan = document.querySelector('input[name="pan_number"]');
+        if (pan && pan.value && !new RegExp(pan.pattern).test(pan.value.toUpperCase())) {
+            isValid = false;
+            if(!firstError) firstError = pan;
+            showToast("❌ INVALID PAN FORMAT (ABCDE1234F)");
+        }
+
+        // 3. GSTIN validation
+        const gstin = document.querySelector('input[name="gstin_number"]');
+        if (gstin && gstin.value && !new RegExp(gstin.pattern).test(gstin.value.toUpperCase())) {
+            isValid = false;
+            if(!firstError) firstError = gstin;
+            showToast("❌ INVALID GSTIN FORMAT");
+        }
+
+        // 4. E-waste Auth validation
+        const type = authTypeSelect.value;
+        const config = authConfig[type] || authConfig['spcb'];
+        const authVal = authIdInput.value.toUpperCase();
+        if (authVal && !new RegExp(config.pattern).test(authVal)) {
+            isValid = false;
+            if(!firstError) firstError = authIdInput;
+            showToast(`❌ INVALID REGISTRY ID FOR ${type.toUpperCase()}`);
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            if(firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        } else {
+            const action = e.submitter ? e.submitter.value : '';
+            if (action === 'submit') {
+                // Check for 100% completion
+                const completionPercentage = parseInt("{{ completion_percentage }}");
+                if (completionPercentage < 100) {
+                    e.preventDefault();
+                    if(typeof showToast === 'function') showToast("❌ PROFILE MUST BE 100% COMPLETE BEFORE SUBMITTING", "error");
+                    else alert("PROFILE MUST BE 100% COMPLETE BEFORE SUBMITTING");
+                    return;
+                }
+
+                // Show submission message and hide buttons
+                const container = document.getElementById('form-actions-container');
+                const message = document.getElementById('submission-message');
+                if (container) container.style.display = 'none';
+                if (message) {
+                    message.classList.remove('hidden');
+                    message.classList.add('flex');
+                }
+            }
+        }
+    });
+
+    // Document Preview & Helper
+    function closeModal() {
+        const modal = document.getElementById('previewModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.getElementById('previewPDF').src = '';
+    }
+
+    function triggerFileInput(id) {
+        document.getElementById(id).click();
+    }
+
+    // Handle Location Toggle
+    function handleLocationToggle(checkbox) {
+        if (checkbox.checked) {
+            fetchLocation(); 
+        } else {
+            const latInput = document.getElementById('latitude');
+            const lngInput = document.getElementById('longitude');
+            if (latInput) latInput.value = '';
+            if (lngInput) lngInput.value = '';
+            document.getElementById('lat_display').value = '';
+            document.getElementById('lng_display').value = '';
+            document.getElementById('lat_display').placeholder = 'Pending...';
+            document.getElementById('lng_display').placeholder = 'Pending...';
+        }
+    }
+
+    function fetchLocation() {
+        const toggle = document.getElementById('locationToggle');
+        const latDisplay = document.getElementById('lat_display');
+        const lngDisplay = document.getElementById('lng_display');
+        const latInput = document.getElementById('latitude');
+        const lngInput = document.getElementById('longitude');
+        
+        latDisplay.placeholder = "Syncing GPS...";
+        lngDisplay.placeholder = "Syncing GPS...";
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude.toFixed(6);
+                    const lng = position.coords.longitude.toFixed(6);
+                    
+                    if (latInput) latInput.value = lat;
+                    if (lngInput) lngInput.value = lng;
+                    
+                    latDisplay.value = lat;
+                    lngDisplay.value = lng;
+                },
+                (error) => {
+                    console.error("Location error:", error);
+                    let msg = "❌ LOCATION ACCESS DENIED";
+                    if (error.code === 1) msg = "❌ PERMISSION DENIED";
+                    else if (error.code === 2) msg = "❌ POSITION UNAVAILABLE";
+                    else if (error.code === 3) msg = "❌ GPS TIMEOUT - TRY AGAIN";
+                    showToast(msg);
+                    toggle.checked = false;
+                    latDisplay.placeholder = "Failed";
+                    lngDisplay.placeholder = "Failed";
+                },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+            );
+        } else {
+            showToast("GEOLOCATION NOT SUPPORTED");
+            toggle.checked = false;
+        }
+    }
+
+    function previewDoc(url) {
+        const modal = document.getElementById('previewModal');
+        const img = document.getElementById('previewImage');
+        const iframe = document.getElementById('previewPDF');
+        
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        
+        // Normalize origin to prevent "Connection Refused" when mixing localhost and 127.0.0.1
+        const currentHost = window.location.host;
+        if (url.startsWith('http') && !url.includes(currentHost)) {
+            if (url.includes('127.0.0.1') || url.includes('localhost')) {
+                url = url.replace(/127\.0\.0\.1|localhost/i, window.location.hostname);
+            }
+        }
+        
+        const isPdf = url.toLowerCase().includes('.pdf') || (url.startsWith('blob:') && currentFileType === 'application/pdf');
+
+        if (isPdf) {
+            iframe.src = url;
+            iframe.classList.remove('hidden');
+            img.classList.add('hidden');
+        } else {
+            img.src = url;
+            img.classList.remove('hidden');
+            iframe.classList.add('hidden');
+        }
+    }
+
+    let currentFileType = '';
+    function handleFileChange(input, statusId) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const statusLabel = document.getElementById(statusId);
+            const parent = input.closest('.upload-button');
+            
+            // Validation: Size (250KB)
+            if (file.size > 250 * 1024) {
+                showToast("File too large (Max 250KB)");
+                input.value = "";
+                return;
+            }
+
+            // Validation: Type
+            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+            if (!allowedTypes.includes(file.type)) {
+                showToast("Invalid type (PDF, JPG, PNG only)");
+                input.value = "";
+                return;
+            }
+
+            statusLabel.textContent = "✓"; 
+            statusLabel.classList.add('text-primary');
+            parent.classList.add('secured');
+            
+            // Immediate Preview Logic
+            const prefix = statusId.replace('_status', '');
+            const previewBtn = document.getElementById(prefix + '_preview_btn');
+            if (previewBtn) {
+                const blobUrl = URL.createObjectURL(file);
+                previewBtn.classList.remove('hidden');
+                previewBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    currentFileType = file.type;
+                    previewDoc(blobUrl);
+                };
+            }
+        }
+    }
+
+
+
+    // Custom Select Functions
+    function toggleCustomSelect() {
+        const menu = document.getElementById('custom_auth_menu');
+        menu.classList.toggle('hidden');
+    }
+
+    function selectAuthType(val, label) {
+        document.getElementById('id_ewaste_auth_type').value = val;
+        document.getElementById('selected_auth_label').textContent = label;
+        document.getElementById('custom_auth_menu').classList.add('hidden');
+        updateAuthValidation(); // Trigger regex update
+    }
+
+    // Close select on click outside
+    window.onclick = function(event) {
+        if (!event.target.closest('.custom-select-wrapper')) {
+            document.getElementById('custom_auth_menu').classList.add('hidden');
+        }
+    }
+
+    // --- Dynamic Input Restrictions & Formatting ---
+    const enforcePattern = (id, regex, toUpper = true) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        
+        const handler = (e) => {
+            let val = el.value;
+            if (toUpper) val = val.toUpperCase();
+            
+            // Remove invalid characters
+            const sanitized = val.replace(regex, '');
+            if (val !== sanitized) {
+                el.value = sanitized;
+            } else if (toUpper) {
+                el.value = val;
+            }
+        };
+
+        el.addEventListener('input', handler);
+        el.addEventListener('blur', handler);
+    };
+
+    // Apply specific patterns
+    enforcePattern('id_gstin_number', /[^A-Z0-9]/g);
+    enforcePattern('id_pan_number', /[^A-Z0-9]/g);
+    enforcePattern('id_aadhaar_number', /[^0-9]/g);
+    enforcePattern('id_ewaste_auth_id', /[^A-Z0-9\/\-]/g);
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const lat = document.getElementById('latitude')?.value || '';
+        const lng = document.getElementById('longitude')?.value || '';
+        if(lat) document.getElementById('lat_display').value = lat;
+        if(lng) document.getElementById('lng_display').value = lng;
+    });
+
+</script>
+{% endblock %}

@@ -1,0 +1,332 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Accepted Items - eRecyclo{% endblock %}
+{% block page_title %}My Inventory{% endblock %}
+{% block page_subtitle %}Management of your accepted e-waste items{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --premium-bg: #f8fafc;
+    }
+
+    html.dark {
+        --premium-bg: #0f172a;
+    }
+
+    body {
+        background-color: var(--premium-bg) !important;
+    }
+
+    .premium-card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 1.5rem;
+    }
+
+    .premium-card:hover {
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        transform: translateY(-2px);
+    }
+
+    .dark .premium-card {
+        background: #1e293b;
+        border-color: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .status-badge {
+        font-size: 8px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        padding: 5px 12px;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        backdrop-filter: blur(4px);
+    }
+
+    .tab-btn {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tab-btn.active {
+        box-shadow: 0 4px 12px -2px rgba(23, 207, 23, 0.2);
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="max-w-7xl mx-auto space-y-10 pb-24 px-4 sm:px-6">
+
+    <!-- ── PREMIUM TABS (Unified with Client Style) ── -->
+    <div class="flex items-center h-[55px] p-2 bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 rounded-2xl">
+        <button onclick="document.getElementById('status-tabs').scrollBy({left: -200, behavior: 'smooth'})" 
+                class="size-10 shrink-0 flex items-center justify-center rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-slate-400 hover:text-primary">
+            <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+        </button>
+
+        <div id="status-tabs" class="flex-1 flex items-center gap-2 px-2 overflow-x-auto no-scrollbar scroll-smooth">
+            <a href="?tab=all" class="tab-btn whitespace-nowrap px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all shrink-0 {% if tab == 'all' %}bg-primary text-white shadow-lg shadow-primary/20 active{% else %}text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800{% endif %}">
+                All <span class="{% if tab == 'all' %}bg-white/20 text-white{% else %}bg-slate-100 dark:bg-slate-800 text-slate-500{% endif %} rounded-lg px-2 py-0.5 text-[9px] font-black">{{ counts.all }}</span>
+            </a>
+            <a href="?tab=collector_assigned" class="tab-btn whitespace-nowrap px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all shrink-0 {% if tab == 'collector_assigned' %}bg-primary text-white shadow-lg shadow-primary/20 active{% else %}text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800{% endif %}">
+                In Transit <span class="{% if tab == 'collector_assigned' %}bg-white/20 text-white{% else %}bg-slate-100 dark:bg-slate-800 text-slate-500{% endif %} rounded-lg px-2 py-0.5 text-[9px] font-black">{{ counts.collector_assigned }}</span>
+            </a>
+            <a href="?tab=received" class="tab-btn whitespace-nowrap px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all shrink-0 {% if tab == 'received' %}bg-primary text-white shadow-lg shadow-primary/20 active{% else %}text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800{% endif %}">
+                Received <span class="{% if tab == 'received' %}bg-white/20 text-white{% else %}bg-slate-100 dark:bg-slate-800 text-slate-500{% endif %} rounded-lg px-2 py-0.5 text-[9px] font-black">{{ counts.received }}</span>
+            </a>
+            <a href="?tab=reevaluation" class="tab-btn whitespace-nowrap px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all shrink-0 {% if tab == 'reevaluation' %}bg-primary text-white shadow-lg shadow-primary/20 active{% else %}text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800{% endif %}">
+                Re-eval <span class="{% if tab == 'reevaluation' %}bg-white/20 text-white{% else %}bg-slate-100 dark:bg-slate-800 text-slate-500{% endif %} rounded-lg px-2 py-0.5 text-[9px] font-black">{{ counts.reevaluation }}</span>
+            </a>
+            <a href="?tab=under_review" class="tab-btn whitespace-nowrap px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all shrink-0 {% if tab == 'under_review' %}bg-primary text-white shadow-lg shadow-primary/20 active{% else %}text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800{% endif %}">
+                Offer Sent <span class="{% if tab == 'under_review' %}bg-white/20 text-white{% else %}bg-slate-100 dark:bg-slate-800 text-slate-500{% endif %} rounded-lg px-2 py-0.5 text-[9px] font-black">{{ counts.under_review }}</span>
+            </a>
+            <a href="?tab=completed" class="tab-btn whitespace-nowrap px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all shrink-0 {% if tab == 'completed' %}bg-primary text-white shadow-lg shadow-primary/20 active{% else %}text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800{% endif %}">
+                Done <span class="{% if tab == 'completed' %}bg-white/20 text-white{% else %}bg-slate-100 dark:bg-slate-800 text-slate-500{% endif %} rounded-lg px-2 py-0.5 text-[9px] font-black">{{ counts.completed }}</span>
+            </a>
+            <a href="?tab=returns" class="tab-btn whitespace-nowrap px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all shrink-0 {% if tab == 'returns' %}bg-primary text-white shadow-lg shadow-primary/20 active{% else %}text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800{% endif %}">
+                Returns <span class="{% if tab == 'returns' %}bg-white/20 text-white{% else %}bg-slate-100 dark:bg-slate-800 text-slate-500{% endif %} rounded-lg px-2 py-0.5 text-[9px] font-black">{{ counts.returns }}</span>
+            </a>
+            <a href="?tab=transferred" class="tab-btn whitespace-nowrap px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all shrink-0 {% if tab == 'transferred' %}bg-primary text-white shadow-lg shadow-primary/20 active{% else %}text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800{% endif %}">
+                Transferred <span class="{% if tab == 'transferred' %}bg-white/20 text-white{% else %}bg-slate-100 dark:bg-slate-800 text-slate-500{% endif %} rounded-lg px-2 py-0.5 text-[9px] font-black">{{ counts.transferred }}</span>
+            </a>
+        </div>
+
+        <button onclick="document.getElementById('status-tabs').scrollBy({left: 200, behavior: 'smooth'})" 
+                class="size-10 shrink-0 flex items-center justify-center rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-slate-400 hover:text-primary">
+            <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+        </button>
+    </div>
+
+    <!-- ── ITEMS GRID ── -->
+    {% if items %}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
+        {% for item in items %}
+        <!-- ── UNIFIED ITEM CARD ── -->
+        <div class="premium-card overflow-hidden group">
+            <div class="flex flex-col sm:flex-row items-stretch min-h-[300px]">
+                <!-- IMAGE SIDE -->
+                <div class="sm:w-[35%] p-6 pr-0 flex flex-col items-center justify-center gap-5">
+                    <div class="size-44 rounded-[1.2rem] overflow-hidden bg-white dark:bg-slate-900 shadow-inner p-2.5 border border-slate-100 dark:border-slate-800 shrink-0 relative">
+                        {% if item.photo %}
+                        <img src="{{ item.photo.url }}" alt="{{ item.title }}"
+                             class="w-full h-full object-cover rounded-[1rem] group-hover:scale-105 transition-transform duration-700">
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-700">
+                            <span class="material-symbols-outlined text-4xl">{% if item.is_transferred %}swap_horiz{% else %}devices{% endif %}</span>
+                        </div>
+                        {% endif %}
+
+                        {% if item.is_transferred %}
+                        <!-- Transferred Indicator Over Image -->
+                        <div class="absolute top-4 left-4">
+                            <span class="bg-amber-500 text-white text-[8px] font-black px-2 py-1 rounded-lg flex items-center gap-1 shadow-lg shadow-amber-500/30 uppercase tracking-tighter">
+                                <span class="material-symbols-outlined text-[10px]">move_up</span>
+                                Transferred
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- OTP Info (Only for Active) -->
+                    {% if not item.is_transferred %}
+                        {% if item.status == 'in_transit' and item.delivery_otp and item.collector %}
+                        <div class="w-full px-4">
+                            <div class="p-2 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 rounded-xl flex items-center justify-between">
+                                <span class="text-[8px] font-black text-emerald-600 uppercase tracking-widest">Delivery OTP</span>
+                                <span class="text-xs font-black text-emerald-700 dark:text-emerald-300 tracking-[0.1em] font-mono leading-none">{{ item.delivery_otp }}</span>
+                            </div>
+                        </div>
+                        {% elif item.status == 'return_pickup_scheduled' and item.return_pickup_otp %}
+                        <div class="w-full px-4">
+                            <div class="p-2 bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/40 rounded-xl flex items-center justify-between">
+                                <span class="text-[8px] font-black text-amber-600 uppercase tracking-widest">Return OTP</span>
+                                <span class="text-xs font-black text-amber-700 dark:text-amber-300 tracking-[0.1em] font-mono leading-none">{{ item.return_pickup_otp }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <!-- CONTENT SIDE -->
+                <div class="flex-1 p-8 pl-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-base sm:text-lg font-extrabold text-slate-800 dark:text-white leading-tight group-hover:text-primary transition-colors truncate mb-1">{{ item.title }}</h3>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                                    {% if item.is_transferred %}Item #{{ item.pk }} · Transferred Out{% else %}Item #{{ item.pk }} · Client: {{ item.user.get_full_name }}{% endif %}
+                                </p>
+                            </div>
+                            <div class="shrink-0 flex items-center h-7">
+                                {% if item.is_transferred %}
+                                <span class="status-badge bg-amber-50 text-amber-600 border border-amber-100 py-1 px-3 text-[8px] sm:text-[9px] font-black uppercase tracking-wider rounded-lg leading-none whitespace-nowrap">
+                                    TRANSFERED
+                                </span>
+                                {% else %}
+                                <span class="status-badge {{ item.get_status_badge_pilled_class }} py-1 px-3 text-[8px] sm:text-[9px] font-black uppercase tracking-wider rounded-lg leading-none whitespace-nowrap">
+                                    {% if item.status == 'collected' %}
+                                        {% if item.vendor_declined_reevaluation %}CLIENT ACTION PENDING
+                                        {% elif item.has_evaluated_by_me %}RE-VALUATION READY
+                                        {% else %}VALUATION READY{% endif %}
+                                    {% else %}
+                                        {{ item.get_vendor_status_tag }}
+                                    {% endif %}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        
+
+                        <!-- Meta Flow (Specs) -->
+                        <div class="flex gap-4 sm:gap-6 mt-4 mb-8 border-y border-slate-50 dark:border-slate-800/50 py-4">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Qty</p>
+                                <p class="text-[10px] sm:text-[11px] font-black text-slate-700 dark:text-slate-200">{{ item.quantity }} Unit</p>
+                            </div>
+                            <div class="flex-[1.5] min-w-0">
+                                <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 leading-none">AI Category</p>
+                                <p class="text-[10px] sm:text-[11px] font-black text-slate-700 dark:text-slate-200 truncate">{{ item.get_ai_category_display }}</p>
+                            </div>
+                            <div class="flex-[1.5] min-w-0">
+                                {% if item.is_transferred %}
+                                <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 leading-none">New Holder</p>
+                                <p class="text-[10px] sm:text-[11px] font-black text-slate-700 dark:text-slate-200 truncate">{{ item.vendor.get_full_name|default:"Searching..." }}</p>
+                                {% else %}
+                                <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 leading-none">AI Condition</p>
+                                <p class="text-[10px] sm:text-[11px] font-black text-slate-700 dark:text-slate-200 truncate">{{ item.get_ai_condition_display }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Bar (Bottom) -->
+                    <div class="flex items-center justify-between pt-6 border-t border-slate-100 dark:border-slate-800">
+                        <!-- Prices Section (Left) -->
+                        <div class="flex-1 min-w-0 flex items-center gap-[9px] sm:gap-[17px] pr-2">
+                            {% if item.status == 'completed' or item.status == 'returned_to_client' or item.is_transferred %}
+                                <!-- Final State: Show Final Price -->
+                                <div class="min-w-0 ml-2">
+                                    <p class="text-[8px] text-slate-400 font-extrabold uppercase tracking-widest mb-1 truncate">AI Predicted</p>
+                                    <p class="font-black text-slate-700 dark:text-white leading-none whitespace-nowrap text-base">₹{{ item.ai_estimated_value }}</p>
+                                </div>
+                                {% if item.vendor_final_value %}
+                                <div class="min-w-0 border-l border-slate-100 dark:border-slate-800/50 pl-3 sm:pl-4">
+                                    <p class="text-[8px] text-primary font-extrabold uppercase tracking-widest mb-1 truncate">Final Price</p>
+                                    <p class="font-black text-primary leading-none whitespace-nowrap text-base">₹{{ item.vendor_final_value }}</p>
+                                </div>
+                                {% endif %}
+                            {% else %}
+                                <!-- Active Lifecycle State -->
+                                <div class="min-w-0 ml-2">
+                                    <p class="text-[8px] text-slate-400 font-extrabold uppercase tracking-widest mb-1 truncate">AI Predicted</p>
+                                    <p class="font-black text-slate-700 dark:text-white leading-none whitespace-nowrap text-base">₹{{ item.ai_estimated_value }}</p>
+                                </div>
+                                {% if item.vendor_final_value %}
+                                <div class="min-w-0 border-l border-slate-100 dark:border-slate-800/50 pl-3 sm:pl-4">
+                                    <p class="text-[8px] text-primary font-extrabold uppercase tracking-widest mb-1 truncate">
+                                        {% if item.offer_count == 1 %}1st Price
+                                        {% elif item.offer_count == 2 %}2nd Price
+                                        {% elif item.offer_count >= 3 %}{{ item.offer_count }}rd Price
+                                        {% else %}Current Offer{% endif %}
+                                    </p>
+                                    <p class="font-black text-primary leading-none whitespace-nowrap text-base">₹{{ item.vendor_final_value }}</p>
+                                </div>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Buttons Section (Right) -->
+                        <div class="flex items-center gap-2">
+                            <!-- Details Button (Always Present) -->
+                            <a href="{% url 'vendor:item_detail' item.pk %}" 
+                               class="shrink-0 py-3 px-6 sm:px-8 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[9px] font-black uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-slate-900/10">
+                                Details
+                            </a>
+
+                            <!-- Evaluation/Re-evaluation Action -->
+                            {% if item.status == 'collected' and not item.vendor_declined_reevaluation and not item.is_transferred %}
+                                <a href="{% url 'vendor:evaluate_item' item.pk %}" 
+                                   class="shrink-0 py-3 px-6 sm:px-8 rounded-xl bg-primary text-white text-[9px] font-black uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-primary/20">
+                                    {% if item.has_evaluated_by_me %}Re-evaluate{% else %}Evaluate{% endif %}
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- PREMIUM PAGINATION CONTROLS -->
+    {% if items.paginator.num_pages > 1 %}
+    <div class="mt-20 flex items-center justify-center gap-4">
+        <!-- Previous Page -->
+        {% if items.has_previous %}
+        <a href="?tab={{ tab }}&page={{ items.previous_page_number }}" 
+           class="size-12 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary/30 transition-all group shadow-sm">
+            <span class="material-symbols-outlined text-[24px] group-hover:-translate-x-0.5 transition-transform">chevron_left</span>
+        </a>
+        {% else %}
+        <div class="size-12 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-slate-100/50 dark:border-slate-800/50 flex items-center justify-center text-slate-200 dark:text-slate-700 cursor-not-allowed">
+            <span class="material-symbols-outlined text-[24px]">chevron_left</span>
+        </div>
+        {% endif %}
+
+        <!-- Page Numbers -->
+        <div class="flex items-center gap-3">
+            {% for num in items.paginator.page_range %}
+                {% if items.number == num %}
+                <span class="size-12 rounded-2xl bg-primary text-white flex items-center justify-center text-[13px] font-black shadow-lg shadow-primary/30">
+                    {{ num }}
+                </span>
+                {% elif num > items.number|add:'-3' and num < items.number|add:'3' %}
+                <a href="?tab={{ tab }}&page={{ num }}" 
+                   class="size-12 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-slate-500 hover:border-primary/30 hover:text-primary text-[13px] font-black transition-all shadow-sm">
+                    {{ num }}
+                </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Next Page -->
+        {% if items.has_next %}
+        <a href="?tab={{ tab }}&page={{ items.next_page_number }}" 
+           class="size-12 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary/30 transition-all group shadow-sm">
+            <span class="material-symbols-outlined text-[24px] group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+        </a>
+        {% else %}
+        <div class="size-12 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-slate-100/50 dark:border-slate-800/50 flex items-center justify-center text-slate-200 dark:text-slate-700 cursor-not-allowed">
+            <span class="material-symbols-outlined text-[24px]">chevron_right</span>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="premium-card p-20 flex flex-col items-center justify-center text-center">
+        <div class="size-24 rounded-[2rem] bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center mb-8 shadow-inner">
+             <span class="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-700">inventory_2</span>
+        </div>
+        <h4 class="text-xl font-black text-slate-800 dark:text-white mb-3">No items found</h4>
+        <p class="text-[13px] text-slate-400 font-bold max-w-sm leading-relaxed mb-10">There are no items matching this criteria. When you accept assignments, they will appear in your live inventory.</p>
+        <a href="{% url 'vendor:pending_requests' %}"
+           class="bg-primary text-white px-8 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95">
+            Browse Opportunities
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

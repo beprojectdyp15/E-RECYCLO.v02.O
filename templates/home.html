@@ -1,0 +1,461 @@
+{% extends "base_public.html" %}
+{% load static %}
+
+{% block title %}eRecyclo | The Future of E-Waste{% endblock %}
+
+{% block extra_style %}
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-float-delayed { animation: float 6s ease-in-out infinite; animation-delay: 2s; }
+@keyframes float {
+    0% { transform: translateY(0px) rotate(4deg); }
+    50% { transform: translateY(-10px) rotate(2deg); }
+    100% { transform: translateY(0px) rotate(4deg); }
+}
+
+.hero-gradient {
+    background: radial-gradient(circle at top left, #17cf1720 0%, transparent 40%),
+                radial-gradient(circle at bottom right, #228b2210 0%, transparent 40%);
+}
+{% endblock %}
+
+{% block page_content %}
+<!-- Hero Section -->
+<section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 px-6 overflow-hidden min-h-[90vh] flex items-center hero-gradient">
+    <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8 items-center relative z-10">
+        
+        <!-- Left Side: Typography -->
+        <div class="lg:col-span-6 animate-in fade-in slide-in-from-left-8 duration-1000">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-100 shadow-sm mb-6">
+                <span class="flex size-2 relative">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                    <span class="relative inline-flex rounded-full size-2 bg-primary"></span>
+                </span>
+                <span class="text-[9px] font-black uppercase tracking-[0.15em] text-slate-500">Intelligent Disposal</span>
+            </div>
+            
+            <h1 class="text-5xl md:text-[5rem] font-black tracking-tighter text-slate-900 mb-6 leading-[1.05]">
+                Turn E-Waste <br/>
+                <span class="text-primary">into Eco wealth.</span>
+            </h1>
+            
+            <p class="text-lg font-semibold text-slate-500 max-w-lg mb-10 leading-relaxed">
+                The world's first AI-powered platform designed to seamlessly value, extract, and recycle your electronic commodities. 
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4">
+                <a href="{% url 'accounts:register' %}" class="bg-slate-900 hover:bg-slate-800 text-white px-8 py-5 rounded-2xl text-[12px] font-black uppercase tracking-widest shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-3">
+                    <span class="material-symbols-outlined text-[20px]">recycling</span>
+                    Recycle Now
+                </a>
+                <a href="#ai-tech" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 px-8 py-5 rounded-2xl text-[12px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-3">
+                    Explore Technology
+                </a>
+            </div>
+        </div>
+        
+        <!-- Right Side: Abstract App Mockup -->
+        <div class="lg:col-span-6 relative flex justify-center lg:justify-end animate-in fade-in slide-in-from-right-8 duration-1000 delay-200">
+            <div class="relative w-full max-w-[460px] aspect-square">
+                <!-- Background Blur -->
+                <div class="absolute inset-10 bg-primary/20 rounded-full blur-[80px]"></div>
+                
+                <!-- Main Widget Card -->
+                <div class="absolute inset-4 rounded-[2.5rem] bg-white/90 backdrop-blur-xl p-8 shadow-2xl border border-white transform hover:scale-[1.02] transition-transform duration-500 flex flex-col justify-between z-10">
+                    <div class="flex items-center justify-between mt-2">
+                        <div class="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[24px]">account_balance_wallet</span>
+                        </div>
+                        <span class="px-4 py-1.5 bg-green-50 text-green-600 border border-green-100 rounded-full text-[10px] font-black tracking-widest">+ ₹4,500 pending</span>
+                    </div>
+                    
+                    <div class="my-6">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Total Lifetime Earnings</p>
+                        <h3 class="text-5xl font-black text-slate-900 tracking-tighter">₹24,500</h3>
+                    </div>
+                    
+                    <div class="pt-6 border-t border-slate-100 space-y-4">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Recent Activity</p>
+                        <!-- Items -->
+                        <div class="flex items-center gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                            <div class="size-10 rounded-[12px] bg-white flex items-center justify-center shadow-sm">
+                                <span class="material-symbols-outlined text-slate-400 text-[20px]">smartphone</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-xs font-black text-slate-800">iPhone 12 Pro</p>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Recycled • Today</p>
+                            </div>
+                            <span class="text-sm font-black text-primary pr-2">+₹12,000</span>
+                        </div>
+                        
+                        <div class="flex items-center gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                            <div class="size-10 rounded-[12px] bg-white flex items-center justify-center shadow-sm">
+                                <span class="material-symbols-outlined text-slate-400 text-[20px]">laptop_mac</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-xs font-black text-slate-800">MacBook Air M1</p>
+                                <p class="text-[10px] text-amber-500 font-bold uppercase tracking-wider mt-0.5">In Transit • Yesterday</p>
+                            </div>
+                            <span class="text-sm font-black text-slate-900 pr-2">+₹8,000</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Floating Impact Sub-Card -->
+                <div class="absolute -bottom-6 -left-6 bg-slate-900 text-white p-5 rounded-[1.5rem] shadow-2xl border border-slate-800 transform rotate-[4deg] w-[210px] animate-float z-20">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="material-symbols-outlined text-primary text-[20px]">energy_savings_leaf</span>
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Ecological Impact</span>
+                    </div>
+                    <div class="text-3xl font-black tracking-tighter text-white">450 <span class="text-lg text-slate-500 font-bold">kg</span></div>
+                    <div class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">CO₂ Emissions Saved</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Ecosystem Section -->
+<section id="ecosystem" class="py-32 px-6 bg-slate-50 border-y border-slate-200 mt-10">
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-20">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 mb-8 shadow-sm">
+                <span class="material-symbols-outlined text-primary text-[16px]">hub</span>
+                <span class="text-[9px] font-black uppercase tracking-[0.15em] text-slate-500">The Platform</span>
+            </div>
+            <h2 class="text-4xl md:text-6xl font-black tracking-tighter text-slate-900 mb-4">Built for Everyone.</h2>
+            <p class="text-[13px] font-bold text-slate-400 uppercase tracking-widest">One system. Every role. Complete coverage.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-12 auto-rows-[minmax(280px,auto)] gap-6">
+            
+            <!-- Client (Wide) -->
+            <div class="md:col-span-8 bg-white rounded-[2rem] p-10 border border-slate-100 flex flex-col justify-end relative overflow-hidden shadow-sm shadow-slate-200/50 group">
+                <div class="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-l from-primary/5 to-transparent"></div>
+                <div class="absolute -right-16 -top-16 text-primary/10 transition-transform duration-700 group-hover:scale-110">
+                    <span class="material-symbols-outlined text-[280px] block">public</span>
+                </div>
+                
+                <div class="relative z-10 max-w-md">
+                    <div class="size-14 rounded-2xl bg-[#ecfdf5] border border-[#a7f3d0] text-primary flex items-center justify-center mb-6 shadow-sm">
+                        <span class="material-symbols-outlined text-[26px]">person</span>
+                    </div>
+                    <h3 class="text-3xl font-black text-slate-900 mb-3 tracking-tight">For Individuals & Businesses</h3>
+                    <p class="text-[13px] font-semibold text-slate-500 leading-relaxed">Turn dormant electronics into active capital. Responsibly dispose of end-of-life tech hardware directly from your home or corporate office effortlessly.</p>
+                </div>
+            </div>
+            
+            <!-- Vendor (Tall/Square) -->
+            <div class="md:col-span-4 bg-slate-900 rounded-[2rem] p-10 border border-slate-800 flex flex-col justify-end relative overflow-hidden shadow-xl shadow-slate-900/20 group">
+                <div class="absolute -right-8 -top-8 text-white/5 transition-transform duration-700 group-hover:scale-110">
+                    <span class="material-symbols-outlined text-[200px] block">factory</span>
+                </div>
+                
+                <div class="relative z-10">
+                    <div class="size-14 rounded-2xl bg-white/10 text-white flex items-center justify-center mb-6 border border-white/20 backdrop-blur-md">
+                        <span class="material-symbols-outlined text-[26px]">storefront</span>
+                    </div>
+                    <h3 class="text-2xl font-black text-white mb-3 tracking-tight">For Recyclers</h3>
+                    <p class="text-[12px] font-medium text-slate-400 leading-relaxed">Gain immediate access to a steady, verified stream of high-quality feedstock delivered right to your industrial facility.</p>
+                </div>
+            </div>
+            
+            <!-- Collector -->
+            <div class="md:col-span-4 bg-slate-900 rounded-[2rem] p-10 border border-slate-800 flex flex-col justify-end relative overflow-hidden shadow-xl shadow-slate-900/20 group">
+                <div class="absolute -right-8 -top-8 text-white/5 transition-transform duration-700 group-hover:scale-110">
+                    <span class="material-symbols-outlined text-[200px] block">route</span>
+                </div>
+                
+                <div class="relative z-10">
+                    <div class="size-14 rounded-2xl bg-white/10 text-white flex items-center justify-center mb-6 border border-white/20 backdrop-blur-md">
+                        <span class="material-symbols-outlined text-[26px]">local_shipping</span>
+                    </div>
+                    <h3 class="text-2xl font-black text-white mb-3 tracking-tight">The Fleet Network</h3>
+                    <p class="text-[12px] font-medium text-slate-400 leading-relaxed">Monetize your logistics fleet with AI-optimized collection routes and guaranteed payouts per delivery.</p>
+                </div>
+            </div>
+            
+            <!-- Admin -->
+            <div class="md:col-span-8 bg-white rounded-[2rem] p-10 border border-slate-100 flex flex-col justify-end relative overflow-hidden shadow-sm shadow-slate-200/50 group">
+                <div class="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-l from-primary/5 to-transparent"></div>
+                <div class="absolute -right-16 -top-16 text-primary/10 transition-transform duration-700 group-hover:scale-110">
+                    <span class="material-symbols-outlined text-[280px] block">admin_panel_settings</span>
+                </div>
+                
+                <div class="relative z-10 max-w-md">
+                    <div class="size-14 rounded-2xl bg-[#ecfdf5] border border-[#a7f3d0] text-primary flex items-center justify-center mb-6 shadow-sm">
+                        <span class="material-symbols-outlined text-[26px]">admin_panel_settings</span>
+                    </div>
+                    <h3 class="text-3xl font-black text-slate-900 mb-3 tracking-tight">Compliance Command</h3>
+                    <p class="text-[13px] font-semibold text-slate-500 leading-relaxed">Real-time visibility into regional e-waste flows. Track disposal volumes, audit recycler certifications, and enforce environmental compliance at scale.</p>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</section>
+
+
+<!-- Process Section -->
+<section id="flow" class="py-32 px-6 max-w-7xl mx-auto">
+    <div class="mb-16 md:flex justify-between items-end gap-10">
+        <div class="max-w-xl">
+            <h2 class="text-4xl md:text-5xl font-black tracking-tighter text-slate-900 mb-4 leading-tight">Recycling, Redefined.</h2>
+            <p class="text-[13px] font-bold text-slate-500 uppercase tracking-widest leading-relaxed">A completely frictionless digital journey from household clutter directly to your bank account.</p>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Step 1 -->
+        <div class="premium-card p-10 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-6 text-[8rem] leading-none font-black text-slate-50 opacity-60 transition-transform duration-500 group-hover:scale-110 -mt-8 -mr-4 pointer-events-none">1</div>
+            <div class="size-16 rounded-[1.25rem] bg-[#ecfdf5] border border-[#a7f3d0] text-primary flex items-center justify-center mb-16 relative z-10">
+                 <span class="material-symbols-outlined text-[28px]">document_scanner</span>
+            </div>
+            <h3 class="text-2xl font-black text-slate-900 mb-3 relative z-10 tracking-tight">Smart Upload</h3>
+            <p class="text-[13px] font-semibold text-slate-500 relative z-10 leading-relaxed">Simply snap a photo. Our AI identifies the device hardware, assesses its external condition, and provides a market-accurate price instantly.</p>
+        </div>
+        
+        <!-- Step 2 -->
+        <div class="premium-card p-10 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-6 text-[8rem] leading-none font-black text-slate-50 opacity-60 transition-transform duration-500 group-hover:scale-110 -mt-8 -mr-4 pointer-events-none">2</div>
+            <div class="size-16 rounded-[1.25rem] bg-[#ecfdf5] border border-[#a7f3d0] text-primary flex items-center justify-center mb-16 relative z-10">
+                 <span class="material-symbols-outlined text-[28px]">local_shipping</span>
+            </div>
+            <h3 class="text-2xl font-black text-slate-900 mb-3 relative z-10 tracking-tight">Zero-Effort Pickup</h3>
+            <p class="text-[13px] font-semibold text-slate-500 relative z-10 leading-relaxed">Select a convenient 2-hour window. Our rigorously verified logistics partners arrive exactly at your doorstep to seamlessly collect the items.</p>
+        </div>
+        
+        <!-- Step 3 -->
+        <div class="premium-card p-10 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-6 text-[8rem] leading-none font-black text-slate-50 opacity-60 transition-transform duration-500 group-hover:scale-110 -mt-8 -mr-4 pointer-events-none">3</div>
+            <div class="size-16 rounded-[1.25rem] bg-[#ecfdf5] border border-[#a7f3d0] text-primary flex items-center justify-center mb-16 relative z-10">
+                 <span class="material-symbols-outlined text-[28px]">account_balance</span>
+            </div>
+            <h3 class="text-2xl font-black text-slate-900 mb-3 relative z-10 tracking-tight">Instant Payout</h3>
+            <p class="text-[13px] font-semibold text-slate-500 relative z-10 leading-relaxed">The exact moment your item is verified at pickup, real-time cash is cryptographically transferred straight into your digital wallet.</p>
+        </div>
+    </div>
+</section>
+
+
+<!-- AI Tech Feature (REQUIRED BLOCK: Recyclo-Sense Engine) -->
+<section id="ai-tech" class="py-32 px-6">
+    <div class="max-w-7xl mx-auto">
+        <div class="premium-card p-10 md:p-16 relative overflow-hidden bg-slate-900 border-slate-800 text-white shadow-2xl">
+            <!-- Background glow -->
+            <div class="absolute top-0 right-0 size-[500px] bg-primary/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3"></div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/10 mb-8 backdrop-blur-md">
+                        <span class="material-symbols-outlined text-primary text-[16px]">memory</span>
+                        <span class="text-[9px] font-black uppercase tracking-[0.15em] text-white">Recyclo-Sense Engine</span>
+                    </div>
+                    <h2 class="text-4xl md:text-5xl font-black mb-8 leading-[1.1] tracking-tighter">Advanced Computer Vision for Precision Grading.</h2>
+                    
+                    <div class="space-y-8">
+                        <div class="flex items-start gap-4">
+                            <div class="size-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-1 shadow-inner shadow-primary/20">
+                                <span class="material-symbols-outlined text-primary text-xl">target</span>
+                            </div>
+                            <div>
+                                <h4 class="text-[15px] font-bold text-white mb-1.5 tracking-wide">98.5% Accuracy</h4>
+                                <p class="text-[12px] font-medium text-slate-400 leading-relaxed">Our AI detects minute component details, ensuring you get the most accurate valuation.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-4">
+                            <div class="size-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-1 shadow-inner shadow-primary/20">
+                                <span class="material-symbols-outlined text-primary text-xl">bolt</span>
+                            </div>
+                            <div>
+                                <h4 class="text-[15px] font-bold text-white mb-1.5 tracking-wide">Edge Processing</h4>
+                                <p class="text-[12px] font-medium text-slate-400 leading-relaxed">Lightweight models run instantly to identify your devices with zero latency operations.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-4">
+                            <div class="size-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-1 shadow-inner shadow-primary/20">
+                                <span class="material-symbols-outlined text-primary text-xl">query_stats</span>
+                            </div>
+                            <div>
+                                <h4 class="text-[15px] font-bold text-white mb-1.5 tracking-wide">Material Prediction</h4>
+                                <p class="text-[12px] font-medium text-slate-400 leading-relaxed">Predicts the volume of gold, copper, and rare-earth metals inside each piece of hardware.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mockup visual -->
+                <div class="relative">
+                    <div class="aspect-[4/3] rounded-[2.5rem] bg-black/50 border border-white/10 p-4 relative overflow-hidden shadow-2xl">
+                        <div class="absolute inset-4 rounded-[2rem] bg-gradient-to-br from-slate-800 to-slate-950 overflow-hidden flex items-center justify-center">
+                            <!-- Scanning box -->
+                            <div class="size-64 border border-primary/30 relative animate-pulse flex items-center justify-center rounded-[2rem] bg-primary/5">
+                                <!-- Corner markers -->
+                                <div class="absolute -top-1 -left-1 size-6 border-t-[3px] border-l-[3px] border-primary rounded-tl-xl"></div>
+                                <div class="absolute -top-1 -right-1 size-6 border-t-[3px] border-r-[3px] border-primary rounded-tr-xl"></div>
+                                <div class="absolute -bottom-1 -left-1 size-6 border-b-[3px] border-l-[3px] border-primary rounded-bl-xl"></div>
+                                <div class="absolute -bottom-1 -right-1 size-6 border-b-[3px] border-r-[3px] border-primary rounded-br-xl"></div>
+                                
+                                <span class="material-symbols-outlined text-[80px] text-primary/40 -rotate-6">laptop_mac</span>
+                            </div>
+                            
+                            <!-- Analysis card -->
+                            <div class="absolute bottom-6 left-6 right-6 bg-slate-900/80 backdrop-blur-md rounded-2xl p-5 border border-white/10 flex items-center justify-between shadow-2xl">
+                                <div>
+                                    <div class="text-[9px] font-black tracking-widest text-primary uppercase mb-1.5">Device Identified</div>
+                                    <div class="text-[14px] font-black tracking-wide text-white">MacBook Pro M1 (2020)</div>
+                                    <div class="text-[11px] font-bold text-slate-400 mt-1 tracking-wide">Condition: <span class="text-slate-300">82% Grade B+</span></div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-[9px] font-black tracking-widest text-slate-400 uppercase mb-1.5">Estimated Value</div>
+                                    <div class="text-2xl font-black text-primary tracking-tighter">₹24,500</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why eRecyclo -->
+<section class="py-32 px-6 bg-white border-y border-slate-100">
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-20">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-50 border border-slate-100 mb-8 shadow-sm">
+                <span class="material-symbols-outlined text-primary text-[16px]">verified</span>
+                <span class="text-[9px] font-black uppercase tracking-[0.15em] text-slate-500">Built Different</span>
+            </div>
+            <h2 class="text-4xl md:text-6xl font-black tracking-tighter text-slate-900 mb-4">Why eRecyclo?</h2>
+            <p class="text-[13px] font-bold text-slate-400 uppercase tracking-widest max-w-lg mx-auto">Six reasons thousands of users trust us with their electronic assets.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Feature 1 -->
+            <div class="premium-card p-10 group relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 size-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
+                <div class="size-14 rounded-[1.25rem] bg-[#ecfdf5] border border-[#a7f3d0] text-primary flex items-center justify-center mb-8">
+                    <span class="material-symbols-outlined text-[26px]">shield</span>
+                </div>
+                <h4 class="text-lg font-black text-slate-900 mb-3 tracking-tight">Bank-Grade Security</h4>
+                <p class="text-[12px] font-semibold text-slate-500 leading-relaxed">Every transaction is end-to-end encrypted. Your data and financial details are protected by enterprise-grade security protocols.</p>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="premium-card p-10 group relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 size-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
+                <div class="size-14 rounded-[1.25rem] bg-[#ecfdf5] border border-[#a7f3d0] text-primary flex items-center justify-center mb-8">
+                    <span class="material-symbols-outlined text-[26px]">speed</span>
+                </div>
+                <h4 class="text-lg font-black text-slate-900 mb-3 tracking-tight">120ms Valuation</h4>
+                <p class="text-[12px] font-semibold text-slate-500 leading-relaxed">Our AI processes your device images and returns an accurate market price in under 120 milliseconds. No waiting, no delays.</p>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="premium-card p-10 group relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 size-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
+                <div class="size-14 rounded-[1.25rem] bg-[#ecfdf5] border border-[#a7f3d0] text-primary flex items-center justify-center mb-8">
+                    <span class="material-symbols-outlined text-[26px]">account_balance_wallet</span>
+                </div>
+                <h4 class="text-lg font-black text-slate-900 mb-3 tracking-tight">Instant Payouts</h4>
+                <p class="text-[12px] font-semibold text-slate-500 leading-relaxed">Cash hits your wallet the moment the collector verifies your device. Zero holds, zero processing fees, zero friction.</p>
+            </div>
+            
+            <!-- Feature 4 -->
+            <div class="premium-card p-10 group relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 size-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
+                <div class="size-14 rounded-[1.25rem] bg-[#ecfdf5] border border-[#a7f3d0] text-primary flex items-center justify-center mb-8">
+                    <span class="material-symbols-outlined text-[26px]">eco</span>
+                </div>
+                <h4 class="text-lg font-black text-slate-900 mb-3 tracking-tight">Certified Green</h4>
+                <p class="text-[12px] font-semibold text-slate-500 leading-relaxed">Every gram of e-waste processed through our platform is tracked and certified by authorized environmental agencies.</p>
+            </div>
+            
+            <!-- Feature 5 -->
+            <div class="premium-card p-10 group relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 size-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
+                <div class="size-14 rounded-[1.25rem] bg-[#ecfdf5] border border-[#a7f3d0] text-primary flex items-center justify-center mb-8">
+                    <span class="material-symbols-outlined text-[26px]">pin_drop</span>
+                </div>
+                <h4 class="text-lg font-black text-slate-900 mb-3 tracking-tight">Doorstep Collection</h4>
+                <p class="text-[12px] font-semibold text-slate-500 leading-relaxed">Schedule a pickup directly from your location. No trips, no queues — our verified partners come to you at your chosen time.</p>
+            </div>
+            
+            <!-- Feature 6 -->
+            <div class="premium-card p-10 group relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 size-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
+                <div class="size-14 rounded-[1.25rem] bg-[#ecfdf5] border border-[#a7f3d0] text-primary flex items-center justify-center mb-8">
+                    <span class="material-symbols-outlined text-[26px]">trending_up</span>
+                </div>
+                <h4 class="text-lg font-black text-slate-900 mb-3 tracking-tight">Fair Market Pricing</h4>
+                <p class="text-[12px] font-semibold text-slate-500 leading-relaxed">Our AI benchmarks against live global commodity markets so you always get the most transparent, best possible price.</p>
+            </div>
+        </div>
+        
+        <!-- Trust Strip -->
+        <div class="mt-16 premium-card p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-4">
+                <div class="flex -space-x-3">
+                    <div class="size-10 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-black border-2 border-white">AK</div>
+                    <div class="size-10 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-black border-2 border-white">PR</div>
+                    <div class="size-10 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-black border-2 border-white">SJ</div>
+                    <div class="size-10 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-black border-2 border-white">+5K</div>
+                </div>
+                <div>
+                    <p class="text-[13px] font-black text-slate-900">Trusted by 5,000+ users</p>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Across 50+ Indian Cities</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="text-center px-4">
+                    <div class="text-2xl font-black tracking-tighter text-slate-900">4.9★</div>
+                    <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">User Rating</div>
+                </div>
+                <div class="h-8 w-px bg-slate-100"></div>
+                <div class="text-center px-4">
+                    <div class="text-2xl font-black tracking-tighter text-primary">99.8%</div>
+                    <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Success Rate</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Final CTA -->
+<section class="py-24 px-6 mb-12">
+    <div class="max-w-7xl mx-auto rounded-[3rem] p-16 md:p-24 text-center overflow-hidden relative shadow-2xl shadow-primary/20 flex flex-col items-center" style="background: linear-gradient(140deg, #17cf17 5%, #228b22 35%, #0f172a 85%);">
+        <!-- Graphic accents -->
+        <div class="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 w-64 h-64 bg-black/5 rounded-full -ml-10 -mb-10 blur-2xl"></div>
+        
+        <div class="relative z-10 flex flex-col items-center w-full">
+            <h2 class="text-5xl md:text-7xl font-black tracking-tighter text-white mb-6">Ready to Join?</h2>
+            <p class="text-white/80 font-semibold text-sm md:text-lg max-w-xl mx-auto mb-10 leading-relaxed">
+                The electronic waste crisis is entirely solvable. Be a crucial part of the living ecosystem redefining the future of hardware recycling.
+            </p>
+            
+            <a href="{% url 'accounts:register' %}" class="bg-white text-primary px-12 py-5 rounded-2xl text-[12px] font-black uppercase tracking-widest shadow-xl hover:-translate-y-1 hover:shadow-2xl hover:scale-[1.05] transition-all flex items-center justify-center gap-3">
+                <span class="material-symbols-outlined text-xl">bolt</span>
+                Get Started Free
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
+{% endblock %}

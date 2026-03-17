@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reject Item - eRecyclo{% endblock %}
+{% block page_title %}Pass Asset{% endblock %}
+{% block page_subtitle %}Relinquish procurement opportunity back to the market{% endblock %}
+
+{% block extra_css %}
+<style>
+    .premium-card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        border-radius: 1.5rem;
+    }
+
+    .dark .premium-card {
+        background: #1e293b;
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .quick-chip {
+        padding: 8px 16px;
+        background: #f1f5f9;
+        color: #64748b;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 800;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        border-radius: 9999px;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+    }
+
+    .dark .quick-chip {
+        background: #0f172a;
+        color: #94a3b8;
+    }
+
+    .quick-chip:hover {
+        background: white;
+        color: #ef4444;
+        border-color: #ef4444;
+        box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="max-w-3xl mx-auto space-y-8 pb-24 px-4 sm:px-0">
+
+    <!-- ── ASSET SNAPSHOT ── -->
+    <div class="premium-card p-6 flex flex-col sm:flex-row items-center gap-6 group">
+        <div class="size-24 rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-1.5 shrink-0">
+            {% if post.photo %}
+            <img src="{{ post.photo.url }}" class="size-full object-cover rounded-xl opacity-60 group-hover:opacity-100 transition-opacity">
+            {% else %}
+            <div class="size-full flex items-center justify-center text-slate-300">
+                <span class="material-symbols-outlined text-3xl">devices</span>
+            </div>
+            {% endif %}
+        </div>
+        <div class="flex-1 text-center sm:text-left">
+            <h3 class="text-[17px] font-black text-slate-800 dark:text-white leading-tight mb-2">{{ post.title }}</h3>
+            <div class="flex flex-wrap justify-center sm:justify-start gap-3 items-center">
+                 <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">{{ post.get_ai_category_display }}</span>
+                 <span class="size-1 bg-slate-200 rounded-full"></span>
+                 <span class="text-[9px] font-black text-primary uppercase tracking-widest">Est. ₹{{ post.ai_estimated_value }}</span>
+            </div>
+            <p class="text-[10px] font-bold text-slate-500 mt-2 truncate max-w-sm">{{ post.address }}</p>
+        </div>
+    </div>
+
+    <!-- ── REJECTION CONTEXT ── -->
+    <div class="premium-card p-10 space-y-8 relative overflow-hidden">
+        <div class="absolute -right-10 -top-10 size-40 bg-rose-500/5 rounded-full blur-3xl"></div>
+        
+        <div class="flex items-center gap-4 relative z-10">
+            <div class="size-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500">
+                <span class="material-symbols-outlined text-2xl font-black">cancel</span>
+            </div>
+            <div>
+                <h2 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-widest">Formal Rejection Reason</h2>
+                <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase">Required for business reporting</p>
+            </div>
+        </div>
+
+        <form method="POST" class="space-y-8 relative z-10">
+            {% csrf_token %}
+            
+            <div class="space-y-4">
+                <textarea 
+                    name="reason" 
+                    id="reason" 
+                    rows="4" 
+                    required
+                    class="w-full px-6 py-5 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-2xl text-[14px] font-bold placeholder:text-slate-300 focus:outline-none focus:ring-4 focus:ring-rose-500/5 transition-all resize-none"
+                    placeholder="Enter professional reason for declining procurement rights..."
+                >{{ form.reason.value|default:'' }}</textarea>
+                {% if form.reason.errors %}
+                <p class="text-rose-500 text-[10px] font-black uppercase tracking-widest mt-1 px-2">{{ form.reason.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Strategic Chips -->
+            <div>
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Common Strategic Reasons</p>
+                <div class="flex flex-wrap gap-3">
+                    <button type="button" onclick="setReason('Facility specialized logistics outside current radius')" class="quick-chip">Geography Constraint</button>
+                    <button type="button" onclick="setReason('Asset classification outside certified handling capabilities')" class="quick-chip">Category Mismatch</button>
+                    <button type="button" onclick="setReason('Inventory procurement at full operational capacity')" class="quick-chip">Capacity Limit</button>
+                    <button type="button" onclick="setReason('Asset state unsuitable for standard recovery protocols')" class="quick-chip">State Incompatibility</button>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-amber-500/5 border border-amber-500/10 flex items-start gap-3">
+                <span class="material-symbols-outlined text-amber-500 text-[18px]">info</span>
+                <p class="text-[10px] font-bold text-amber-600/70 leading-relaxed uppercase tracking-tight">
+                    By confirming rejection, you acknowledge that this asset will be immediately re-broadcasted to other verified vendors in the cluster.
+                </p>
+            </div>
+
+            <div class="flex flex-col items-center gap-5 pt-6">
+                <button type="submit" class="w-full max-w-md h-14 px-8 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] shadow-lg shadow-rose-600/20 transition-all hover:-translate-y-1 flex items-center justify-center text-center">
+                    Confirm & Relinquish Rights
+                </button>
+                <a href="{% url 'vendor:pending_requests' %}" class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hover:text-rose-500 transition-colors">
+                    Cancel and go back
+                </a>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<script>
+function setReason(text) {
+    document.getElementById('reason').value = text;
+}
+</script>
+{% endblock %}

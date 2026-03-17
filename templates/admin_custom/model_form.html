@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}{% if instance %}Modify {{ model_name }}{% else %}Register {{ model_name }}{% endif %}{% endblock %}
+{% block page_subtitle %}{{ app_label|upper }} / {{ model_meta_name|upper }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-hero-bg {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+        border-radius: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .premium-card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 2.5rem;
+    }
+    .dark .premium-card {
+        background: #1e293b;
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+    .glass-pill {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 9999px;
+    }
+    
+    /* Premium override for form widgets */
+    input, select, textarea {
+        width: 100% !important;
+        padding: 1.125rem 1.5rem !important;
+        background: #f8fafc !important;
+        border: 2px solid #f1f5f9 !important;
+        border-radius: 1.25rem !important;
+        font-size: 0.95rem !important;
+        font-weight: 700 !important;
+        color: #1e293b !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02) !important;
+    }
+    .dark input, .dark select, .dark textarea {
+        background: #0f172a !important;
+        border-color: #1e293b !important;
+        color: #f1f5f9 !important;
+    }
+    input:focus, select:focus, textarea:focus {
+        border-color: #17cf17 !important;
+        background: #fff !important;
+        box-shadow: 0 0 0 5px rgba(23, 207, 23, 0.1) !important;
+        outline: none !important;
+    }
+    .dark input:focus, .dark select:focus, .dark textarea:focus {
+        background: #111e3b !important;
+    }
+    input[type="checkbox"] {
+        width: 1.5rem !important;
+        height: 1.5rem !important;
+        display: inline-block !important;
+        margin-right: 12px !important;
+    }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 pb-24">
+    <!-- ── FORM HERO ── -->
+    <div class="form-hero-bg py-12 px-10 text-white relative group animate-in fade-in slide-in-from-top-4 duration-700 shadow-2xl">
+        <!-- Decor -->
+        <div class="absolute top-0 right-0 w-60 h-60 bg-primary/10 rounded-full -mr-16 -mt-16 blur-[100px] animate-pulse"></div>
+        
+        <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
+            <div class="space-y-4 flex-1">
+                <a href="{% url 'admin_custom:model_items' app_label model_meta_name %}" class="inline-flex items-center gap-2 glass-pill px-5 py-1.5 hover:bg-white/10 transition-colors group/back">
+                    <span class="material-symbols-outlined text-[16px] text-primary group-hover/back:-translate-x-0.5 transition-transform">arrow_back</span>
+                    <span class="text-[9px] font-black uppercase tracking-[0.2em] text-white/90">Return to Grid</span>
+                </a>
+                <h1 class="text-5xl font-black tracking-tighter leading-none mt-2">{% if instance %}Edit Node{% else %}New Entity{% endif %}</h1>
+                <p class="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">Registry Point: <span class="text-white/60">{{ model_name }}</span></p>
+            </div>
+
+            <div class="flex items-center gap-4">
+                {% if instance %}
+                <a href="{% url 'admin_custom:model_delete' app_label model_meta_name instance.id %}" 
+                   class="size-16 bg-red-500/10 text-red-500 border border-red-500/20 rounded-full flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-lg shadow-red-500/20 active:scale-95">
+                    <span class="material-symbols-outlined text-[28px]">delete</span>
+                </a>
+                {% endif %}
+                <button type="submit" form="main-form" 
+                   class="bg-primary text-white h-16 px-10 rounded-full font-black text-[12px] uppercase tracking-[0.2em] flex items-center gap-3 shadow-xl shadow-primary/25 hover:scale-[1.03] active:scale-[0.98] transition-all">
+                    <span class="material-symbols-outlined text-[22px]">verified</span> 
+                    <span>Deploy Logic</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── FORM BODY ── -->
+    <div class="premium-card overflow-hidden shadow-2xl relative border-none">
+        <form id="main-form" method="POST" enctype="multipart/form-data" class="p-12 space-y-12">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-10">
+                {% for field in form %}
+                <div class="space-y-3.5 {% if field.field.widget.input_type == 'textarea' %}md:col-span-2{% endif %}">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">{{ field.label }}</label>
+                        {% if field.field.required %}
+                        <span class="text-[8px] font-black text-primary uppercase tracking-widest italic opacity-50">Required Node</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="relative group">
+                        {{ field }}
+                        {% if field.help_text %}
+                            <p class="text-[10px] text-slate-400 font-bold italic mt-2 ml-1 opacity-70">{{ field.help_text|safe }}</p>
+                        {% endif %}
+                        {% if field.errors %}
+                            {% for error in field.errors %}
+                                <div class="mt-2 bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 p-2.5 rounded-xl flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[14px] text-red-500">error</span>
+                                    <p class="text-[10px] text-red-500 font-black uppercase tracking-tighter">{{ error }}</p>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="pt-10 flex items-center justify-center gap-6 border-t border-slate-50 dark:border-slate-800/40">
+                <a href="{% url 'admin_custom:model_items' app_label model_meta_name %}" 
+                   class="px-12 py-5 rounded-2xl text-[12px] font-black text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors uppercase tracking-[0.2em]">Discard Operations</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

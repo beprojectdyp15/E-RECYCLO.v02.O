@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if step == 'pickup' %}Verify Pickup OTP{% else %}Verify Delivery OTP{% endif %} - eRecyclo{% endblock %}
+{% block page_title %}{% if step == 'pickup' %}Access Protocol{% else %}Handover Protocol{% endif %}{% endblock %}
+{% block page_subtitle %}
+{% if is_return %}
+    {% if step == 'pickup' %}Enter vendor's access token to initiate return transit{% else %}Enter client's handover token to confirm arrival{% endif %}
+{% else %}
+    {% if step == 'pickup' %}Enter {{ otp_holder|default:"client" }}'s access token to confirm possession{% else %}Enter {{ otp_holder|default:"vendor" }}'s handover token to complete pickup task{% endif %}
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --premium-bg: #f8fafc;
+    }
+
+    html.dark {
+        --premium-bg: #0f172a;
+    }
+
+    body {
+        background-color: var(--premium-bg) !important;
+    }
+
+    .premium-card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 1.5rem;
+    }
+
+    .dark .premium-card {
+        background: #1e293b;
+        border-color: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .otp-input {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .otp-input:focus {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .step-line {
+        background-image: linear-gradient(to right, #e2e8f0 50%, rgba(255, 255, 255, 0) 0%);
+        background-position: bottom;
+        background-size: 15px 1px;
+        background-repeat: repeat-x;
+    }
+
+    .dark .step-line {
+        background-image: linear-gradient(to right, #334155 50%, rgba(255, 255, 255, 0) 0%);
+    }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="max-w-xl mx-auto space-y-8 pb-24 px-4 sm:px-0">
+
+    <!-- ── PROGRESS INDICATOR ── -->
+    <div class="premium-card p-6">
+        <div class="flex items-center justify-between relative px-2">
+            <div class="absolute top-1/2 left-[10%] right-[10%] h-[1px] step-line -translate-y-1/2"></div>
+            
+            <!-- Step 1 -->
+            <div class="relative z-10 flex flex-col items-center gap-3">
+                <div class="size-10 rounded-full flex items-center justify-center border-2 
+                    {% if step == 'pickup' %}bg-primary text-white border-primary shadow-lg shadow-primary/20 animate-pulse{% elif step == 'delivery' %}bg-emerald-500 text-white border-emerald-500{% else %}bg-slate-100 text-slate-400 border-slate-200{% endif %}">
+                    {% if step == 'delivery' %}
+                    <span class="material-symbols-outlined text-lg">verified</span>
+                    {% else %}
+                    <span class="text-xs font-black">01</span>
+                    {% endif %}
+                </div>
+                <p class="text-[9px] font-black uppercase tracking-widest {% if step == 'pickup' %}text-primary{% else %}text-slate-400{% endif %}">Collection</p>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="relative z-10 flex flex-col items-center gap-3">
+                <div class="size-10 rounded-full flex items-center justify-center border-2 
+                    {% if step == 'delivery' %}bg-amber-500 text-white border-amber-500 shadow-lg shadow-amber-500/20 animate-pulse{% else %}bg-slate-100 text-slate-400 border-slate-200{% endif %}">
+                    <span class="text-xs font-black">02</span>
+                </div>
+                <p class="text-[9px] font-black uppercase tracking-widest {% if step == 'delivery' %}text-amber-500{% else %}text-slate-400{% endif %}">Handover</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── ASSET SNAPSHOT ── -->
+    <div class="premium-card p-5 flex items-center gap-5">
+        <div class="size-20 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shrink-0 shadow-inner">
+            {% if post.photo %}
+            <img src="{{ post.photo.url }}" alt="{{ post.title }}" class="w-full h-full object-cover">
+            {% else %}
+            <div class="w-full h-full flex items-center justify-center text-slate-300">
+                <span class="material-symbols-outlined text-3xl">devices</span>
+            </div>
+            {% endif %}
+        </div>
+        <div class="min-w-0">
+            <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Target Asset</h4>
+            <h3 class="text-base font-black text-slate-800 dark:text-white truncate">{{ post.title }}</h3>
+            <div class="flex items-center gap-2 mt-2">
+                <span class="text-[9px] font-black px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 uppercase tracking-tighter">ID #{{ post.pk }}</span>
+                <span class="text-[9px] font-black px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 uppercase tracking-tighter">{{ post.get_ai_category_display }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── FORM SECTION ── -->
+    <div class="premium-card p-10">
+        <div class="text-center mb-10">
+            <div class="size-16 rounded-3xl {% if step == 'pickup' %}bg-primary/10 text-primary{% else %}bg-amber-500/10 text-amber-500{% endif %} flex items-center justify-center mx-auto mb-6 shadow-sm">
+                <span class="material-symbols-outlined text-4xl">{% if step == 'pickup' %}key{% else %}handshake{% endif %}</span>
+            </div>
+            <h3 class="text-xl font-black text-slate-800 dark:text-white uppercase tracking-tight">Security Verification</h3>
+            <p class="text-[13px] font-bold text-slate-400 mt-2">
+                {% if is_return %}
+                    {% if step == 'pickup' %}Scan vendor's dashboard for the 6-digit access code{% else %}Scan client's notification for the return code{% endif %}
+                {% else %}
+                    {% if step == 'pickup' %}Request the {{ otp_holder|default:"client" }}'s unique pickup token{% else %}Request the {{ otp_holder|default:"vendor" }}'s handover authentication{% endif %}
+                {% endif %}
+            </p>
+        </div>
+
+        {% if error %}
+        <div class="mb-8 p-4 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 flex items-center gap-3">
+            <span class="material-symbols-outlined text-red-500">error</span>
+            <p class="text-[11px] font-black text-red-700 dark:text-red-400 uppercase tracking-widest">{{ error }}</p>
+        </div>
+        {% endif %}
+
+        <form method="POST" id="otpForm" class="space-y-10">
+            {% csrf_token %}
+            <div class="flex justify-between gap-3 max-w-sm mx-auto" id="otp-boxes">
+                {% for i in "123456" %}
+                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"
+                    class="otp-box otp-input w-12 h-16 text-center text-2xl font-black rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:border-primary focus:bg-white dark:focus:bg-slate-800 focus:outline-none transition-all"
+                    autocomplete="off">
+                {% endfor %}
+            </div>
+            <input type="hidden" name="otp" id="otp-hidden">
+            
+            <button type="submit" class="w-full py-5 rounded-2xl font-black text-white text-xs uppercase tracking-[0.2em] shadow-2xl transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3
+                {% if is_return %}bg-orange-500 shadow-orange-500/30{% elif step == 'pickup' %}bg-primary shadow-primary/30{% else %}bg-amber-500 shadow-amber-500/30{% endif %}">
+                <span class="material-symbols-outlined">verified_user</span>
+                {% if step == 'pickup' %}Authorize Transit{% else %}Certify Delivery{% endif %}
+            </button>
+        </form>
+
+        <div class="mt-8 pt-8 border-t border-slate-50 dark:border-slate-800">
+            <div class="flex items-start gap-4 p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-900/10">
+                <span class="material-symbols-outlined text-blue-500">lock_open</span>
+                <p class="text-[11px] font-bold text-slate-500 leading-relaxed uppercase tracking-tighter">
+                    <span class="text-blue-600 font-black">Protocol Note:</span> This cryptographic token ensures the asset reaches the verified destination. Do not bypass manual inspection.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex items-center justify-center">
+        <a href="{% url 'collector:my_pickups' %}" class="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors">
+            <span class="material-symbols-outlined text-[16px]">arrow_back</span> Return to Dashboard
+        </a>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const boxes  = document.querySelectorAll('.otp-box');
+const hidden = document.getElementById('otp-hidden');
+
+function sync() { hidden.value = [...boxes].map(b => b.value).join(''); }
+
+boxes.forEach((box, i) => {
+    box.addEventListener('input', e => {
+        e.target.value = e.target.value.replace(/\D/,'');
+        if (e.target.value && i < 5) boxes[i+1].focus();
+        sync();
+        if ([...boxes].every(b=>b.value)) document.getElementById('otpForm').submit();
+    });
+    box.addEventListener('keydown', e => {
+        if (e.key==='Backspace' && !e.target.value && i>0) boxes[i-1].focus();
+    });
+    box.addEventListener('paste', e => {
+        e.preventDefault();
+        const d = (e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'');
+        d.split('').forEach((c,j) => { if(boxes[j]) boxes[j].value=c; });
+        sync();
+        const next = [...boxes].findIndex(b=>!b.value);
+        (next>=0 ? boxes[next] : boxes[5]).focus();
+    });
+});
+boxes[0].focus();
+</script>
+{% endblock %}

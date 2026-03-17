@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}System Architecture{% endblock %}
+{% block page_subtitle %}Global database mapping and entity explorer{% endblock %}
+
+{% block extra_css %}
+<style>
+    .explorer-hero-bg {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+        border-radius: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .premium-card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 2.5rem;
+    }
+    .dark .premium-card {
+        background: #1e293b;
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+    .glass-pill {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 9999px;
+    }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 pb-24">
+    <!-- ── EXPLORER HERO ── -->
+    <div class="explorer-hero-bg py-16 px-12 text-white relative group shadow-2xl animate-in fade-in slide-in-from-top-4 duration-700">
+        <!-- Decor -->
+        <div class="absolute top-0 right-0 w-80 h-80 bg-primary/10 rounded-full -mr-20 -mt-20 blur-[120px] animate-pulse"></div>
+        <div class="absolute bottom-0 right-1/4 w-60 h-60 bg-blue-500/10 rounded-full blur-[100px]"></div>
+        
+        <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12">
+            <div class="space-y-6 flex-1">
+                <div class="inline-flex items-center gap-3 glass-pill px-5 py-2">
+                    <span class="material-symbols-outlined text-[20px] text-primary">database</span>
+                    <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90">Core Registry Mapping</span>
+                </div>
+                <h1 class="text-6xl font-black tracking-tighter leading-none mt-2">System<span class="text-primary">.</span>Explorer</h1>
+                <p class="text-white/50 text-sm font-bold max-w-sm leading-relaxed pt-2">
+                    Deep access to the platform's relational architecture. Browse, audit, and modify database records across all application modules.
+                </p>
+            </div>
+
+            <!-- ANALYTICS PREVIEW -->
+            <div class="relative z-10 flex items-center gap-6">
+                <div class="glass-pill px-8 py-6 flex flex-col items-center gap-1 border-white/5">
+                    <p class="text-[9px] font-black text-white/40 uppercase tracking-widest">Global Models</p>
+                    <p class="text-3xl font-black text-white tracking-tighter">{% with count=0 %}{% for app, mods in apps.items %}{% with count=count|add:mods|length %}{% if forloop.last %}{{ count }}{% endif %}{% endwith %}{% endfor %}{% endwith %}{{ total_models|default:12 }}</p>
+                </div>
+                <div class="glass-pill px-8 py-6 flex flex-col items-center gap-1 border-white/5">
+                    <p class="text-[9px] font-black text-white/40 uppercase tracking-widest">Active Apps</p>
+                    <p class="text-3xl font-black text-white tracking-tighter">{{ apps|length }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── APP GRID ── -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        {% for app_label, models in apps.items %}
+        <div class="premium-card overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all group border-none">
+            <div class="p-8 bg-slate-50/50 dark:bg-slate-800/20 border-b border-slate-100 dark:border-slate-800/40">
+                <div class="flex items-center gap-4">
+                    <div class="size-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all shadow-inner">
+                        <span class="material-symbols-outlined text-2xl font-bold">{% if app_label == 'accounts' %}manage_accounts{% elif app_label == 'client' %}person{% elif app_label == 'vendor' %}storefront{% elif app_label == 'collector' %}local_shipping{% else %}folder_managed{% endif %}</span>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-slate-800 dark:text-white uppercase tracking-[0.2em] text-[11px]">{{ app_label }}</h3>
+                        <p class="text-[9px] font-black text-slate-400 mt-1 uppercase tracking-tighter opacity-60">Module Registry</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="divide-y divide-slate-50 dark:divide-slate-800/40">
+                {% for model in models %}
+                <a href="{% url 'admin_custom:model_items' app_label model.model_name %}" 
+                   class="flex items-center justify-between p-6 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 group/item transition-all">
+                    <div class="flex flex-col gap-1">
+                        <span class="text-[14px] font-black text-slate-700 dark:text-slate-300 group-hover/item:text-primary transition-colors">{{ model.name }}</span>
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest group-hover/item:text-slate-500">{{ model.count }} Logical Nodes</span>
+                    </div>
+                    <div class="size-10 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 group-hover/item:border-primary/30 group-hover/item:text-primary transition-all flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[20px] group-hover/item:translate-x-0.5 transition-transform">chevron_right</span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,219 @@
+{% extends "base_public.html" %}
+{% block title %}Our Environmental Impact — eRecyclo{% endblock %}
+
+{% block extra_style %}
+.impact-gradient { background: linear-gradient(135deg, #0f172a 0%, #112111 60%, #0d2d0d 100%); }
+.counter-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 1.5rem; }
+{% endblock %}
+
+{% block page_content %}
+<main class="pt-28">
+
+<!-- Hero -->
+<section class="impact-gradient py-24 px-6 text-white">
+    <div class="max-w-5xl mx-auto text-center">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/10 mb-8">
+            <span class="material-symbols-outlined text-primary text-[16px]">energy_savings_leaf</span>
+            <span class="text-[9px] font-black uppercase tracking-[0.15em] text-white/70">Why It Matters</span>
+        </div>
+        <h1 class="text-5xl md:text-7xl font-black tracking-tighter text-white mb-6 leading-[1.05]">
+            The E-Waste <span class="text-primary">Crisis</span> Is Real.
+        </h1>
+        <p class="text-lg font-semibold text-slate-300 max-w-2xl mx-auto leading-relaxed">
+            Electronic waste is the world's fastest-growing solid waste stream. Every year, 62 million tonnes are generated globally — and less than 20% is formally recycled. eRecyclo is changing that, starting with India.
+        </p>
+    </div>
+</section>
+
+<!-- Global Crisis Stats -->
+<section class="py-24 px-6 bg-slate-900 text-white">
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-black tracking-tighter mb-4">The Scale of the Problem</h2>
+            <p class="text-[13px] font-bold text-slate-400 uppercase tracking-widest">Global e-waste statistics — 2024</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="counter-card p-8 text-center">
+                <div class="text-5xl font-black text-primary tracking-tighter mb-3">62M</div>
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-relaxed">Tonnes of e-waste generated globally per year</div>
+            </div>
+            <div class="counter-card p-8 text-center">
+                <div class="text-5xl font-black text-white tracking-tighter mb-3">17.4%</div>
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-relaxed">Only this fraction is formally recycled worldwide</div>
+            </div>
+            <div class="counter-card p-8 text-center">
+                <div class="text-5xl font-black text-primary tracking-tighter mb-3">$91B</div>
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-relaxed">Worth of raw materials discarded in e-waste annually</div>
+            </div>
+            <div class="counter-card p-8 text-center">
+                <div class="text-5xl font-black text-white tracking-tighter mb-3">3rd</div>
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-relaxed">India is the 3rd largest e-waste generator in the world</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- What Happens When E-Waste Isn't Recycled -->
+<section class="py-24 px-6">
+    <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-50 border border-red-100 mb-8">
+                    <span class="material-symbols-outlined text-red-500 text-[16px]">dangerous</span>
+                    <span class="text-[9px] font-black uppercase tracking-[0.15em] text-red-500">The Consequences</span>
+                </div>
+                <h2 class="text-4xl font-black tracking-tighter text-slate-900 mb-8 leading-[1.1]">What Happens to Improperly Discarded Electronics</h2>
+                <div class="space-y-6">
+                    <div class="flex items-start gap-4">
+                        <div class="size-10 rounded-xl bg-red-50 border border-red-100 text-red-500 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-[18px]">water_drop</span>
+                        </div>
+                        <div>
+                            <h4 class="text-[14px] font-black text-slate-900 mb-1">Soil & Water Contamination</h4>
+                            <p class="text-[12px] font-semibold text-slate-500 leading-relaxed">Lead, mercury, and cadmium from circuit boards and batteries leach into groundwater, contaminating drinking water sources that communities depend on for generations.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="size-10 rounded-xl bg-orange-50 border border-orange-100 text-orange-500 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-[18px]">air</span>
+                        </div>
+                        <div>
+                            <h4 class="text-[14px] font-black text-slate-900 mb-1">Toxic Air Emissions</h4>
+                            <p class="text-[12px] font-semibold text-slate-500 leading-relaxed">Informal recyclers burn e-waste to recover copper and metals, releasing dioxins, furans, and heavy metal particulates into the air — causing respiratory damage in surrounding communities.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="size-10 rounded-xl bg-amber-50 border border-amber-100 text-amber-500 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-[18px]">recycling</span>
+                        </div>
+                        <div>
+                            <h4 class="text-[14px] font-black text-slate-900 mb-1">Wasted Precious Materials</h4>
+                            <p class="text-[12px] font-semibold text-slate-500 leading-relaxed">Every tonne of discarded smartphones contains up to 300g of gold, 3kg of silver, and significant amounts of copper and palladium — rare metals lost forever in landfills.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <div class="premium-card p-8 bg-slate-50">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Toxic Substances in Common Devices</div>
+                    <div class="space-y-3">
+                        {% for item in toxics %}
+                        <div class="flex items-center justify-between">
+                            <span class="text-[12px] font-bold text-slate-700">{{ item.name }}</span>
+                            <span class="text-[11px] font-black text-slate-400 px-3 py-1 bg-white rounded-xl border border-slate-100">{{ item.device }}</span>
+                        </div>
+                        {% empty %}
+                        <div class="flex items-center justify-between"><span class="text-[12px] font-bold text-slate-700">Lead (Pb)</span><span class="text-[11px] font-black text-slate-400 px-3 py-1 bg-white rounded-xl border border-slate-100">CRT Monitors, Solder</span></div>
+                        <div class="flex items-center justify-between"><span class="text-[12px] font-bold text-slate-700">Mercury (Hg)</span><span class="text-[11px] font-black text-slate-400 px-3 py-1 bg-white rounded-xl border border-slate-100">Flat Screens, Batteries</span></div>
+                        <div class="flex items-center justify-between"><span class="text-[12px] font-bold text-slate-700">Cadmium (Cd)</span><span class="text-[11px] font-black text-slate-400 px-3 py-1 bg-white rounded-xl border border-slate-100">Rechargeable Batteries</span></div>
+                        <div class="flex items-center justify-between"><span class="text-[12px] font-bold text-slate-700">Arsenic (As)</span><span class="text-[11px] font-black text-slate-400 px-3 py-1 bg-white rounded-xl border border-slate-100">Semiconductors, LEDs</span></div>
+                        <div class="flex items-center justify-between"><span class="text-[12px] font-bold text-slate-700">Brominated Flame Retardants</span><span class="text-[11px] font-black text-slate-400 px-3 py-1 bg-white rounded-xl border border-slate-100">PCBs, Plastic Casings</span></div>
+                        <div class="flex items-center justify-between"><span class="text-[12px] font-bold text-slate-700">Lithium</span><span class="text-[11px] font-black text-slate-400 px-3 py-1 bg-white rounded-xl border border-slate-100">Laptop & Phone Batteries</span></div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- What Certified Recycling Does -->
+<section class="py-24 px-6 bg-slate-50 border-y border-slate-100">
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-16">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#ecfdf5] border border-[#a7f3d0] mb-8">
+                <span class="material-symbols-outlined text-primary text-[16px]">check_circle</span>
+                <span class="text-[9px] font-black uppercase tracking-[0.15em] text-primary">The Solution</span>
+            </div>
+            <h2 class="text-4xl md:text-5xl font-black tracking-tighter text-slate-900 mb-4">What Certified Recycling Achieves</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="premium-card p-10 text-center">
+                <div class="size-16 rounded-[1.25rem] bg-[#ecfdf5] border border-[#a7f3d0] text-primary flex items-center justify-center mx-auto mb-6">
+                    <span class="material-symbols-outlined text-[28px]">spa</span>
+                </div>
+                <h3 class="text-xl font-black text-slate-900 mb-4 tracking-tight">Safe Material Recovery</h3>
+                <p class="text-[12px] font-semibold text-slate-500 leading-relaxed">Certified recyclers extract gold, silver, copper, palladium, and rare-earth metals safely — returning them to the manufacturing supply chain without environmental harm.</p>
+            </div>
+            <div class="premium-card p-10 text-center">
+                <div class="size-16 rounded-[1.25rem] bg-[#ecfdf5] border border-[#a7f3d0] text-primary flex items-center justify-center mx-auto mb-6">
+                    <span class="material-symbols-outlined text-[28px]">co2</span>
+                </div>
+                <h3 class="text-xl font-black text-slate-900 mb-4 tracking-tight">Carbon Reduction</h3>
+                <p class="text-[12px] font-semibold text-slate-500 leading-relaxed">Recycling metals from e-waste uses 95% less energy than primary mining. Every device properly recycled directly reduces CO₂ emissions and the demand for destructive mining operations.</p>
+            </div>
+            <div class="premium-card p-10 text-center">
+                <div class="size-16 rounded-[1.25rem] bg-[#ecfdf5] border border-[#a7f3d0] text-primary flex items-center justify-center mx-auto mb-6">
+                    <span class="material-symbols-outlined text-[28px]">water</span>
+                </div>
+                <h3 class="text-xl font-black text-slate-900 mb-4 tracking-tight">Groundwater Protection</h3>
+                <p class="text-[12px] font-semibold text-slate-500 leading-relaxed">Proper disposal neutralizes toxic materials before they can enter the environment — protecting the water sources that villages, cities, and agricultural systems depend on.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- eRecyclo's Role -->
+<section class="py-24 px-6">
+    <div class="max-w-7xl mx-auto">
+        <div class="premium-card p-10 md:p-16 relative overflow-hidden bg-slate-900 text-white">
+            <div class="absolute top-0 right-0 size-[400px] bg-primary/15 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3"></div>
+            <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/10 mb-8">
+                        <span class="material-symbols-outlined text-primary text-[16px]">eco</span>
+                        <span class="text-[9px] font-black uppercase tracking-[0.15em] text-white/70">eRecyclo's Role</span>
+                    </div>
+                    <h2 class="text-4xl font-black tracking-tighter mb-8 leading-[1.1]">How Our Platform Accelerates Impact</h2>
+                    <div class="space-y-6">
+                        <div class="flex items-start gap-4">
+                            <span class="material-symbols-outlined text-primary text-[22px] mt-0.5">arrow_forward</span>
+                            <p class="text-[13px] font-semibold text-slate-300 leading-relaxed">By making responsible disposal <strong class="text-white">financially rewarding</strong>, we create a direct economic incentive that changes behaviour at scale.</p>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <span class="material-symbols-outlined text-primary text-[22px] mt-0.5">arrow_forward</span>
+                            <p class="text-[13px] font-semibold text-slate-300 leading-relaxed">By <strong class="text-white">connecting certified vendors</strong> directly with households, we route material away from the informal sector and into regulated recycling.</p>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <span class="material-symbols-outlined text-primary text-[22px] mt-0.5">arrow_forward</span>
+                            <p class="text-[13px] font-semibold text-slate-300 leading-relaxed">By <strong class="text-white">providing doorstep collection</strong>, we eliminate the single biggest barrier to recycling: the inconvenience of getting there.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="rounded-2xl bg-white/5 border border-white/10 p-6 text-center">
+                        <div class="text-4xl font-black text-primary tracking-tighter mb-2">100%</div>
+                        <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-relaxed">Certified recycling partners only</div>
+                    </div>
+                    <div class="rounded-2xl bg-white/5 border border-white/10 p-6 text-center">
+                        <div class="text-4xl font-black text-white tracking-tighter mb-2">0</div>
+                        <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-relaxed">Items sent to informal recyclers</div>
+                    </div>
+                    <div class="rounded-2xl bg-white/5 border border-white/10 p-6 text-center">
+                        <div class="text-4xl font-black text-primary tracking-tighter mb-2">₹0</div>
+                        <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-relaxed">Cost to users for doorstep pickup</div>
+                    </div>
+                    <div class="rounded-2xl bg-white/5 border border-white/10 p-6 text-center">
+                        <div class="text-4xl font-black text-white tracking-tighter mb-2">13</div>
+                        <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-relaxed">E-waste categories accepted</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="py-20 px-6 pb-24">
+    <div class="max-w-3xl mx-auto text-center">
+        <h2 class="text-4xl font-black tracking-tighter text-slate-900 mb-4">Your Device Can Make a Difference.</h2>
+        <p class="text-[14px] font-semibold text-slate-500 mb-10 leading-relaxed">Recycling one smartphone properly prevents 80g of CO₂ emissions and recovers materials worth thousands of rupees. Imagine the impact at scale.</p>
+        <a href="{% url 'accounts:register' %}" class="bg-primary hover:bg-forest text-white px-10 py-4 rounded-2xl text-[12px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 transition-all inline-flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">recycling</span>
+            Start Recycling Today
+        </a>
+    </div>
+</section>
+
+</main>
+{% endblock %}

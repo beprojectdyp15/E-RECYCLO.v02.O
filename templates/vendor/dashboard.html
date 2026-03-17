@@ -1,0 +1,347 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Vendor Dashboard - eRecyclo{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Manage your e-waste intake and evaluations{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --premium-bg: #f8fafc;
+    }
+
+    html.dark {
+        --premium-bg: #0f172a;
+    }
+
+    body {
+        background-color: var(--premium-bg) !important;
+    }
+
+    .premium-card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 1.5rem;
+    }
+
+    .premium-card:hover {
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        transform: translateY(-2px);
+    }
+
+    .dark .premium-card {
+        background: #1e293b;
+        border-color: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .dark .premium-card:hover {
+        box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.6);
+    }
+
+    .vendor-card-bg {
+        background: linear-gradient(140deg, #17cf17 5%, #228b22 35%, #0f172a 85%) !important;
+        border-radius: 2.5rem;
+        position: relative;
+    }
+
+    .glass-pill {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 9999px;
+    }
+
+    .stat-pill {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .progress-glow {
+        box-shadow: 0 0 12px rgba(23, 207, 23, 0.4);
+    }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="max-w-7xl mx-auto pb-24 px-4 sm:px-6">
+
+
+    <!-- ── VENDOR HERO SECTION ── -->
+    <div class="mb-12 vendor-card-bg py-[35px] px-10 md:py-[51px] md:px-14 text-white relative flex flex-col md:flex-row items-center justify-between gap-12 group overflow-hidden border-none shadow-2xl shadow-primary/20 animate-in fade-in slide-in-from-top-4 duration-1000">
+        <!-- Decorative Elements -->
+        <div class="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl group-hover:bg-white/20 transition-all duration-700"></div>
+        <div class="absolute bottom-0 left-0 w-64 h-64 bg-black/5 rounded-full -ml-10 -mb-10 blur-2xl group-hover:bg-black/10 transition-all duration-700"></div>
+        
+        <div class="relative z-10 space-y-8 flex-1 text-center md:text-left">
+            <div class="inline-flex items-center gap-3 glass-pill px-4 py-2">
+                <span class="material-symbols-outlined text-[18px]">verified_user</span>
+                <span class="text-[10px] font-black uppercase tracking-widest text-white">Certified E-Recycler</span>
+            </div>
+            
+            <div class="">
+                <div class="transform translate-y-[20px] -mt-[11px]">
+                    <h2 class="text-2xl font-bold text-white/80 tracking-[0.3em] leading-none mb-4 uppercase">Welcome Back,</h2>
+                    <div class="flex items-end justify-center md:justify-start gap-4">
+                        <h1 class="text-[58px] md:text-[70px] lg:text-[82px] font-black tracking-tighter leading-none whitespace-nowrap -mt-[4px]">{{ user.get_full_name|default:user.username }}<span class="text-white/30">.</span></h1>
+                    </div>
+                </div>
+                <p class="text-white/70 text-sm font-bold max-w-lg leading-relaxed mt-20 transform -translate-y-[13px]">
+                    Manage your e-waste procurement, evaluations, and business growth. You currently have <span class="text-white font-black">{{ pending_requests|default:"0" }} pending items</span> in your vicinity.
+                </p>
+            </div>
+        </div>
+
+        <div class="relative z-10 w-full md:w-auto flex flex-col gap-4">
+            <a href="{% url 'vendor:pending_requests' %}" class="bg-white text-primary px-12 py-6 rounded-2xl font-black uppercase tracking-widest text-[12px] shadow-2xl shadow-black/10 hover:scale-[1.05] active:scale-[0.95] transition-all flex items-center justify-center gap-4">
+                <span class="material-symbols-outlined text-xl">travel_explore</span>
+                Browse Nearby
+            </a>
+            <a href="{% url 'vendor:accepted_items' %}" class="glass-pill text-white px-12 py-6 rounded-2xl font-black uppercase tracking-widest text-[12px] hover:bg-white/20 hover:scale-[1.05] transition-all flex items-center justify-center gap-4">
+                <span class="material-symbols-outlined text-xl">inventory_2</span>
+                My Inventory
+            </a>
+        </div>
+    </div>
+
+    <!-- ── PROFILE COMPLETION ALERT ── -->
+    {% if profile_completion.progress < 100 %}
+    <div class="premium-card mb-10 p-6 border-l-4 border-amber-500 bg-amber-50/30 dark:bg-amber-900/10 overflow-hidden relative group">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+            <div class="flex items-center gap-5">
+                <div class="size-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600">
+                    <span class="material-symbols-outlined text-3xl">assignment_late</span>
+                </div>
+                <div>
+                    <h4 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider">Complete Your Profile</h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-bold mt-1">Your business visibility depends on a complete profile. Currently at {{ profile_completion.progress }}%.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-6 w-full md:w-auto">
+                <div class="h-2 w-48 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden shrink-0 hidden sm:block">
+                    <div class="h-full bg-amber-500 rounded-full" style="width: {{ profile_completion.progress }}%"></div>
+                </div>
+                <a href="{% url 'accounts:complete_vendor_profile' %}" class="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-amber-500/20 whitespace-nowrap transition-all">
+                    Finish Now
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ── STATS GRID ── -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        <!-- 1. Nearby Requests -->
+        <div class="premium-card p-6 bg-white dark:bg-slate-800 group overflow-hidden relative border border-slate-100 dark:border-slate-800/50">
+            <div class="absolute -right-6 -top-6 size-20 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-colors"></div>
+            <div class="flex items-start justify-between relative z-10">
+                <div class="size-12 rounded-2xl bg-blue-500/10 dark:bg-blue-500/20 flex items-center justify-center text-blue-500 mb-4">
+                    <span class="material-symbols-outlined text-2xl">near_me</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest bg-blue-50 dark:bg-blue-500/10 px-2 py-1 rounded-lg">Within 5km</span>
+                </div>
+            </div>
+            <h4 class="text-slate-400 dark:text-slate-500 text-[10px] font-bold uppercase tracking-tight mb-1 relative z-10">Pending Nearby</h4>
+            <p class="text-2xl font-extrabold text-slate-700 dark:text-white relative z-10 transition-transform group-hover:translate-x-1">{{ pending_requests|default:"0" }}</p>
+        </div>
+
+        <!-- 2. Active Inventory -->
+        <div class="premium-card p-6 bg-white dark:bg-slate-800 group overflow-hidden relative border border-slate-100 dark:border-slate-800/50">
+            <div class="absolute -right-6 -top-6 size-20 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-colors"></div>
+            <div class="flex items-start justify-between relative z-10">
+                <div class="size-12 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-500 mb-4">
+                    <span class="material-symbols-outlined text-2xl">receipt_long</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-lg">Managed</span>
+                </div>
+            </div>
+            <h4 class="text-slate-400 dark:text-slate-500 text-[10px] font-bold uppercase tracking-tight mb-1 relative z-10">Active Items</h4>
+            <p class="text-2xl font-extrabold text-slate-700 dark:text-white relative z-10 transition-transform group-hover:translate-x-1">{{ accepted_items|default:"0" }}</p>
+        </div>
+
+        <!-- 3. Successfully Recycled -->
+        <div class="premium-card p-6 bg-white dark:bg-slate-800 group overflow-hidden relative border border-slate-100 dark:border-slate-800/50">
+            <div class="absolute -right-6 -top-6 size-20 bg-indigo-500/5 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-colors"></div>
+            <div class="flex items-start justify-between relative z-10">
+                <div class="size-12 rounded-2xl bg-indigo-500/10 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-500 mb-4">
+                    <span class="material-symbols-outlined text-2xl">check_circle</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-50 dark:bg-indigo-500/10 px-2 py-1 rounded-lg">Success</span>
+                </div>
+            </div>
+            <h4 class="text-slate-400 dark:text-slate-500 text-[10px] font-bold uppercase tracking-tight mb-1 relative z-10">Successfully Recycled</h4>
+            <p class="text-2xl font-extrabold text-slate-700 dark:text-white relative z-10 transition-transform group-hover:translate-x-1">{{ completed_items_count|default:"0" }}</p>
+        </div>
+
+        <!-- 4. Total Value -->
+        <div class="premium-card p-6 bg-white dark:bg-slate-800 group overflow-hidden relative border border-slate-100 dark:border-slate-800/50">
+            <div class="absolute -right-6 -top-6 size-20 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
+            <div class="flex items-start justify-between relative z-10">
+                <div class="size-12 rounded-2xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary mb-4">
+                    <span class="material-symbols-outlined text-2xl">payments</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] font-black text-primary dark:text-primary/80 uppercase tracking-widest bg-primary/5 dark:bg-primary/10 px-2 py-1 rounded-lg">Processed</span>
+                </div>
+            </div>
+            <h4 class="text-slate-400 dark:text-slate-500 text-[10px] font-bold uppercase tracking-tight mb-1 relative z-10">Total Value</h4>
+            <p class="text-2xl font-extrabold text-slate-700 dark:text-white relative z-10 transition-transform group-hover:translate-x-1">₹{{ total_value|default:"0.00" }}</p>
+        </div>
+    </div>
+
+    <!-- ── MAIN CONTENT GRID ── -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        
+        <!-- LEFT COLUMN: Recent Items -->
+        <div class="lg:col-span-2 space-y-10">
+            <div class="premium-card p-8 bg-white dark:bg-slate-800">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h3 class="text-lg font-extrabold text-slate-700 dark:text-white">Recent Requests</h3>
+                        <p class="text-[9px] text-slate-400 uppercase tracking-widest font-bold mt-1">Assignments Archive</p>
+                    </div>
+                    <a href="{% url 'vendor:accepted_items' %}" class="group flex items-center gap-2 text-xs font-black text-primary uppercase tracking-widest hover:text-forest transition-colors">
+                        Manage All
+                        <span class="material-symbols-outlined text-lg transition-transform group-hover:translate-x-1">arrow_forward</span>
+                    </a>
+                </div>
+
+                {% if recent_requests %}
+                <div class="space-y-4">
+                    {% for item in recent_requests %}
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 hover:border-primary/20 transition-all group">
+                        <div class="flex items-center gap-4 mb-4 sm:mb-0">
+                            {% if item.photo %}
+                            <div class="relative shrink-0">
+                                <img src="{{ item.photo.url }}" alt="{{ item.title }}" class="size-14 rounded-xl object-cover ring-4 ring-white dark:ring-slate-800 shadow-sm transition-transform group-hover:scale-110">
+                                <div class="absolute -bottom-1 -right-1 size-6 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center p-0.5 shadow-md z-10 transition-transform group-hover:scale-110">
+                                    <div class="size-full rounded-full flex items-center justify-center
+                                        {% if item.status == 'completed' %}bg-primary
+                                        {% elif item.status == 'under_review' %}bg-amber-400
+                                        {% else %}bg-blue-500{% endif %}">
+                                        <span class="material-symbols-outlined text-[11px] font-black text-white">
+                                            {% if item.status == 'completed' %}check
+                                            {% elif item.status == 'under_review' %}timer
+                                            {% else %}history{% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <h5 class="text-sm font-extrabold text-slate-700 dark:text-white group-hover:text-primary transition-colors line-clamp-1">{{ item.title }}</h5>
+                                <p class="text-[10px] text-slate-400 font-bold tracking-tight mt-0.5">{{ item.created_at|date:"M d, Y" }} · #{{ item.pk }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between sm:justify-end gap-6">
+                            <div class="text-right">
+                                <p class="text-sm font-extrabold text-slate-700 dark:text-white">₹{{ item.get_final_value }}</p>
+                                <p class="text-[9px] text-emerald-500/80 font-bold uppercase tracking-tighter mt-0.5">CURRENT VAL.</p>
+                            </div>
+                            <a href="{% url 'vendor:item_detail' item.pk %}" class="flex items-center justify-center size-10 rounded-xl bg-white dark:bg-slate-800 text-slate-400 hover:text-primary hover:shadow-lg transition-all border border-slate-100 dark:border-slate-800">
+                                <span class="material-symbols-outlined">visibility</span>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="flex flex-col items-center justify-center py-12 text-center opacity-60">
+                    <div class="size-20 bg-slate-100 dark:bg-slate-900 rounded-full flex items-center justify-center mb-4">
+                        <span class="material-symbols-outlined text-4xl text-slate-300">inventory</span>
+                    </div>
+                    <p class="text-slate-500 text-sm font-bold">No active requests found.</p>
+                    <a href="{% url 'vendor:pending_requests' %}" class="text-primary text-xs font-black uppercase mt-2 hover:underline">Browse Requests</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Quick Actions & Reports -->
+        <div class="space-y-8">
+            
+            <!-- Quick Actions -->
+            <div class="premium-card p-8 bg-white dark:bg-slate-800">
+                <h3 class="text-base font-extrabold text-slate-700 dark:text-white mb-6 uppercase tracking-wider">Business Actions</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <a href="{% url 'vendor:pending_requests' %}" class="flex flex-col items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 hover:border-primary/20 hover:bg-white dark:hover:bg-slate-900 transition-all group">
+                        <div class="size-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined">travel_explore</span>
+                        </div>
+                        <span class="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest text-center">Nearby</span>
+                    </a>
+                    <a href="{% url 'vendor:accepted_items' %}" class="flex flex-col items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 hover:border-primary/20 hover:bg-white dark:hover:bg-slate-900 transition-all group">
+                        <div class="size-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined">inventory_2</span>
+                        </div>
+                        <span class="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest text-center">Inventory</span>
+                    </a>
+                    <a href="{% url 'vendor:payment' %}" class="flex flex-col items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 hover:border-primary/20 hover:bg-white dark:hover:bg-slate-900 transition-all group">
+                        <div class="size-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500 group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined">payments</span>
+                        </div>
+                        <span class="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest text-center">Payment</span>
+                    </a>
+                    <a href="{% url 'accounts:profile' %}" class="flex flex-col items-center gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 hover:border-primary/20 hover:bg-white dark:hover:bg-slate-900 transition-all group">
+                        <div class="size-12 rounded-xl bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-400">
+                            <span class="material-symbols-outlined">settings_account_box</span>
+                        </div>
+                        <span class="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest text-center">Settings</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Business Goals/Insights -->
+            <div class="premium-card p-8 bg-slate-900 text-white relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform pointer-events-none">
+                    <span class="material-symbols-outlined text-[100px] rotate-12">trending_up</span>
+                </div>
+                
+                <h4 class="text-sm font-black text-primary uppercase tracking-widest mb-4">Business Insight</h4>
+                <p class="text-xs font-bold text-slate-300 leading-relaxed mb-6">
+                    Items processed this month have generated a high yield of recyclable materials. Keep targeting high-value electronics.
+                </p>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        <span>Efficiency Level</span>
+                        <span class="text-white">Optimal</span>
+                    </div>
+                    <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-primary rounded-full progress-glow" style="width: 85%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Support & Feedback -->
+            <div class="premium-card p-6 bg-white dark:bg-slate-800">
+                <div class="flex items-center gap-4">
+                    <div class="size-12 rounded-xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined font-black">support_agent</span>
+                    </div>
+                    <div>
+                        <h5 class="text-xs font-black text-slate-700 dark:text-white uppercase tracking-widest">Vendor Support</h5>
+                        <p class="text-[10px] text-slate-400 font-bold">Help with logistics or payments</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

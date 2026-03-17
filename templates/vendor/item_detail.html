@@ -1,0 +1,952 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Item Management{% endblock %}
+{% block page_subtitle %}Full visibility of item lifecycle and client engagement{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --premium-bg: #f8fafc;
+    }
+
+    html.dark {
+        --premium-bg: #0f172a;
+    }
+
+    body {
+        background-color: var(--premium-bg) !important;
+    }
+
+    .premium-card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 1.5rem;
+    }
+
+    .premium-card:hover {
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        transform: translateY(-2px);
+    }
+
+    .dark .premium-card {
+        background: #1e293b;
+        border-color: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .dark .premium-card:hover {
+        box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.6);
+    }
+
+    .no-hover-card:hover {
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+        transform: none !important;
+    }
+
+    .dark .no-hover-card:hover {
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    .status-badge {
+        font-size: 9px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        padding: 6px 14px;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        backdrop-filter: blur(4px);
+    }
+
+    .collapsible-active {
+        position: relative;
+    }
+
+    .collapsible-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease-out;
+        z-index: 10;
+    }
+
+    .collapsible-active .collapsible-content {
+        max-height: 5000px;
+        transition: max-height 1s ease-in;
+    }
+
+    .arrow-icon {
+        transition: transform 0.3s;
+    }
+
+    .collapsible-active .arrow-icon {
+        transform: rotate(180deg);
+    }
+
+    .js-collapsible {
+        position: relative;
+        z-index: 1;
+    }
+
+    .dashed-line {
+        background-image: linear-gradient(to bottom, #e2e8f0 50%, rgba(255, 255, 255, 0) 0%);
+        background-position: center;
+        background-size: 1px 12px;
+        background-repeat: repeat-y;
+    }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="max-w-5xl mx-auto pb-24 px-4 sm:px-6">
+
+    <!-- ── PROGRESS TRACKER ── -->
+    <div class="mb-10 premium-card p-6 sm:p-10">
+        <div class="flex items-center justify-between max-w-4xl mx-auto relative px-4">
+            <div class="absolute top-5 left-[50px] right-[50px] h-[3px] bg-slate-100 dark:bg-slate-800 rounded-full"></div>
+
+            {% with s=post.status %}
+            <div class="relative z-10 flex flex-col items-center gap-3 w-32 shrink-0">
+                <div class="size-10 rounded-full flex items-center justify-center transition-all duration-500 border-4 border-white dark:border-slate-800 {% if s %}bg-primary text-white shadow-[0_5px_15px_-5px_rgba(23,207,23,0.5)]{% else %}bg-slate-200 dark:bg-slate-700 text-slate-400{% endif %}">
+                    <span class="material-symbols-outlined text-base">cloud_upload</span>
+                </div>
+                <span class="text-[10px] font-extrabold uppercase tracking-widest text-center {% if s %}text-primary{% else %}text-slate-400{% endif %}">Uploaded</span>
+            </div>
+
+            <div class="relative z-10 flex flex-col items-center gap-3 w-32 shrink-0">
+                <div class="size-10 rounded-full flex items-center justify-center transition-all duration-500 border-4 border-white dark:border-slate-800 {% if s != 'pending' or not is_current_vendor %}bg-primary text-white shadow-[0_5px_15px_-5px_rgba(23,207,23,0.5)]{% else %}bg-slate-200 dark:bg-slate-700 text-slate-400{% endif %}">
+                    <span class="material-symbols-outlined text-base">assignment_turned_in</span>
+                </div>
+                <span class="text-[10px] font-extrabold uppercase tracking-widest text-center {% if s != 'pending' or not is_current_vendor %}text-primary{% else %}text-slate-400{% endif %}">Accepted</span>
+            </div>
+
+            <div class="relative z-10 flex flex-col items-center gap-3 w-32 shrink-0">
+                <div class="size-10 rounded-full flex items-center justify-center transition-all duration-500 border-4 border-white dark:border-slate-800 {% if s == 'in_transit' or s == 'collected' or s == 'under_review' or s == 'completed' or s == 'return_requested' or s == 'return_pickup_scheduled' or s == 'return_in_transit' or s == 'returned_to_client' or not is_current_vendor %}bg-primary text-white shadow-[0_5px_15px_-5px_rgba(23,207,23,0.5)]{% else %}bg-slate-200 dark:bg-slate-700 text-slate-400{% endif %}">
+                    <span class="material-symbols-outlined text-base">local_shipping</span>
+                </div>
+                <span class="text-[10px] font-extrabold uppercase tracking-widest text-center {% if s == 'in_transit' or s == 'collected' or s == 'under_review' or s == 'completed' or s == 'return_requested' or s == 'return_pickup_scheduled' or s == 'return_in_transit' or s == 'returned_to_client' or not is_current_vendor %}text-primary{% else %}text-slate-400{% endif %}">In Transit</span>
+            </div>
+
+            <div class="relative z-10 flex flex-col items-center gap-3 w-32 shrink-0">
+                <div class="size-10 rounded-full flex items-center justify-center transition-all duration-500 border-4 border-white dark:border-slate-800 {% if s == 'under_review' or s == 'completed' or s == 'return_requested' or s == 'return_pickup_scheduled' or s == 'return_in_transit' or s == 'returned_to_client' or post.rejection_count or total_offers > 0 %}bg-primary text-white shadow-[0_5px_15px_-5px_rgba(23,207,23,0.5)]{% else %}bg-slate-200 dark:bg-slate-700 text-slate-400{% endif %}">
+                    <span class="material-symbols-outlined text-base">fact_check</span>
+                </div>
+                <span class="text-[10px] font-extrabold uppercase tracking-widest text-center {% if s == 'under_review' or s == 'completed' or s == 'return_requested' or s == 'return_pickup_scheduled' or s == 'return_in_transit' or s == 'returned_to_client' or post.rejection_count or total_offers > 0 %}text-primary{% else %}text-slate-400{% endif %}">Evaluation</span>
+            </div>
+
+            <div class="relative z-10 flex flex-col items-center gap-3 w-32 shrink-0">
+                <div class="size-10 rounded-full flex items-center justify-center transition-all duration-500 border-4 border-white dark:border-slate-800 {% if s == 'completed' or s == 'returned_to_client' or not is_current_vendor %}bg-primary text-white shadow-[0_5px_15px_-5px_rgba(23,207,23,0.5)]{% else %}bg-slate-200 dark:bg-slate-700 text-slate-400{% endif %}">
+                    <span class="material-symbols-outlined text-base">
+                        {% if s == 'returned_to_client' %}keyboard_return
+                        {% elif not is_current_vendor %}local_shipping
+                        {% else %}check_circle{% endif %}
+                    </span>
+                </div>
+                <span class="text-[10px] font-extrabold uppercase tracking-widest text-center leading-tight {% if s == 'completed' or s == 'returned_to_client' or not is_current_vendor %}text-primary{% else %}text-slate-400{% endif %}">
+                    {% if s == 'returned_to_client' %}Returned
+                    {% elif not is_current_vendor %}Transferred
+                    {% elif s == 'completed' %}Complete
+                    {% else %}Finalizing{% endif %}
+                </span>
+            </div>
+            {% endwith %}
+        </div>
+    </div>
+
+    <!-- ── 1. PRODUCT IMAGE-INFO SECTION ── -->
+    <div class="premium-card overflow-hidden mb-8 !rounded-[1.5rem]">
+        <div class="md:flex items-stretch">
+            <div class="md:w-2/5 p-6 sm:p-8 bg-slate-50/50 dark:bg-slate-900/30">
+                <div class="aspect-square rounded-[1rem] overflow-hidden bg-white dark:bg-slate-800 shadow-inner p-4 border border-slate-100 dark:border-slate-700">
+                    {% if post.photo %}
+                    <img src="{{ post.photo.url }}" alt="{{ post.title }}" class="w-full h-full object-cover rounded-[0.8rem] shadow-sm">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-700">
+                        <span class="material-symbols-outlined text-4xl">devices</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="md:w-3/5 p-8 sm:p-10 flex flex-col">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1 min-w-0">
+                        <h2 class="text-2xl font-extrabold text-slate-700 dark:text-white leading-tight truncate">{{ post.title }}</h2>
+                        <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mt-1.5">Item ID #{{ post.pk }} · Received {{ post.created_at|date:"M d, Y" }}</p>
+                    </div>
+                    <div class="shrink-0 flex items-center h-7">
+                        {% if transaction_status == 'transferred' %}
+                        <span class="status-badge bg-amber-50 text-amber-600 border border-amber-100">TRANSFERED</span>
+                        {% else %}
+                        <span class="status-badge {{ post.get_status_badge_pilled_class }}">
+                            {% if post.status == 'collected' %}
+                                {% if post.vendor_declined_reevaluation %}CLIENT ACTION PENDING
+                                {% elif total_offers > 0 %}RE-VALUATION READY
+                                {% else %}VALUATION READY{% endif %}
+                            {% else %}
+                                {{ post.get_vendor_status_tag }}
+                            {% endif %}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="flex-grow">
+                    <div class="mb-14">
+                        <p class="text-[11px] font-extrabold uppercase tracking-[0.15em] text-slate-400 mb-2">Description</p>
+                        <p class="text-slate-600 dark:text-slate-400 text-[15px] leading-relaxed font-semibold">
+                            {{ post.description|default:"No details provided." }}
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-6 mb-3 -mt-[22px]">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Quantity</p>
+                            <p class="text-sm font-black text-slate-800 dark:text-slate-200">{{ post.quantity }} Unit{{ post.quantity|pluralize }}</p>
+                        </div>
+                        <div class="min-w-0 -ml-[27px]">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">AI Category</p>
+                            <p class="text-sm font-black text-slate-800 dark:text-white truncate">{{ post.get_ai_category_display }}</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">AI Condition</p>
+                            <p class="text-sm font-black text-slate-800 dark:text-white">{{ post.get_ai_condition_display }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-6 pb-4 border-t border-slate-100 dark:border-slate-700 flex flex-wrap gap-8 sm:gap-14">
+                    <div class="flex items-center gap-4">
+                        <div class="size-11 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700">
+                            <span class="material-symbols-outlined text-slate-400 text-xl font-bold">smart_toy</span>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest leading-none mb-1.5">Predicted Price</p>
+                            <p class="text-xl font-extrabold text-slate-700 dark:text-white">₹{{ post.ai_estimated_value }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="size-11 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
+                            <span class="material-symbols-outlined text-primary text-xl font-bold">payments</span>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-primary font-extrabold uppercase tracking-widest leading-none mb-1.5">Vendor Price</p>
+                            <p class="text-xl font-extrabold text-primary">₹{{ post.vendor_final_value|default:"0" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── LIVE TRACKING SECTION (auto-renders during active transit) ── -->
+    {% with s=post.status %}
+    {% if s == 'pickup_scheduled' or s == 'in_transit' or s == 'return_pickup_scheduled' or s == 'return_in_transit' %}
+    <div class="js-collapsible premium-card mb-8 border-none" id="erecyclo-tracking-card">
+        <!-- Card Header -->
+        <button type="button" class="w-full text-left p-5 sm:p-7 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 focus:outline-none transition-all group" onclick="this.parentElement.classList.toggle('collapsible-active'); setTimeout(() => { if (typeof tMap !== 'undefined' && tMap) { tMap.invalidateSize(); } }, 400);">
+            <div class="flex items-center gap-4">
+                <div class="size-11 rounded-xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center border border-amber-100 dark:border-amber-900/40 shadow-sm shrink-0">
+                    <span class="material-symbols-outlined text-amber-500 text-xl">directions_car</span>
+                </div>
+                <div>
+                    <h3 class="text-[13px] font-extrabold text-slate-700 dark:text-white uppercase tracking-[0.07em]">Live Tracking</h3>
+                    <p class="text-[11px] font-semibold text-slate-400 mt-0.5" id="er-tracking-phase">Connecting to tracker…</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4 shrink-0">
+                <div class="flex items-center gap-2">
+                    <span id="er-live-badge" class="hidden items-center gap-1.5 text-[8px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full bg-rose-50 dark:bg-rose-900/20 text-rose-600 border border-rose-100 dark:border-rose-800/40">
+                        <span class="size-1.5 rounded-full bg-rose-500 inline-block" style="animation:erPulse 1.4s ease-in-out infinite;"></span> LIVE
+                    </span>
+                    <span id="er-status-chip" class="text-[8px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700">
+                        {% if s == 'pickup_scheduled' %}Pickup Scheduled{% elif s == 'in_transit' %}In Transit{% elif s == 'return_pickup_scheduled' %}Return Pickup{% elif s == 'return_in_transit' %}Return Transit{% endif %}
+                    </span>
+                </div>
+                <span class="material-symbols-outlined text-slate-400 arrow-icon text-3xl">expand_more</span>
+            </div>
+        </button>
+        <div class="collapsible-content">
+        <!-- Collector Info Strip -->
+        <div class="px-5 sm:px-7 py-4 bg-slate-50/60 dark:bg-slate-900/20 border-b border-slate-100 dark:border-slate-800 flex flex-wrap gap-5 sm:gap-8 items-center">
+            <div class="flex items-center gap-3">
+                <div class="size-8 rounded-full bg-amber-50 dark:bg-amber-900/20 border border-amber-100 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-[14px] text-amber-500">person</span>
+                </div>
+                <div>
+                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Collector</p>
+                    <p class="text-[12px] font-extrabold text-slate-700 dark:text-white leading-none mt-0.5" id="er-collector-name">—</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="size-8 rounded-full bg-blue-50 dark:bg-blue-900/20 border border-blue-100 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-[14px] text-blue-500" id="er-vehicle-icon">two_wheeler</span>
+                </div>
+                <div>
+                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Vehicle</p>
+                    <p class="text-[12px] font-extrabold text-slate-700 dark:text-white leading-none mt-0.5" id="er-vehicle-label">—</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+                <div class="size-8 rounded-full bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-[14px] text-emerald-500">route</span>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Route</p>
+                    <p class="text-[11px] font-extrabold text-slate-600 dark:text-slate-300 truncate leading-none mt-0.5" id="er-route-label">Loading…</p>
+                </div>
+            </div>
+        </div>
+        <!-- Map -->
+        <div class="relative" style="height:380px;">
+            <div id="erecyclo-live-map" style="height:100%;width:100%;z-index:1;"></div>
+            <div id="er-map-overlay" class="absolute inset-0 flex flex-col items-center justify-center z-10" style="background:rgba(248,250,252,0.93);">
+                <div class="size-14 rounded-2xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 flex items-center justify-center mb-4 shadow-sm">
+                    <span class="material-symbols-outlined text-amber-500 text-3xl" style="animation:erPulse 1.6s ease-in-out infinite;">my_location</span>
+                </div>
+                <p class="text-[11px] font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-widest text-center px-4" id="er-overlay-msg">Loading tracker…</p>
+                <p class="text-[10px] font-semibold text-slate-400 mt-1">Auto-refreshes every 6 seconds</p>
+            </div>
+        </div>
+        <!-- Legend -->
+        <div class="px-5 sm:px-7 py-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-4 sm:gap-8 items-center">
+            <div class="flex items-center gap-2"><div class="size-2.5 rounded-full bg-amber-400 border-2 border-white shadow-sm shrink-0"></div><span class="text-[10px] font-bold text-slate-500 uppercase tracking-tight">Pickup Point</span></div>
+            <div class="flex items-center gap-2"><div class="size-2.5 rounded-full bg-emerald-500 border-2 border-white shadow-sm shrink-0"></div><span class="text-[10px] font-bold text-slate-500 uppercase tracking-tight">Destination</span></div>
+            <div class="flex items-center gap-2"><div class="size-2.5 rounded-full bg-blue-500 border-2 border-white shadow-sm shrink-0"></div><span class="text-[10px] font-bold text-slate-500 uppercase tracking-tight" id="er-legend-collector">Collector</span></div>
+            <div class="flex items-center gap-2 ml-auto"><span class="material-symbols-outlined text-[12px] text-slate-300">update</span><span class="text-[9px] font-bold text-slate-400" id="er-last-update">—</span></div>
+        </div>
+        </div>
+    </div>
+
+    <style>
+    @keyframes erPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.15);}}
+    .er-vehicle-pin,.er-endpoint-pin{background:none!important;border:none!important;}
+    .er-vehicle-wrap{position:relative;display:flex;align-items:center;justify-content:center;border-radius:50%;border:3px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.3);width:40px;height:40px;}
+    .er-vehicle-wrap .er-arr{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;}
+    .er-endpoint-wrap{width:28px;height:28px;border-radius:50% 50% 50% 0;border:3px solid #fff;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.25);}
+    .er-endpoint-wrap .material-symbols-outlined{transform:rotate(45deg);font-size:13px!important;color:#fff;}
+    .dark #er-map-overlay{background:rgba(15,23,42,0.93)!important;}
+    </style>
+
+    <script>
+    (function(){
+'use strict';
+var POST_PK={% autoescape off %}{{ post.pk }}{% endautoescape %};
+var TRACKING_URL='/collector/tracking/'+POST_PK+'/';
+var POLL_MS=6000;
+var tMap=null,tInterval=null,mapReady=false,fitDone=false;
+var mCollector=null,mPickup=null,mDelivery=null;
+var lGreen=null,lGrey=null;
+var routePts=null,routeKey='',routeBusy=false;
+var GREEN='#22c55e';var BLUE='#3b82f6';
+var VEHICLES={
+  bike:{i:'two_wheeler',l:'Bike / Motorcycle'},
+  scooter:{i:'two_wheeler',l:'Scooter'},
+  auto:{i:'electric_rickshaw',l:'Auto Rickshaw'},
+  van:{i:'local_shipping',l:'Van / Small Truck'},
+  tempo:{i:'local_shipping',l:'Tempo'},
+  pickup:{i:'local_shipping',l:'Pickup Truck'}
+};
+function vI(t){return VEHICLES[t]||VEHICLES.bike;}
+
+/* ─── ICONS ──────────────────────────────────────────── */
+function mkVehicle(t){
+  var v=vI(t);
+  return L.divIcon({
+    html:'<div style="position:relative;width:44px;height:44px;background:'+BLUE+';border-radius:50%;'
+        +'border:3px solid #fff;box-shadow:0 0 0 3px '+BLUE+'44,0 6px 20px '+BLUE+'88;'
+        +'display:flex;align-items:center;justify-content:center;">'
+        +'<span class="material-symbols-outlined" style="color:#fff;font-size:20px;line-height:1;">'+v.i+'</span>'
+        +'<div style="position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);'
+        +'width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;'
+        +'border-top:11px solid '+BLUE+';"></div></div>',
+    iconSize:[44,55],iconAnchor:[22,55],className:''
+  });
+}
+function mkPin(type){
+  var c=type==='pickup'?'#f59e0b':GREEN;
+  var ic=type==='pickup'?'location_on':'flag';
+  return L.divIcon({
+    html:'<div style="width:34px;height:34px;background:'+c+';border-radius:50% 50% 50% 0;'
+        +'transform:rotate(-45deg);border:3px solid #fff;'
+        +'box-shadow:0 4px 14px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;">'
+        +'<span class="material-symbols-outlined" style="transform:rotate(45deg);font-size:16px;color:#fff;line-height:1;">'+ic+'</span>'
+        +'</div>',
+    iconSize:[34,34],iconAnchor:[11,34],className:''
+  });
+}
+
+/* ─── MAP INIT ───────────────────────────────────────── */
+function initMap(){
+  if(mapReady)return; mapReady=true;
+  tMap=L.map('erecyclo-live-map',{zoomControl:true,scrollWheelZoom:true,attributionControl:false});
+  /* Panes: tiles=200, grey=380, green=390, markers=400+ */
+  tMap.createPane('pGrey');  tMap.getPane('pGrey').style.zIndex ='380';
+  tMap.createPane('pGreen'); tMap.getPane('pGreen').style.zIndex='390';
+  /* Pre-create both lines with empty coords */
+  lGrey =L.polyline([],{pane:'pGrey', color:'#94a3b8',weight:5,opacity:.35,dashArray:'8 9',lineCap:'round'}).addTo(tMap);
+  lGreen=L.polyline([],{pane:'pGreen',color:BLUE,    weight:7,opacity:1,  lineCap:'round',lineJoin:'round'}).addTo(tMap);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:20,subdomains:'abcd'}).addTo(tMap);
+  L.control.attribution({position:'bottomright'}).addTo(tMap)
+    .setPrefix('<a href="https://www.openstreetmap.org/copyright" target="_blank">© OSM</a> | <a href="https://carto.com/attributions" target="_blank">CARTO</a>');
+}
+
+/* ─── ROUTING ────────────────────────────────────────── */
+async function fetchRoute(pLat,pLng,dLat,dLng){
+  var key=[pLat,pLng,dLat,dLng].join(',');
+  if(routeKey===key||routeBusy)return;
+  routeBusy=true;
+  try{
+    var url='https://router.project-osrm.org/route/v1/driving/'
+           +pLng+','+pLat+';'+dLng+','+dLat+'?overview=full&geometries=geojson';
+    var res=await fetch(url,{mode:'cors'});
+    var j=await res.json();
+    if(j.code==='Ok'&&j.routes&&j.routes[0]){
+      routePts=j.routes[0].geometry.coordinates.map(function(c){return[c[1],c[0]];});
+      routeKey=key;
+      /* Draw FULL route green immediately */
+      lGreen.setLatLngs(routePts);
+      lGrey.setLatLngs([]);
+    }
+  }catch(e){
+    /* OSRM unreachable — draw straight green fallback */
+    routePts=[[pLat,pLng],[dLat,dLng]];
+    routeKey=key;
+    lGreen.setLatLngs(routePts);
+    lGrey.setLatLngs([]);
+  }
+  routeBusy=false;
+}
+
+/* ─── SPLIT AT COLLECTOR POSITION ───────────────────── */
+function splitRoute(cLat,cLng){
+  if(!routePts||routePts.length<2)return;
+  /* Find closest route point to collector */
+  var best=0,bestD=Infinity;
+  for(var i=0;i<routePts.length;i++){
+    var dx=routePts[i][0]-cLat,dy=routePts[i][1]-cLng;
+    var d=dx*dx+dy*dy;
+    if(d<bestD){bestD=d;best=i;}
+  }
+  /* Only split if collector is genuinely past the start (>0.0002 deg ≈ 22m from origin) */
+  var ox=routePts[0][0]-cLat,oy=routePts[0][1]-cLng;
+  var distFromOrigin=Math.sqrt(ox*ox+oy*oy);
+  if(distFromOrigin<0.0004||best===0){
+    /* Collector still near start — show FULL route green */
+    lGreen.setLatLngs(routePts);
+    lGrey.setLatLngs([]);
+    return;
+  }
+  var covered=routePts.slice(0,best+1);
+  var remain =routePts.slice(best);
+  lGrey.setLatLngs(covered.length>=2?covered:[]);
+  lGreen.setLatLngs(remain.length>=2?remain:routePts);
+}
+
+/* ─── HELPERS ────────────────────────────────────────── */
+function el(id){return document.getElementById(id);}
+function txt(id,v){var e=el(id);if(e)e.textContent=v;}
+
+/* ─── APPLY POLL DATA ────────────────────────────────── */
+async function applyData(d){
+  var ov=el('er-map-overlay'),lb=el('er-live-badge');
+  txt('er-collector-name',d.collector_name||'—');
+  var v=vI(d.vehicle_type);
+  txt('er-vehicle-label',v.l+(d.vehicle_number?' · '+d.vehicle_number:''));
+  var vi=el('er-vehicle-icon');if(vi)vi.textContent=v.i;
+  txt('er-route-label',(d.pickup_label||'?')+' → '+(d.delivery_label||'?'));
+  txt('er-legend-collector',d.collector_name||'Collector');
+  var pLabels={regular_to_pickup:'↗ Collector en route to client',regular_delivering:'🚚 Item en route to your facility',return_to_pickup:'↗ Collector heading to your facility',return_delivering:'🔄 Item returning to client',transfer_to_pickup:'↗ Collector at previous vendor',transfer_delivering:'🔀 Transfer incoming to your facility'};
+  txt('er-tracking-phase',pLabels[(d.trip_type||'regular')+'_'+(d.phase||'to_pickup')]||'In transit');
+  txt('er-last-update','Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'}));
+  if(!d.trip_started){
+    if(ov)ov.style.display='flex';
+    if(lb)lb.classList.add('hidden');
+    txt('er-overlay-msg','Waiting for collector to start trip…');
+    return;
+  }
+  if(ov)ov.style.display='none';
+  if(lb)lb.classList.remove('hidden');
+  var hP=d.pickup_lat&&d.pickup_lng,hD=d.delivery_lat&&d.delivery_lng,hC=d.collector_lat&&d.collector_lng;
+  /* Pins */
+  if(hP){
+    var pLL=[d.pickup_lat,d.pickup_lng];
+    if(!mPickup)mPickup=L.marker(pLL,{icon:mkPin('pickup')}).bindPopup('<b style="color:#f59e0b">📍 Pickup</b><br><small>'+d.pickup_label+'</small>').addTo(tMap);
+    else mPickup.setLatLng(pLL);
+  }
+  if(hD){
+    var dLL=[d.delivery_lat,d.delivery_lng];
+    if(!mDelivery)mDelivery=L.marker(dLL,{icon:mkPin('delivery')}).bindPopup('<b style="color:'+GREEN+'">🏁 Destination</b><br><small>'+d.delivery_label+'</small>').addTo(tMap);
+    else mDelivery.setLatLng(dLL);
+  }
+  /* Fetch road route once */
+  if(hP&&hD)await fetchRoute(d.pickup_lat,d.pickup_lng,d.delivery_lat,d.delivery_lng);
+  /* Collector marker */
+  if(hC){
+    var cLL=[d.collector_lat,d.collector_lng];
+    if(!mCollector)mCollector=L.marker(cLL,{icon:mkVehicle(d.vehicle_type),zIndexOffset:2000}).bindPopup('<b>'+d.collector_name+'</b><br><small>'+v.l+'</small>').addTo(tMap);
+    else{mCollector.setLatLng(cLL);mCollector.setIcon(mkVehicle(d.vehicle_type));}
+    splitRoute(d.collector_lat,d.collector_lng);
+  }
+  /* Fit once */
+  if(!fitDone){
+    var pts=[];
+    if(hP)pts.push([d.pickup_lat,d.pickup_lng]);
+    if(hD)pts.push([d.delivery_lat,d.delivery_lng]);
+    if(hC)pts.push([d.collector_lat,d.collector_lng]);
+    if(pts.length>=2){tMap.fitBounds(L.latLngBounds(pts),{padding:[50,50],maxZoom:14});fitDone=true;}
+  }
+  tMap.invalidateSize();
+}
+
+/* ─── POLL ───────────────────────────────────────────── */
+async function poll(){
+  try{
+    var r=await fetch(TRACKING_URL,{headers:{'X-Requested-With':'XMLHttpRequest'},credentials:'same-origin'});
+    if(!r.ok)return;
+    var d=await r.json();
+    if(!d.is_active){txt('er-overlay-msg','Live tracking not active right now');return;}
+    await applyData(d);
+  }catch(e){}
+}
+
+function start(){initMap();poll();tInterval=setInterval(poll,POLL_MS);}
+var tInterval=null;
+function load(){
+  if(typeof L!=='undefined'){start();return;}
+  var css=document.createElement('link');css.rel='stylesheet';
+  css.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';css.crossOrigin='';
+  document.head.appendChild(css);
+  var js=document.createElement('script');js.crossOrigin='';
+  js.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+  js.onload=start;document.head.appendChild(js);
+}
+window.addEventListener('beforeunload',function(){if(tInterval)clearInterval(tInterval);});
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',load);}else{load();}
+})();
+    </script>
+    {% endif %}
+    {% endwith %}
+
+    <!-- ── 2. PICK-UP LOGISTICS SECTION ── -->
+    <div class="mb-14 group">
+        <div class="premium-card flex flex-col md:flex-row overflow-hidden hover:shadow-xl transition-all duration-300 border border-slate-100 dark:border-slate-800/60">
+            <!-- Location Panel -->
+            <div class="md:w-1/4 bg-emerald-50/50 dark:bg-emerald-950/20 p-8 flex flex-col items-center justify-center gap-4 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800">
+                <div class="size-14 rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center text-primary shadow-md border border-slate-100 dark:border-slate-700">
+                    <span class="material-symbols-outlined text-2xl">location_on</span>
+                </div>
+                <div class="text-center">
+                    <h4 class="text-[10px] font-extrabold uppercase tracking-[0.15em] text-slate-400 mb-1">Pick-up Info</h4>
+                    <p class="text-[13px] font-extrabold text-slate-700 dark:text-slate-200">Pickup Address</p>
+                </div>
+            </div>
+
+            <!-- Address Content -->
+            <div class="md:w-3/4 p-8 sm:p-10 flex flex-col justify-center bg-white dark:bg-slate-800/10">
+                <div class="mb-8">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Complete Address</p>
+                    <p class="text-[16px] text-slate-800 dark:text-slate-100 font-bold leading-tight">{{ post.address }}</p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="bg-slate-50 dark:bg-slate-900/40 px-5 py-3 rounded-xl border border-slate-100 dark:border-slate-800 flex-1 min-w-[120px]">
+                        <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-tight mb-1">Latitude</p>
+                        <p class="text-xs font-extrabold text-slate-700 dark:text-slate-300">{{ post.latitude|floatformat:4 }}</p>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-900/40 px-5 py-3 rounded-xl border border-slate-100 dark:border-slate-800 flex-1 min-w-[120px]">
+                        <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-tight mb-1">Longitude</p>
+                        <p class="text-xs font-extrabold text-slate-700 dark:text-slate-300">{{ post.longitude|floatformat:4 }}</p>
+                    </div>
+                    <a href="https://www.google.com/maps?q={{ post.latitude }},{{ post.longitude }}" target="_blank"
+                        class="size-12 rounded-xl bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-slate-900 shadow-lg hover:scale-105 transition-transform shrink-0">
+                        <span class="material-symbols-outlined">directions</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── 3. CLIENT & COLLECTOR SECTION ── -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+        <!-- Client Card -->
+        <div class="premium-card p-6 sm:p-8 hover-premium relative overflow-hidden border-blue-100/50 hover:shadow-xl transition-all duration-300 dark:border-blue-900/20">
+            <div class="absolute top-4 right-4">
+                <span class="status-badge bg-blue-50 text-blue-600 border border-blue-100 text-[8px] shadow-sm">OWNER</span>
+            </div>
+            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                <span class="size-1.5 bg-blue-500 rounded-full"></span> Client Details
+            </h4>
+            <div class="flex items-center gap-5">
+                <div class="size-14 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm overflow-hidden text-blue-600">
+                    {% if post.user.client_profile.profile_photo %}
+                        <img src="{{ post.user.client_profile.profile_photo.url }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <span class="material-symbols-outlined text-3xl">person</span>
+                    {% endif %}
+                </div>
+                <div class="min-w-0">
+                    <p class="text-[16px] font-extrabold text-slate-700 dark:text-white truncate">{{ post.user.get_full_name }}</p>
+                    <p class="text-xs font-bold text-slate-500 truncate mt-0.5">{{ post.user.email }}</p>
+                    <p class="text-xs font-bold text-slate-500 mt-1">{{ post.user.phone_number }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Collector Card -->
+        <div class="premium-card p-6 sm:p-8 hover-premium relative overflow-hidden border-amber-100/50 hover:shadow-xl transition-all duration-300 dark:border-amber-900/20">
+            <div class="absolute top-4 right-4">
+                <span class="status-badge bg-amber-50 text-amber-600 border border-amber-100 text-[8px] shadow-sm">{{ collector_status_tag|upper }}</span>
+            </div>
+            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                <span class="size-1.5 bg-amber-500 rounded-full"></span> Collector
+            </h4>
+            {% if post.status == 'return_requested' %}
+            <div class="flex items-center gap-4 py-2">
+                <span class="material-symbols-outlined text-slate-300 text-4xl animate-pulse">person_search</span>
+                <p class="text-sm font-bold text-slate-400">Finding collector nearby for return...</p>
+            </div>
+            {% elif post.collector or post.return_collector %}
+            <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-5 min-w-0">
+                    <div class="size-14 flex-shrink-0 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm overflow-hidden text-amber-600">
+                        {% with c=post.return_collector|default:post.collector %}
+                            {% if c.collector_profile.profile_photo %}
+                                <img src="{{ c.collector_profile.profile_photo.url }}" class="w-full h-full object-cover">
+                            {% else %}
+                                <span class="material-symbols-outlined text-3xl">person</span>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    <div class="min-w-0">
+                        {% with c=post.return_collector|default:post.collector %}
+                        <p class="text-[16px] font-extrabold text-slate-700 dark:text-white truncate">{{ c.get_full_name }}</p>
+                        <p class="text-xs font-bold text-slate-500 truncate mt-0.5">{{ c.email }}</p>
+                        <p class="text-xs font-bold text-slate-500 mt-1">{{ c.phone_number }}</p>
+                        {% if post.return_collector %}
+                        <p class="text-[10px] font-extrabold text-amber-500 mt-1 uppercase tracking-widest">Return active</p>
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+
+                {% if post.delivery_otp and post.status == 'in_transit' and is_current_vendor %}
+                <div class="flex-shrink-0 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 rounded-lg flex flex-col items-center">
+                    <span class="text-[8px] font-black text-emerald-600/60 uppercase tracking-widest leading-none mb-1">Delivery OTP</span>
+                    <span class="text-sm font-black text-emerald-600 tracking-widest leading-none">{{ post.delivery_otp }}</span>
+                </div>
+                {% endif %}
+
+                {% if post.pickup_otp and post.status == 'pickup_scheduled' and transaction_status == 'transferred' %}
+                <div class="flex-shrink-0 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 rounded-lg flex flex-col items-center">
+                    <span class="text-[8px] font-black text-emerald-600/60 uppercase tracking-widest leading-none mb-1">Pickup OTP</span>
+                    <span class="text-sm font-black text-emerald-600 tracking-widest leading-none">{{ post.pickup_otp }}</span>
+                </div>
+                {% endif %}
+
+                {% if post.return_pickup_otp and post.status == 'return_pickup_scheduled' and is_current_vendor %}
+                <div class="flex-shrink-0 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 rounded-lg flex flex-col items-center">
+                    <span class="text-[8px] font-black text-emerald-600/60 uppercase tracking-widest leading-none mb-1">Return OTP</span>
+                    <span class="text-sm font-black text-emerald-600 tracking-widest leading-none">{{ post.return_pickup_otp }}</span>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="flex items-center gap-4 py-2">
+                <span class="material-symbols-outlined text-slate-300 text-4xl animate-pulse">person_search</span>
+                <p class="text-sm font-bold text-slate-400">Searching for collector...</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ── CTC BOX (CURRENT STATUS) ── -->
+    <div class="premium-card no-hover-card p-6 mb-16 bg-emerald-500/5 dark:bg-emerald-500/5 border-emerald-500/20 ring-1 ring-emerald-500/10">
+        <div class="flex items-start gap-4">
+            <div class="size-12 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0 border border-emerald-500/20 text-emerald-600">
+                <span class="material-symbols-outlined text-xl font-extrabold">verified</span>
+            </div>
+            <div>
+                <p class="text-[11px] font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1.5">CURRENT STATUS</p>
+                <p class="text-[15px] font-extrabold text-slate-700 dark:text-slate-100 leading-relaxed">{{ status_msg }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── EVALUATION ACTIONS (VENDOR ONLY) ── -->
+    <div class="flex flex-wrap gap-6 mb-20 justify-center items-center mt-10">
+        {% if is_current_vendor and transaction_status == 'active' %}
+            {% if post.status == 'collected' and not post.vendor_declined_reevaluation %}
+                <div class="flex flex-col sm:flex-row gap-6 items-center">
+                    {% if total_offers > 0 %}
+                    <a href="{% url 'vendor:decline_reevaluation' post.pk %}"
+                        class="w-[310px] bg-slate-900 text-white hover:bg-black py-5 rounded-xl font-black text-xs uppercase tracking-widest transition-all hover:scale-105 flex items-center justify-center gap-2 shadow-xl shadow-slate-900/10">
+                        <span class="material-symbols-outlined text-sm font-bold">cancel_presentation</span> 
+                        Decline Re-evaluation
+                    </a>
+                    {% endif %}
+
+                    <a href="{% url 'vendor:evaluate_item' post.pk %}"
+                        class="w-[310px] bg-primary hover:bg-forest text-white py-5 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-primary/20 transition-all hover:scale-105 flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-sm font-bold">rate_review</span> 
+                        {% if total_offers > 0 %}Prepare Re-evaluation{% else %}Perform Evaluation{% endif %}
+                    </a>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- ── 4. VENDOR EVALUATION HISTORY ── -->
+    <div class="js-collapsible mb-12 overflow-hidden premium-card border-none">
+        <button class="w-full p-6 sm:p-8 flex items-center justify-between focus:outline-none bg-white dark:bg-slate-800"
+                onclick="this.parentElement.classList.toggle('collapsible-active')">
+            <div class="flex items-center gap-4">
+                <div class="size-11 rounded-xl bg-green-50 dark:bg-green-900/20 flex items-center justify-center border border-green-100 dark:border-green-800 shadow-sm text-green-600">
+                    <span class="material-symbols-outlined">history</span>
+                </div>
+                <div class="text-left">
+                    <h3 class="text-[14px] font-extrabold text-slate-700 dark:text-white uppercase tracking-[0.06em]">VENDOR EVALUATION HISTORY</h3>
+                    <p class="text-[11px] font-bold text-slate-400 tracking-widest">Negotiation and Assessment Logs</p>
+                </div>
+            </div>
+            <span class="material-symbols-outlined text-slate-400 arrow-icon text-3xl">expand_more</span>
+        </button>
+
+        <div class="collapsible-content">
+            <div class="p-6 sm:p-8 pt-4 bg-slate-50 dark:bg-slate-900/10 border-t border-slate-100 dark:border-slate-800/50">
+                <div class="space-y-4">
+                    {% if vendor_history %}
+                    {% for vh in vendor_history %}
+                    <div class="relative">
+                        <div class="flex flex-col gap-4 py-3 relative">
+                            <div class="absolute left-4 top-0 bottom-0 w-[1px] dashed-line opacity-50"></div>
+                            
+                            <!-- Vendor Phase Header -->
+                            <div class="flex items-center justify-between bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-800 relative z-10 shadow-sm {% if vh.can_view_evaluations %}cursor-pointer hover:border-primary/30 group{% else %}opacity-75{% endif %} transition-all"
+                                {% if vh.can_view_evaluations %}onclick="const vDetails = this.nextElementSibling; vDetails.classList.toggle('hidden');"{% endif %}>
+                                <div class="flex items-center gap-4">
+                                    <div class="size-16 rounded-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm overflow-hidden text-slate-400 {% if vh.is_this_vendor %}text-primary{% endif %}">
+                                        <span class="material-symbols-outlined text-3xl">storefront</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-[14px] font-extrabold text-slate-700 dark:text-white">{{ vh.vendor.get_full_name }} {% if vh.is_this_vendor %}(YOU){% endif %}</h4>
+                                        <div class="flex gap-2">
+                                            <span class="text-[9px] font-extrabold tracking-widest uppercase px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500">Vendor {{ vh.order }}</span>
+                                            <span class="status-badge py-0.5 px-2 text-[8px] bg-slate-100 dark:bg-slate-900 text-slate-500 border border-slate-200 dark:border-slate-700">{{ vh.final_status|upper }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if vh.can_view_evaluations %}
+                                <span class="material-symbols-outlined text-slate-300 group-hover:text-primary transition-colors">unfold_more</span>
+                                {% else %}
+                                <div class="flex flex-col items-end">
+                                    <span class="material-symbols-outlined text-slate-300 text-sm">lock</span>
+                                    <span class="text-[7px] font-black text-slate-300 uppercase tracking-widest mt-1">LOGS LOCKED</span>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Timeline of Offers -->
+                            {% if vh.can_view_evaluations %}
+                            <div class="hidden transition-all duration-300">
+                                <div class="relative pl-10 space-y-8 pt-6">
+                                    {% for eval in vh.evaluations %}
+                                    <div class="relative flex flex-col gap-4">
+                                        <!-- Vertical Line Node -->
+                                        <div class="absolute -left-[28.5px] top-1.5 size-2.5 rounded-full bg-primary/40 border-2 border-white dark:border-slate-800"></div>
+                                        
+                                        <!-- Vendor Offer (Sent - Right Aligned) -->
+                                        <div class="flex flex-col items-end">
+                                            <div class="bg-white dark:bg-slate-800/40 p-5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-md w-4/5 sm:w-3/5">
+                                                <div class="flex items-center justify-between mb-3">
+                                                    <p class="text-[9px] font-black text-primary uppercase tracking-widest text-right">Evaluation Offer {{ forloop.counter }}</p>
+                                                    <p class="text-[9px] font-bold text-slate-400">{{ eval.evaluated_at|date:"M d, H:i" }}</p>
+                                                </div>
+                                                <div class="flex items-center gap-4 mb-3 justify-end">
+                                                    <span class="text-[9px] font-extrabold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 uppercase border border-slate-200 dark:border-slate-700">{{ eval.evaluation_type|title }}</span>
+                                                    <p class="text-[16px] font-extrabold text-slate-700 dark:text-white leading-none">₹{{ eval.vendor_final_value }}</p>
+                                                </div>
+                                                <p class="text-[12px] font-bold text-slate-500 leading-relaxed italic text-right">"{{ eval.vendor_remarks|default:"Assessment completed." }}"</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Vendor Declined Re-evaluation (right-aligned, vendor action) -->
+                                        {% if forloop.last and vh.is_current and post.vendor_declined_reevaluation %}
+                                        <div class="flex flex-col items-end">
+                                            <div class="p-4 bg-rose-50/50 dark:bg-rose-900/10 border border-rose-100/50 rounded-xl w-4/5 sm:w-3/5 shadow-md">
+                                                <div class="flex items-center gap-3 justify-end">
+                                                    <span class="text-[9px] font-extrabold tracking-widest uppercase text-rose-600">Declined Re-evaluation</span>
+                                                    <span class="material-symbols-outlined text-xs text-rose-400">cancel</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+
+                                        <!-- Client Response (Left Aligned) — mirrors client upload_detail exactly -->
+                                        {% if eval.client_choice or eval.rejected_by_client or vh.final_status == 'completed' and forloop.last %}
+                                        <div class="flex flex-col items-start">
+                                            <div class="p-5 rounded-xl border w-4/5 sm:w-3/5 relative shadow-md
+                                                {% if eval.client_choice == 'accepted' or vh.final_status == 'completed' and forloop.last %}
+                                                    bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-100/50
+                                                {% elif eval.client_choice == 'return' or eval.client_choice == 'transfer' %}
+                                                    bg-amber-50/50 dark:bg-amber-900/10 border-amber-100/50
+                                                {% else %}
+                                                    bg-indigo-50/50 dark:bg-indigo-900/10 border-indigo-100/50
+                                                {% endif %}">
+                                                <div class="flex items-center gap-3 mb-2 justify-start">
+                                                    <span class="material-symbols-outlined text-xs
+                                                        {% if eval.client_choice == 'accepted' or vh.final_status == 'completed' and forloop.last %}text-emerald-400
+                                                        {% elif eval.client_choice == 'return' %}text-amber-400
+                                                        {% elif eval.client_choice == 'transfer' %}text-amber-400
+                                                        {% else %}text-indigo-400{% endif %}">
+                                                        {% if eval.client_choice == 'accepted' or vh.final_status == 'completed' and forloop.last %}check_circle
+                                                        {% elif eval.client_choice == 'return' %}assignment_return
+                                                        {% elif eval.client_choice == 'transfer' %}local_shipping
+                                                        {% else %}chat{% endif %}
+                                                    </span>
+                                                    <span class="text-[9px] font-extrabold tracking-widest uppercase
+                                                        {% if eval.client_choice == 'accepted' or vh.final_status == 'completed' and forloop.last %}text-emerald-600
+                                                        {% elif eval.client_choice == 'return' or eval.client_choice == 'transfer' %}text-amber-600
+                                                        {% else %}text-indigo-600{% endif %}">
+                                                        {% if eval.client_choice %}{{ eval.get_client_choice_display }}{% elif vh.final_status == 'completed' and forloop.last %}Accepted Offer{% else %}Re-evaluation Requested{% endif %}
+                                                    </span>
+                                                </div>
+                                                <div class="space-y-2">
+                                                    {% if eval.client_requested_value %}
+                                                    <div class="flex items-center justify-start gap-2">
+                                                        <span class="text-[8px] font-black text-indigo-400 uppercase tracking-widest">Counter:</span>
+                                                        <span class="text-sm font-black text-indigo-700 dark:text-indigo-400">₹{{ eval.client_requested_value }}</span>
+                                                    </div>
+                                                    {% endif %}
+                                                    <p class="text-[11px] font-bold text-left leading-relaxed
+                                                        {% if eval.client_choice == 'accepted' or vh.final_status == 'completed' and forloop.last %}text-emerald-800 dark:text-emerald-300
+                                                        {% elif eval.client_choice == 'return' or eval.client_choice == 'transfer' %}text-amber-800 dark:text-amber-300
+                                                        {% else %}text-indigo-800 dark:text-indigo-300{% endif %}">
+                                                        {% if eval.rejection_reason %}
+                                                            <span class="block text-[9px] text-indigo-400 uppercase tracking-widest mb-1">Client Remark</span>
+                                                            {{ eval.rejection_reason }}
+                                                        {% elif eval.client_choice == 'accepted' or vh.final_status == 'completed' and forloop.last %}
+                                                            I accept this offer. Proceed with recycling.
+                                                        {% elif eval.client_choice == 'return' %}
+                                                            I'd like my item back. Please initiate return pickup.
+                                                        {% elif eval.client_choice == 'transfer' %}
+                                                            I want to try another recycler for this item.
+                                                        {% else %}
+                                                            I am requesting a re-evaluation of this price.
+                                                        {% endif %}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% if not forloop.last %}
+                        <div class="flex flex-col items-center justify-center py-8 relative">
+                            <div class="absolute left-1/2 top-0 bottom-0 w-[1px] dashed-line opacity-30"></div>
+                            <div class="z-20 bg-emerald-500/5 dark:bg-emerald-500/10 px-8 py-2.5 rounded-full border border-emerald-500/20 text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em] flex items-center gap-3 shadow-md backdrop-blur-sm">
+                                <span class="material-symbols-outlined text-[18px] animate-bounce">arrow_upward</span>
+                                <span>Item Transferred to New Vendor</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="py-16 text-center opacity-40">
+                         <span class="material-symbols-outlined text-4xl mb-2 text-slate-300">pending_actions</span>
+                         <p class="text-xs font-black uppercase tracking-widest">Awaiting assessment logs...</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── 5. COLLECTOR SHIPMENT LOG ── -->
+    <div class="js-collapsible mb-24 overflow-hidden premium-card border-none">
+        <button class="w-full p-6 sm:p-8 flex items-center justify-between focus:outline-none bg-white dark:bg-slate-800"
+                onclick="this.parentElement.classList.toggle('collapsible-active')">
+            <div class="flex items-center gap-4">
+                <div class="size-11 rounded-xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center border border-amber-100 dark:border-amber-800 shadow-sm text-amber-600">
+                    <span class="material-symbols-outlined">distance</span>
+                </div>
+                <div class="text-left">
+                    <h3 class="text-[14px] font-extrabold text-slate-700 dark:text-white uppercase tracking-[0.06em]">Collector Shipment History</h3>
+                    <p class="text-[11px] font-bold text-slate-400 tracking-widest uppercase">Movement & Tracking</p>
+                </div>
+            </div>
+            <span class="material-symbols-outlined text-slate-400 arrow-icon text-3xl">expand_more</span>
+        </button>
+
+        <div class="collapsible-content">
+            <div class="p-6 sm:p-8 pt-6 bg-slate-50 dark:bg-slate-900/10 border-t border-slate-100 dark:border-slate-800/50 space-y-4">
+                {% if collector_history %}
+                {% for item in collector_history %}
+                <div class="group">
+                    <div class="flex items-center gap-4 bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm cursor-pointer hover:border-amber-200 transition-all"
+                        onclick="const cDetails = this.nextElementSibling; cDetails.classList.toggle('hidden');">
+                        <div class="size-12 rounded-2xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center border border-slate-100 dark:border-slate-800 shadow-sm shrink-0 overflow-hidden text-slate-400">
+                            <span class="material-symbols-outlined text-xl">electric_moped</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                <h5 class="text-[14px] font-extrabold text-slate-700 dark:text-white truncate">{{ item.collector.get_full_name }}</h5>
+                                <span class="text-[8px] font-black uppercase px-2 py-0.5 rounded {% if item.is_completed %}bg-primary/10 text-primary border border-primary/20{% else %}bg-amber-50 text-amber-600 border border-amber-100{% endif %}">{{ item.type }}</span>
+                            </div>
+                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-tight">{{ item.date|date:"M d, Y · H:i" }}</p>
+                        </div>
+                        <div class="text-right px-2">
+                            <span class="text-[9px] font-black uppercase tracking-widest block mb-1 {% if item.is_completed %}text-primary{% else %}text-amber-500{% endif %}">{{ item.status }}</span>
+                            <span class="material-symbols-outlined text-slate-300 text-sm">unfold_more</span>
+                        </div>
+                    </div>
+
+                    <div class="hidden mt-4 ml-6 pl-8 border-l-2 border-slate-200 dark:border-slate-800 space-y-6 py-4 bg-slate-50/50 dark:bg-slate-800/20 rounded-r-2xl transition-all duration-300">
+                        <div class="space-y-2">
+                            <h6 class="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                                <span class="size-1.5 rounded-full bg-amber-400"></span>
+                                {{ item.pickup_name|upper }}
+                            </h6>
+                            <p class="text-[12px] text-slate-700 dark:text-slate-300 font-bold leading-relaxed pr-6">{{ item.pickup_address }}</p>
+                            <div class="text-[10px] font-mono text-slate-400 bg-white/50 dark:bg-slate-900/50 px-2 py-1 rounded inline-block border border-slate-100 dark:border-slate-800">
+                                <span class="font-bold mr-1 opacity-50 text-[8px]">Lat:</span> {{ item.pickup_lat|floatformat:4 }} 
+                                <span class="font-bold mx-2 opacity-30 text-[8px]">|</span> 
+                                <span class="font-bold mr-1 opacity-50 text-[8px]">Long:</span> {{ item.pickup_long|floatformat:4 }}
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <h6 class="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                                <span class="size-1.5 rounded-full bg-emerald-400"></span>
+                                {{ item.delivery_name|upper }}
+                            </h6>
+                            <p class="text-[12px] text-slate-700 dark:text-slate-300 font-bold leading-relaxed pr-6">{{ item.delivery_address }}</p>
+                            <div class="text-[10px] font-mono text-slate-400 bg-white/50 dark:bg-slate-900/50 px-2 py-1 rounded inline-block border border-slate-100 dark:border-slate-800">
+                                <span class="font-bold mr-1 opacity-50 text-[8px]">Lat:</span> {{ item.delivery_lat|floatformat:4 }} 
+                                <span class="font-bold mx-2 opacity-30 text-[8px]">|</span> 
+                                <span class="font-bold mr-1 opacity-50 text-[8px]">Long:</span> {{ item.delivery_long|floatformat:4 }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="py-12 text-center opacity-40">
+                    <span class="material-symbols-outlined text-4xl mb-2">departure_board</span>
+                    <p class="text-xs font-black uppercase tracking-widest">No logistics movement recorded yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

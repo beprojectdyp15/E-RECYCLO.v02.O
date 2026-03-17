@@ -1,0 +1,370 @@
+{% extends 'base.html' %}
+{% block title %}Review Offer - eRecyclo{% endblock %}
+{% block page_title %}Review Vendor Offer{% endblock %}
+{% block page_subtitle %}Carefully review the vendor's assessment before deciding{% endblock %}
+{% block extra_css %}
+<style>
+    .premium-card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 1.5rem;
+    }
+
+    .premium-card:hover {
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        transform: translateY(-2px);
+    }
+
+    .dark .premium-card {
+        background: #1e293b;
+        border-color: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .status-badge {
+        font-size: 8px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        padding: 5px 12px;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        backdrop-filter: blur(4px);
+    }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="max-w-4xl mx-auto space-y-6 pb-20 px-4 sm:px-0">
+
+    <!-- Header Summary: My Uploads Styled Card -->
+    <div class="premium-card overflow-hidden group">
+        <div class="flex flex-col md:flex-row items-stretch min-h-[250px]">
+            <!-- IMAGE SIDE -->
+            <div class="md:w-[35%] p-6 md:pr-0 flex items-center justify-center">
+                <!-- Standardized Image Wrapper -->
+                <div class="size-48 rounded-[1.2rem] overflow-hidden bg-white dark:bg-slate-900 shadow-inner p-2.5 border border-slate-100 dark:border-slate-800 shrink-0 relative">
+                    {% if post.photo %}
+                    <img src="{{ post.photo.url }}" alt="{{ post.title }}"
+                         class="w-full h-full object-cover rounded-[1rem] group-hover:scale-105 transition-transform duration-700">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-700">
+                        <span class="material-symbols-outlined text-4xl">devices</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Item Pip -->
+                    <div class="absolute top-4 right-4 z-10">
+                         <span class="flex size-3">
+                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                             <span class="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+                         </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTENT SIDE -->
+            <div class="flex-1 p-8 md:pl-6 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-start justify-between gap-4 mb-4">
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-xl font-extrabold text-slate-800 dark:text-white leading-tight group-hover:text-primary transition-colors truncate mb-1">{{ post.title }}</h3>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ post.created_at|date:"M d, Y" }} · #{{ post.pk }}</p>
+                        </div>
+                        <div class="shrink-0 flex flex-col items-end gap-2">
+                            <span class="status-badge {{ post.get_status_badge_pilled_class }} py-1 px-3 text-[9px] font-black uppercase tracking-wider rounded-lg leading-none whitespace-nowrap">
+                                {{ post.get_client_status_tag }}
+                            </span>
+                            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/10 border border-primary/20 shadow-sm shadow-primary/5">
+                                <span class="material-symbols-outlined text-[14px] text-primary fill-1">verified</span>
+                                <span class="text-[9px] font-black uppercase tracking-tight text-primary">Offer #{{ post.offer_count }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description or Subtext -->
+                    <p class="text-[12px] text-slate-500 font-semibold mb-6 leading-relaxed line-clamp-2">
+                        {{ post.description|default:"Reviewing the vendor's valuation offer for your e-waste item." }}
+                    </p>
+
+                    <!-- Optimized Meta Flow -->
+                    <div class="flex gap-4 sm:gap-6 mt-4 mb-8 border-y border-slate-50 dark:border-slate-800/50 py-4">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Qty</p>
+                            <p class="text-[10px] sm:text-[11px] font-black text-slate-700 dark:text-slate-200">{{ post.quantity }} Unit{{ post.quantity|pluralize }}</p>
+                        </div>
+                        <div class="flex-[1.5] min-w-0">
+                            <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Category</p>
+                            <p class="text-[10px] sm:text-[11px] font-black text-slate-700 dark:text-slate-200 truncate">{{ post.get_ai_category_display }}</p>
+                        </div>
+                        <div class="flex-[1.5] min-w-0">
+                            <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Condition</p>
+                            <p class="text-[10px] sm:text-[11px] font-black text-slate-700 dark:text-slate-200 truncate">{{ post.get_ai_condition_display }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-6 border-t border-slate-100 dark:border-slate-800">
+                    <div class="flex-1 min-w-0 flex items-center gap-[17px]">
+                        <div class="min-w-0">
+                            <p class="text-[8px] text-slate-400 font-extrabold uppercase tracking-widest mb-1 truncate">AI Predicted</p>
+                            <p class="font-black text-slate-700 dark:text-white leading-none whitespace-nowrap text-base">
+                                ₹{{ post.ai_estimated_value|default:"0.00" }}
+                            </p>
+                        </div>
+                        {% if post.vendor_final_value %}
+                        <div class="min-w-0 border-l border-slate-100 dark:border-slate-800/50 pl-4">
+                            <p class="text-[8px] text-primary font-extrabold uppercase tracking-widest mb-1 truncate">
+                                Final Price
+                            </p>
+                            <p class="font-black text-primary leading-none whitespace-nowrap text-base">
+                                ₹{{ post.vendor_final_value }}
+                            </p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex items-center gap-2.5 shrink-0 pl-2">
+                         <div class="size-8 rounded-lg bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center border border-slate-200/40">
+                             <span class="material-symbols-outlined text-[16px] text-slate-400">person</span>
+                         </div>
+                         <div class="hidden sm:block">
+                            <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Assessed By</p>
+                             <p class="text-[10px] font-black text-slate-700 dark:text-white leading-none truncate max-w-[100px]">{{ current_vendor_tag }}</p>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Offer Showcase -->
+    <div class="relative bg-white dark:bg-slate-900 rounded-3xl border border-primary/20 dark:border-primary/20 shadow-lg overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <!-- Abstract Gradient Header -->
+        <div class="px-8 py-6 bg-gradient-to-r from-primary/5 via-primary/10 to-transparent border-b border-primary/10 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="size-10 rounded-xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center">
+                    <span class="material-symbols-outlined text-primary text-[22px]">auto_graph</span>
+                </div>
+                <div>
+                    <h3 class="text-lg font-black tracking-tight text-slate-900 dark:text-white">Current Evaluation</h3>
+                    <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">The vendor has evaluated your item</p>
+                </div>
+            </div>
+            <div class="hidden sm:block">
+                <span class="text-[10px] font-black px-3 py-1 bg-green-500 text-white rounded-full uppercase tracking-tighter shadow-lg shadow-green-500/20">Active Offer</span>
+            </div>
+        </div>
+
+        <div class="p-8 space-y-8">
+            <!-- Big Numbers Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Cash Offer -->
+                <div class="relative group p-6 rounded-2xl bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 transition-all duration-300 hover:bg-white dark:hover:bg-slate-800 hover:shadow-xl">
+                    <p class="text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Cash Payout</p>
+                    <div class="flex items-baseline gap-1">
+                        <span class="text-lg font-black text-primary">₹</span>
+                        <span class="text-4xl font-black tracking-tighter text-slate-900 dark:text-white count-up">{{ post.vendor_final_value|default:"0" }}</span>
+                    </div>
+                    <div class="mt-3 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-green-500/10 text-green-600 dark:text-green-400 text-[10px] font-black uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[14px]">account_balance_wallet</span>
+                        Instant Wallet
+                    </div>
+                </div>
+
+                <!-- Eco Points -->
+                <div class="relative group p-6 rounded-2xl bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 transition-all duration-300 hover:bg-white dark:hover:bg-slate-800 hover:shadow-xl">
+                    <p class="text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Eco-Reward</p>
+                    <div class="flex items-baseline gap-1">
+                        <span class="text-4xl font-black tracking-tighter text-slate-900 dark:text-white">{{ post.eco_points_awarded|default:"0" }}</span>
+                        <span class="text-[11px] font-black text-slate-500 uppercase">Points</span>
+                    </div>
+                    <div class="mt-3 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-primary/10 text-primary text-[10px] font-black uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[14px]">eco</span>
+                        +20 Bonus
+                    </div>
+                </div>
+
+                <!-- Type -->
+                <div class="relative group p-6 rounded-2xl bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 transition-all duration-300 hover:bg-white dark:hover:bg-slate-800 hover:shadow-xl">
+                    <p class="text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Strategy</p>
+                    <div class="flex items-center gap-3">
+                        <div class="size-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-primary text-[22px]">
+                                {% if post.evaluation_type == 'repair' %}build{% else %}recycling{% endif %}
+                            </span>
+                        </div>
+                        <span class="text-xl font-black tracking-tight text-slate-900 dark:text-white uppercase leading-none">
+                            {% if post.evaluation_type == 'repair' %}Repair{% else %}Recycle{% endif %}
+                        </span>
+                    </div>
+                    <p class="mt-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest ">Sustainable Path</p>
+                </div>
+            </div>
+
+            <!-- Notes Sections -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% if post.condition_notes %}
+                <div class="space-y-2">
+                    <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+                        <span class="size-1.5 rounded-full bg-primary/40"></span>
+                        Physical Condition
+                    </h4>
+                    <div class="bg-slate-100/80 dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-200/60 dark:border-slate-800/50 text-[13px] font-semibold text-slate-700 dark:text-slate-400 leading-relaxed min-h-[100px]">
+                        {{ post.condition_notes }}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if post.vendor_remarks %}
+                <div class="space-y-2">
+                    <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+                        <span class="size-1.5 rounded-full bg-primary/40"></span>
+                        Vendor Evaluation
+                    </h4>
+                    <div class="bg-slate-100/80 dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-200/60 dark:border-slate-800/50 text-[13px] font-semibold text-slate-700 dark:text-slate-400 leading-relaxed min-h-[100px]">
+                        {{ post.vendor_remarks }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if post.price_breakdown %}
+            <div class="space-y-2">
+                <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+                    <span class="size-1.5 rounded-full bg-primary/40"></span>
+                    Detailed Price Breakdown
+                </h4>
+                <div class="bg-slate-100/80 dark:bg-slate-800/80 rounded-2xl p-6 border border-slate-200/60 dark:border-slate-800/50">
+                    <code class="text-[13px] font-mono leading-relaxed whitespace-pre font-medium block text-slate-700 dark:text-slate-300">{{ post.price_breakdown }}</code>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Sticky Accept Summary -->
+        <div class="px-8 py-6 bg-slate-100/80 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800/30 flex flex-wrap items-center gap-x-10 gap-y-4">
+            <div class="flex items-center gap-3">
+                <div class="size-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary group">
+                    <span class="material-symbols-outlined text-[20px] transition-transform group-hover:rotate-12">auto_fix_high</span>
+                </div>
+                <span class="text-[11px] font-black text-slate-500 dark:text-blue-400 uppercase tracking-widest">
+                    Acceptance Benefits:
+                </span>
+            </div>
+            <div class="flex flex-wrap items-center gap-x-8 gap-y-2">
+                <div class="flex items-center gap-2">
+                    <div class="size-5 rounded-full bg-green-500/10 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[14px] text-green-500">check_circle</span>
+                    </div>
+                    <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400">₹{{ post.vendor_final_value }} Instant Wallet Credit</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="size-5 rounded-full bg-green-500/10 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[14px] text-green-500">check_circle</span>
+                    </div>
+                    <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400">{{ post.eco_points_awarded|add:"20" }} Eco-Reward Points</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="size-5 rounded-full bg-green-500/10 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[14px] text-green-500">check_circle</span>
+                    </div>
+                    <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400">Certified Recycling Certificate</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="relative z-10">
+        {% if proposed_action == 'accept' %}
+        <form method="POST" id="acceptForm" class="flex justify-center">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="accept">
+            <button type="submit"
+                    class="group w-full max-w-sm relative h-16 flex items-center justify-center bg-primary hover:bg-forest text-white rounded-xl transition-all duration-300 shadow-xl shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-1 overflow-hidden mt-7">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                <span class="material-symbols-outlined mr-3 transition-transform group-hover:scale-110 group-hover:rotate-12">task_alt</span>
+                <span class="text-xs font-black uppercase tracking-widest">Confirm & Accept Offer</span>
+            </button>
+        </form>
+
+        {% elif proposed_action == 'reject' %}
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-red-500/20 shadow-xl p-8 overflow-hidden relative">
+            <!-- Decoration -->
+            <div class="absolute -top-12 -right-12 size-32 bg-red-500/5 rounded-full blur-3xl"></div>
+            
+            <div class="flex items-center gap-4 mb-8">
+                <div class="size-14 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-red-500 text-[28px]">request_quote</span>
+                </div>
+                <div>
+                    <h4 class="text-xl font-black tracking-tight text-slate-900 dark:text-white">Request Re-evaluation</h4>
+                    <p class="text-[12px] font-bold text-slate-400">Not satisfied? Let the vendor know your expectations.</p>
+                </div>
+            </div>
+
+            <form method="POST" id="rejectionForm" class="space-y-6">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="reject">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="px-1 text-[11px] font-black text-slate-500 uppercase tracking-widest">Expected Price (₹) *</label>
+                        <div class="relative group">
+                            <!-- Icon Wrapper -->
+                            <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none z-10 transition-colors group-focus-within:text-red-500">
+                                
+                            </div>
+                            <!-- Input -->
+                            <input type="number" name="expected_price" required step="0.01" min="1"
+                                   placeholder="e.g. 500.00"
+                                   class="w-full pl-[4.5rem] pr-6 py-4 rounded-xl bg-slate-100/80 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-800 text-[14px] font-semibold text-slate-800 dark:text-white focus:border-red-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-0 outline-none transition-all">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="px-1 text-[11px] font-black text-slate-500 uppercase tracking-widest">Reason for Re-evaluation *</label>
+                    <textarea name="rejection_reason" rows="4" required
+                              placeholder="Describe the condition, features, or accessories that justify a higher price..."
+                              class="w-full px-6 py-5 rounded-2xl bg-white dark:bg-slate-800 border-1 border-slate-200 dark:border-slate-800 text-[14px] font-semibold text-slate-800 dark:text-white focus:border-red-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-0 outline-none transition-all resize-none"></textarea>
+                </div>
+
+                <div class="bg-red-50 dark:bg-red-900/10 rounded-xl p-4 flex gap-3">
+                    <span class="material-symbols-outlined text-red-500 text-base flex-shrink-0">report</span>
+                    <p class="text-[10px] font-bold text-red-700/80 dark:text-red-400/80 leading-relaxed uppercase tracking-wider">
+                        Important: The vendor will review your input. To keep the process moving, they must match or improve their current offer.
+                    </p>
+                </div>
+            </form>
+        </div>
+
+        <div class="flex justify-center mt-11">
+            <button type="submit" form="rejectionForm"
+                    class="w-full max-w-sm h-16 flex items-center justify-center bg-red-500 hover:bg-dark-red text-white rounded-xl font-black text-[12px] uppercase tracking-widest transition-all shadow-xl shadow-red-500/20 hover:-translate-y-1">
+                Send Re-evaluation Request
+            </button>
+        </div>
+        {% endif %}
+    </div>
+
+
+    <div class="flex justify-center pt-4 pb-7">
+        <a href="{% url 'client:upload_detail' post.pk %}" class="inline-flex items-center gap-2 text-xs font-black text-slate-400 hover:text-primary transition-colors uppercase tracking-widest group">
+            <span class="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
+            Back to Item details
+        </a>
+    </div>
+
+    
+
+    
+
+</div>
+{% endblock %}

@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Assignments - eRecyclo{% endblock %}
+{% block page_title %}Active Queue{% endblock %}
+{% block page_subtitle %}Track and execute your assigned e-waste pick-up tasks{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --premium-bg: #f8fafc;
+    }
+
+    html.dark {
+        --premium-bg: #0f172a;
+    }
+
+    body {
+        background-color: var(--premium-bg) !important;
+    }
+
+    .premium-card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 1.5rem;
+    }
+
+    .premium-card:hover {
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        transform: translateY(-2px);
+    }
+
+    .dark .premium-card {
+        background: #1e293b;
+        border-color: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .status-badge {
+        font-size: 8px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        padding: 5px 12px;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        backdrop-filter: blur(4px);
+    }
+
+    .tab-btn {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tab-btn.active {
+        box-shadow: 0 4px 12px -2px rgba(23, 207, 23, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="max-w-7xl mx-auto space-y-10 pb-24 px-4 sm:px-6">
+
+    <!-- ── PREMIUM TABS ── -->
+    <div class="flex items-center h-[55px] p-2 bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 rounded-2xl max-w-2xl mx-auto">
+        <a href="?" class="flex-1 flex items-center justify-center gap-2 px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all {% if not status_filter %}bg-primary text-white shadow-lg shadow-primary/20 active{% else %}text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800{% endif %}">
+            <span class="material-symbols-outlined text-[18px]">list_alt</span>
+            All Tasks <span class="{% if not status_filter %}bg-white/20 text-white{% else %}bg-slate-100 dark:bg-slate-800 text-slate-500{% endif %} rounded-lg px-2 py-0.5 ml-1">{{ counts.all }}</span>
+        </a>
+        <a href="?status=active" class="flex-1 flex items-center justify-center gap-2 px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all {% if status_filter == 'active' %}bg-amber-500 text-white shadow-lg shadow-amber-500/20 active{% else %}text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800{% endif %}">
+            <span class="material-symbols-outlined text-[18px]">local_shipping</span>
+            Active <span class="{% if status_filter == 'active' %}bg-white/20 text-white{% else %}bg-slate-100 dark:bg-slate-800 text-slate-500{% endif %} rounded-lg px-2 py-0.5 ml-1">{{ counts.active }}</span>
+        </a>
+        <a href="?status=completed" class="flex-1 flex items-center justify-center gap-2 px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all {% if status_filter == 'completed' %}bg-emerald-600 text-white shadow-lg shadow-emerald-500/20 active{% else %}text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800{% endif %}">
+            <span class="material-symbols-outlined text-[18px]">check_circle</span>
+            Done <span class="{% if status_filter == 'completed' %}bg-white/20 text-white{% else %}bg-slate-100 dark:bg-slate-800 text-slate-500{% endif %} rounded-lg px-2 py-0.5 ml-1">{{ counts.completed }}</span>
+        </a>
+    </div>
+
+    <!-- ── ASSIGNMENTS GRID ── -->
+    {% if pickups %}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
+        {% for pickup in pickups %}
+        <div class="premium-card overflow-hidden group">
+            <div class="flex flex-col sm:flex-row items-stretch min-h-[280px]">
+                <!-- IMAGE SIDE -->
+                <div class="sm:w-[35%] p-6 pr-0 flex flex-col items-center justify-center gap-5">
+                    <div class="size-44 rounded-[1.2rem] overflow-hidden bg-white dark:bg-slate-900 shadow-inner p-2.5 border border-slate-100 dark:border-slate-800 shrink-0 relative">
+                        {% if pickup.photo_post.photo %}
+                        <img src="{{ pickup.photo_post.photo.url }}" alt="{{ pickup.photo_post.title }}"
+                             class="w-full h-full object-cover rounded-[1rem] group-hover:scale-105 transition-transform duration-700">
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-700">
+                            <span class="material-symbols-outlined text-4xl">devices</span>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Order Badge -->
+                        <div class="absolute top-4 left-4">
+                            <span class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[8px] font-black px-2 py-1 rounded-lg flex items-center gap-1 shadow-lg uppercase tracking-widest">
+                                Pickup #{{ pickup.pk }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTENT SIDE -->
+                <div class="flex-1 p-8 pl-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-base sm:text-lg font-extrabold text-slate-800 dark:text-white leading-tight transition-colors truncate mb-1">{{ pickup.photo_post.title }}</h3>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Accepted {{ pickup.created_at|date:"M d, Y" }}</p>
+                            </div>
+                            <div class="shrink-0 flex items-center h-7">
+                                <span class="status-badge {% if pickup.status == 'completed' %}bg-emerald-50 text-emerald-600 border border-emerald-100{% elif pickup.status == 'in_progress' %}bg-orange-50 text-orange-600 border border-orange-100{% else %}bg-amber-50 text-amber-600 border border-amber-100{% endif %} px-3 py-1 text-[8px] font-black">
+                                    {{ pickup.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Progress Steps -->
+                        {% if pickup.status in 'assigned accepted in_progress' %}
+                        <div class="flex items-center gap-3 mb-6 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800">
+                            <div class="flex items-center gap-2">
+                                <div class="size-6 rounded-full flex items-center justify-center {% if pickup.status == 'in_progress' or pickup.status == 'completed' %}bg-primary text-white shadow-sm shadow-primary/20{% else %}bg-slate-200 dark:bg-slate-800 text-slate-400{% endif %}">
+                                    <span class="material-symbols-outlined text-[14px]">{% if pickup.status == 'in_progress' or pickup.status == 'completed' %}check{% else %}pin{% endif %}</span>
+                                </div>
+                                <span class="text-[9px] font-black uppercase tracking-widest {% if pickup.status == 'in_progress' or pickup.status == 'completed' %}text-primary{% else %}text-slate-400{% endif %}">Stage 1</span>
+                            </div>
+                            <div class="flex-1 h-[1px] {% if pickup.status == 'in_progress' %}bg-primary{% else %}bg-slate-200 dark:bg-slate-800{% endif %}"></div>
+                            <div class="flex items-center gap-2">
+                                <div class="size-6 rounded-full flex items-center justify-center {% if pickup.status == 'completed' %}bg-primary text-white shadow-sm shadow-primary/20{% else %}bg-slate-200 dark:bg-slate-800 text-slate-400{% endif %}">
+                                    <span class="material-symbols-outlined text-[14px]">{% if pickup.status == 'completed' %}check{% else %}pin{% endif %}</span>
+                                </div>
+                                <span class="text-[9px] font-black uppercase tracking-widest {% if pickup.status == 'completed' %}text-primary{% else %}text-slate-400{% endif %}">Stage 2</span>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Contacts Metadata -->
+                        <div class="flex gap-4 sm:gap-6 mt-4 mb-0 border-t border-slate-50 dark:border-slate-800/50 pt-4">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Stakeholder</p>
+                                <p class="text-[10px] sm:text-[11px] font-black text-slate-700 dark:text-slate-200 truncate">{{ pickup.photo_post.user.get_full_name }}</p>
+                            </div>
+                            <div class="flex-[1.5] min-w-0 border-l border-slate-50 dark:border-slate-800/50 pl-4">
+                                <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Phone Contact</p>
+                                <p class="text-[10px] sm:text-[11px] font-black text-slate-700 dark:text-slate-200 truncate">{{ pickup.photo_post.user.phone_number }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-6 mt-auto border-t border-slate-100 dark:border-slate-800">
+                        <div class="flex-1 min-w-0">
+                             <p class="text-[8px] text-primary font-extrabold uppercase tracking-widest mb-1 truncate">Earning Payout</p>
+                             <p class="font-black text-primary leading-none whitespace-nowrap text-base">
+                                 ₹{{ pickup.total_payment }}
+                             </p>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                             <a href="{% url 'collector:pickup_detail' pickup.pk %}" 
+                                class="shrink-0 py-3 px-8 rounded-xl {% if pickup.status in 'assigned accepted in_progress' %}bg-primary text-white shadow-lg shadow-primary/20{% else %}bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-lg{% endif %} text-[9px] font-black uppercase tracking-widest hover:scale-[1.02] transition-all">
+                                Details & Tracking
+                             </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- PREMIUM PAGINATION CONTROLS -->
+    {% if pickups.paginator.num_pages > 1 %}
+    <div class="mt-20 flex items-center justify-center gap-4">
+        <!-- Previous Page -->
+        {% if pickups.has_previous %}
+        <a href="?status={{ status_filter }}&page={{ pickups.previous_page_number }}" 
+           class="size-12 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary/30 transition-all group shadow-sm">
+            <span class="material-symbols-outlined text-[24px] group-hover:-translate-x-0.5 transition-transform">chevron_left</span>
+        </a>
+        {% else %}
+        <div class="size-12 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-slate-100/50 dark:border-slate-800/50 flex items-center justify-center text-slate-200 dark:text-slate-700 cursor-not-allowed">
+            <span class="material-symbols-outlined text-[24px]">chevron_left</span>
+        </div>
+        {% endif %}
+
+        <!-- Page Numbers -->
+        <div class="flex items-center gap-3">
+            {% for num in pickups.paginator.page_range %}
+                {% if pickups.number == num %}
+                <span class="size-12 rounded-2xl bg-primary text-white flex items-center justify-center text-[13px] font-black shadow-lg shadow-primary/30">
+                    {{ num }}
+                </span>
+                {% elif num > pickups.number|add:'-3' and num < pickups.number|add:'3' %}
+                <a href="?status={{ status_filter }}&page={{ num }}" 
+                   class="size-12 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-slate-500 hover:border-primary/30 hover:text-primary text-[13px] font-black transition-all shadow-sm">
+                    {{ num }}
+                </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Next Page -->
+        {% if pickups.has_next %}
+        <a href="?status={{ status_filter }}&page={{ pickups.next_page_number }}" 
+           class="size-12 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary/30 transition-all group shadow-sm">
+            <span class="material-symbols-outlined text-[24px] group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+        </a>
+        {% else %}
+        <div class="size-12 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-slate-100/50 dark:border-slate-800/50 flex items-center justify-center text-slate-200 dark:text-slate-700 cursor-not-allowed">
+            <span class="material-symbols-outlined text-[24px]">chevron_right</span>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="premium-card p-20 flex flex-col items-center justify-center text-center">
+        <div class="size-24 rounded-[2rem] bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center mb-8 shadow-inner">
+             <span class="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-700">order_approve</span>
+        </div>
+        <h4 class="text-xl font-black text-slate-800 dark:text-white mb-3">Queue is clear</h4>
+        <p class="text-[13px] text-slate-400 font-bold max-w-sm leading-relaxed mb-10">You have no active pickups in your queue. Explore the map to find nearby pickup opportunities.</p>
+        <a href="{% url 'collector:available_pickups' %}"
+           class="bg-primary text-white px-8 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95">
+            Pickup Map
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,1 @@
+# Django templatetags init file

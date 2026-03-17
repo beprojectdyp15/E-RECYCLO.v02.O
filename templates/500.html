@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 — Server Error | eRecyclo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .spin { animation: spin-slow 8s linear infinite; }
+    </style>
+</head>
+<body style="background: #0f172a; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;">
+
+<!-- Nav -->
+<nav style="position: fixed; top: 0; left: 0; right: 0; padding: 1.25rem 2rem; background: rgba(15,23,42,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between;">
+    <a href="/" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none;">
+        <div style="width: 2.25rem; height: 2.25rem; background: #17cf17; border-radius: 0.625rem; display: flex; align-items: center; justify-content: center;">
+            <span class="material-symbols-outlined" style="color: white; font-size: 1.125rem;">eco</span>
+        </div>
+        <span style="font-size: 1.125rem; font-weight: 900; letter-spacing: -0.04em; color: white;">eRecyclo</span>
+    </a>
+    <a href="/" style="font-size: 0.6875rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.12em; color: #64748b; text-decoration: none;">← Back to Home</a>
+</nav>
+
+<!-- Main -->
+<div style="text-align: center; max-width: 36rem; margin: 0 auto; padding-top: 4rem;">
+
+    <!-- Icon -->
+    <div style="position: relative; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 3rem;">
+        <!-- Spinning ring -->
+        <div class="spin" style="position: absolute; width: 10rem; height: 10rem; border-radius: 50%; border: 2px dashed rgba(23,207,23,0.2);"></div>
+        <div style="width: 8rem; height: 8rem; border-radius: 50%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center;">
+            <span class="material-symbols-outlined" style="font-size: 3.5rem; color: #17cf17;">build_circle</span>
+        </div>
+    </div>
+
+    <!-- Badge -->
+    <div style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 9999px; margin-bottom: 1.5rem;">
+        <span style="font-size: 0.5625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; color: #475569;">Error Code</span>
+        <span style="font-size: 0.5625rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; color: #94a3b8;">500</span>
+    </div>
+
+    <h1 style="font-size: clamp(2.25rem, 7vw, 4rem); font-weight: 900; letter-spacing: -0.04em; color: white; margin: 0 0 1rem 0; line-height: 1.05;">
+        Something Went Wrong.
+    </h1>
+
+    <p style="font-size: 0.9375rem; font-weight: 600; color: #64748b; line-height: 1.7; margin: 0 0 2.5rem 0;">
+        Our servers encountered an unexpected error. This is on us — not you. Our team has been automatically notified and is working on a fix. Please try again in a few minutes.
+    </p>
+
+    <!-- Status Box -->
+    <div style="background: rgba(23,207,23,0.05); border: 1px solid rgba(23,207,23,0.15); border-radius: 1.25rem; padding: 1.5rem; margin-bottom: 2.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.625rem; justify-content: center;">
+            <div style="width: 0.5rem; height: 0.5rem; border-radius: 50%; background: #17cf17; box-shadow: 0 0 8px #17cf17;"></div>
+            <span style="font-size: 0.6875rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.12em; color: #17cf17;">Platform Status: Online</span>
+        </div>
+        <p style="font-size: 0.75rem; font-weight: 600; color: #475569; margin-top: 0.75rem; line-height: 1.6;">This error is isolated. Your account, wallet balance, and active listings are safe and unaffected.</p>
+    </div>
+
+    <!-- Actions -->
+    <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+        <a href="javascript:window.location.reload()" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #17cf17; color: white; padding: 0.875rem 1.75rem; border-radius: 1rem; font-size: 0.6875rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none; box-shadow: 0 8px 20px -6px rgba(23,207,23,0.4);">
+            <span class="material-symbols-outlined" style="font-size: 1rem;">refresh</span>
+            Try Again
+        </a>
+        <a href="/" style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.06); color: #94a3b8; padding: 0.875rem 1.75rem; border-radius: 1rem; font-size: 0.6875rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none; border: 1px solid rgba(255,255,255,0.08);">
+            <span class="material-symbols-outlined" style="font-size: 1rem;">home</span>
+            Home
+        </a>
+        <a href="/contact/" style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.06); color: #94a3b8; padding: 0.875rem 1.75rem; border-radius: 1rem; font-size: 0.6875rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none; border: 1px solid rgba(255,255,255,0.08);">
+            <span class="material-symbols-outlined" style="font-size: 1rem;">mail</span>
+            Report Issue
+        </a>
+    </div>
+
+    <p style="margin-top: 4rem; font-size: 0.6875rem; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.15em;">
+        © 2025 eRecyclo — All Rights Reserved
+    </p>
+</div>
+
+</body>
+</html>

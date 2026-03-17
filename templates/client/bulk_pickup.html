@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Bulk Pickup{% endblock %}
+{% block page_subtitle %}Smart Pickup Logistics{% endblock %}
+
+{% block extra_css %}
+<style>
+    .glass-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .dark .glass-card {
+        background: rgba(30, 41, 59, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    @keyframes icon-float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    .animate-float {
+        animation: icon-float 3s ease-in-out infinite;
+    }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="h-full flex items-center justify-center p-6 animate-in fade-in zoom-in-95 duration-700">
+    <div class="max-w-md w-full">
+        <!-- Main Pop-up Design -->
+        <div class="glass-card rounded-[2.5rem] p-8 md:p-10 text-center shadow-2xl relative overflow-hidden group">
+            <!-- Decorative Elements -->
+            <div class="absolute -top-20 -right-20 size-40 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-700"></div>
+
+            <!-- Content Area -->
+            <div class="relative z-10">
+                <div class="size-16 rounded-2xl bg-gradient-to-br from-primary to-forest flex items-center justify-center mx-auto mb-6 shadow-xl shadow-primary/20">
+                    <span class="material-symbols-outlined text-3xl text-white">local_shipping</span>
+                </div>
+
+                <h2 class="text-xl font-black text-slate-800 dark:text-white tracking-tight mb-3 leading-tight">
+                    Coming Soon:<br>
+                    <span class="text-primary">Bulk Pickups</span>
+                </h2>
+                
+                <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 leading-relaxed mb-8 max-w-[280px] mx-auto pt-4">
+                    We're building a smarter way to handle large scale e-waste. Automation for 5+ items is coming soon.
+                </p>
+
+                <!-- Features list (Styled Pills) -->
+                <div class="flex flex-wrap justify-center gap-2 mb-8">
+                    <div class="px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-[8px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">
+                        📦 Group Logistics
+                    </div>
+                    <div class="px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-[8px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">
+                        📍 Live Tracking
+                    </div>
+                </div>
+
+                <div class="pt-6 border-slate-100 dark:border-slate-800">
+                    <a href="{% url 'client:dashboard' %}" class="inline-flex items-center gap-2.5 px-8 py-3.5 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.05] active:scale-[0.95] transition-all group/btn -mt-[47px]">
+                        Dashboard
+                        <span class="material-symbols-outlined text-sm transition-transform group-hover/btn:translate-x-1">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
