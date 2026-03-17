@@ -1,62 +1,57 @@
 # ============================================================
-# E-RECYCLO — Production Requirements (AI-Enabled)
+# E-RECYCLO — Vercel Optimized (AI-Enabled LITE)
 # ============================================================
 
-# ── Core Django ──────────────────────────────────────────────
+# -- Core Django --
 Django==4.2.7
 asgiref==3.11.1
 sqlparse==0.5.5
 
-# ── Django Extensions ────────────────────────────────────────
+# -- Django Extensions --
 djangorestframework==3.14.0
 django-cors-headers==4.3.1
 django-filter==23.5
 
-# ── Database ─────────────────────────────────────────────────
+# -- Database --
 psycopg2-binary==2.9.9
 dj-database-url==2.1.0
 
-# ── Static Files ─────────────────────────────────────────────
+# -- Static Files --
 whitenoise==6.6.0
 
-# ── WSGI Server ──────────────────────────────────────────────
+# -- WSGI Server --
 gunicorn==21.2.0
 
-# ── Environment Configuration ────────────────────────────────
+# -- Environment Configuration --
 python-decouple==3.8
 
-# ── Image Processing ─────────────────────────────────────────
+# -- Image Processing --
 Pillow==10.1.0
 
-# ── PDF Generation ───────────────────────────────────────────
+# -- PDF Generation --
 reportlab==4.0.7
 
-# ── Password Hashing ─────────────────────────────────────────
+# -- Password Hashing --
 argon2-cffi==23.1.0
 argon2-cffi-bindings==25.1.0
 
-# ── HTTP Requests ────────────────────────────────────────────
+# -- HTTP Requests --
 requests==2.31.0
-certifi==2026.1.4
-charset-normalizer==3.4.2
-idna==3.11
-urllib3==2.6.3
+certifi==2023.11.17
+charset-normalizer==3.3.2
+idna==3.6
+urllib3==2.1.0
 
-# ── Security ─────────────────────────────────────────────────
-cryptography==46.0.5
+# -- Timezone --
+pytz==2023.3.post1
+tzdata==2023.3
 
-# ── Timezone Support ─────────────────────────────────────────
-pytz==2025.2
-tzdata==2025.3
-
-# ── Utilities ────────────────────────────────────────────────
-typing_extensions==4.15.0
-packaging==26.0
-six==1.17.0
-
-# ── AI / ML — YOLOv8 E-Waste Detection ───────────────────────
+# -- AI / ML — CPU ONLY (Required for Vercel 500MB Limit) --
+# We use the CPU-specific index to avoid the 7GB CUDA download
+--extra-index-url https://download.pytorch.org/whl/cpu
 numpy==1.26.4
-torch==2.10.0
-torchvision==0.25.0
-ultralytics==8.0.196
+torch==2.1.2+cpu
+torchvision==0.16.2+cpu
+ultralytics==8.1.0
 opencv-python-headless==4.8.1.78
+typing_extensions==4.9.0
