@@ -4,16 +4,17 @@
         {
             "src": "config/wsgi.py",
             "use": "@vercel/python",
-            "config": { "runtime": "python3.12" }
+            "config": { "maxDuration": 60, "runtime": "python3.12" }
         }
     ],
     "routes": [
         {
+            "src": "/static/(.*)",
+            "dest": "/static/$1"
+        },
+        {
             "src": "/(.*)",
             "dest": "config/wsgi.py"
         }
-    ],
-    "env": {
-        "UV_INDEX_STRATEGY": "unsafe-best-match"
-    }
+    ]
 }
