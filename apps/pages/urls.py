@@ -11,4 +11,5 @@ urlpatterns = [
     path('contact/', views.contact_view, name='contact'),
     path('privacy/', views.privacy_view, name='privacy'),
     path('terms/', views.terms_view, name='terms'),
+    path('media-check/', views.media_check_view, name='media_check'),
 ]

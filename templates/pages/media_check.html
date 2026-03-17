@@ -1,0 +1,42 @@
+{% extends "base_public.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-20 px-4">
+    <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 shadow-2xl">
+        <h1 class="text-3xl font-bold text-white mb-8 flex items-center gap-3">
+            <span class="p-3 bg-emerald-500/20 rounded-2xl">🧪</span>
+            Supabase Media Diagnostic
+        </h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            {% for key, value in results.items %}
+            <div class="p-4 rounded-2xl {% if value == False or value == 'Not Set' %}bg-red-500/10 border-red-500/20{% else %}bg-white/5 border-white/10{% endif %} border">
+                <p class="text-sm text-gray-400 mb-1 uppercase tracking-wider font-semibold">{{ key }}</p>
+                <p class="text-lg font-mono {% if value == False or value == 'Not Set' %}text-red-400{% else %}text-emerald-400{% endif %} break-all">
+                    {% if value == True %}✅ FOUND{% elif value == False %}❌ MISSING{% else %}{{ value }}{% endif %}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="p-6 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
+            <h2 class="text-xl font-bold text-white mb-4">Live URL Test</h2>
+            <p class="text-gray-300 mb-4 italic">Trying to load a test image from your Supabase bucket:</p>
+            <div class="aspect-video rounded-xl overflow-hidden bg-black/50 border border-white/10 flex items-center justify-center relative group">
+                <!-- Replace with a known path from your bucket -->
+                <img src="/media/e-photos/2026/03/kaggle_2_000009.jpg" 
+                     alt="Supabase Test Image" 
+                     class="max-w-full max-h-full object-contain"
+                     onerror="this.parentElement.innerHTML = '<div class=\'text-center p-8\'><p class=\'text-red-400 text-3xl mb-2\'>❌</p><p class=\'text-white font-semibold\'>Image Failed to Load</p><p class=\'text-sm text-gray-400 mt-2 line-clamp-2\'>' + this.src + '</p></div>'">
+            </div>
+            <p class="text-xs text-gray-500 mt-4 break-all">Calculated URL: <span class="text-blue-400">{{ results.MEDIA_URL }}e-photos/2026/03/kaggle_2_000009.jpg</span></p>
+        </div>
+
+        <div class="mt-8 flex justify-center">
+            <a href="{% url 'home' %}" class="px-6 py-3 bg-white text-emerald-950 font-bold rounded-xl hover:scale-105 transition-transform">
+                Return to Site
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

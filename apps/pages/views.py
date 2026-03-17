@@ -68,3 +68,23 @@ def handler_403(request, exception=None):
 
 def handler_500(request):
     return render(request, '500.html', status=500)
+
+def media_check_view(request):
+    """Diagnose media storage settings on Vercel"""
+    from django.conf import settings
+    import os
+    
+    # We use a dictionary to keep track of what we find
+    results = {
+        'ENVIRONMENT': os.environ.get('ENVIRONMENT', 'Not Set'),
+        'VERCEL': os.environ.get('VERCEL', 'Not Set'),
+        'AWS_ACCESS_KEY_ID_FOUND': bool(os.environ.get('AWS_ACCESS_KEY_ID')),
+        'AWS_SECRET_ACCESS_KEY_FOUND': bool(os.environ.get('AWS_SECRET_ACCESS_KEY')),
+        'AWS_S3_ENDPOINT_URL_FOUND': bool(os.environ.get('AWS_S3_ENDPOINT_URL')),
+        'AWS_STORAGE_BUCKET_NAME': os.environ.get('AWS_STORAGE_BUCKET_NAME', 'Not Set'),
+        'MEDIA_URL': settings.MEDIA_URL,
+        'DEFAULT_FILE_STORAGE': getattr(settings, 'DEFAULT_FILE_STORAGE', 'django.core.files.storage.FileSystemStorage'),
+    }
+    
+    # For security, we NEVER show the actual keys, only if they are present
+    return render(request, 'pages/media_check.html', {'results': results})
