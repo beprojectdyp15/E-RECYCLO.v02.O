@@ -1,13 +1,16 @@
 #!/bin/bash
-echo "=== E-RECYCLO Vercel Build (Fast Mode) ==="
+echo "=== E-RECYCLO Vercel Build (Ultimate Fix) ==="
 
-# 1. Install dependencies first
+# 1. Install dependencies
 echo "Installing dependencies..."
-pip install -r requirements.txt --quiet
+python3 -m pip install -r requirements.txt --quiet
 
-# 2. Collect static files
-# Note: On Vercel, use 'python3' and ensure it's run AFTER pip install
+# 2. Fix PYTHONPATH (Vercel installs to a specific location)
+export PYTHONPATH=$PYTHONPATH:$(pwd)
+export PYTHONPATH=$PYTHONPATH:$(python3 -m site --user-site)
+
+# 3. Collect static files
 echo "Collecting static files..."
 python3 manage.py collectstatic --noinput --clear
 
-echo "=== Build complete (Migrations handled by WSGI) ==="
+echo "=== Build complete. Migrations will run on app start. ==="
