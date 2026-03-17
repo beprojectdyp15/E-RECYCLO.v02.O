@@ -1,5 +1,5 @@
 # ============================================================
-# E-RECYCLO — Vercel Optimized (AI-Enabled LITE v2)
+# E-RECYCLO — Vercel Optimized (AI-Enabled LITE Final)
 # ============================================================
 
 # -- Core Django --
@@ -49,11 +49,10 @@ typing_extensions
 packaging
 six
 
-# -- AI / ML — CPU ONLY (Required for Vercel 500MB Limit) --
-# Force CPU versions to fit in 500MB
+# -- AI / ML — CPU ONLY (Python 3.12 Compatible) --
 --extra-index-url https://download.pytorch.org/whl/cpu
 numpy==1.26.4
-torch==2.1.2+cpu
-torchvision==0.16.2+cpu
+torch==2.2.1+cpu
+torchvision==0.17.1+cpu
 ultralytics==8.1.0
 opencv-python-headless==4.8.1.78
