@@ -7,7 +7,8 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from apps.accounts import views as account_views
-from apps.pages import views as page_views   # ← NEW
+from apps.pages import views as page_views
+from django.views.generic.base import RedirectView
 
 urlpatterns = [
     # Home
@@ -27,6 +28,9 @@ urlpatterns = [
     path('admin-panel/', include('apps.admin_custom.urls')),
     path('payments/', include('apps.payments.urls')),
     path('api/', include('apps.ai_services.urls')),
+    
+    # Favicon redirect for browsers that ignore the link tag
+    path('favicon.ico', RedirectView.as_view(url=settings.MEDIA_URL + 'system_images/favicon/favicon.ico', permanent=True)),
 ]
 
 # Serve media files in development

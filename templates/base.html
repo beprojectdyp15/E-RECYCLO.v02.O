@@ -7,12 +7,12 @@
     <meta name="color-scheme" content="light only">
     <title>{% block title %}eRecyclo{% endblock %}</title>
     <!-- Favicon Integration -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ MEDIA_URL }}system_images/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ MEDIA_URL }}system_images/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ MEDIA_URL }}system_images/favicon/favicon-16x16.png">
-    <link rel="manifest" href="{{ MEDIA_URL }}system_images/favicon/site.webmanifest">
-    <link rel="mask-icon" href="{{ MEDIA_URL }}system_images/favicon/apple-touch-icon.png" color="#17cf17">
-    <link rel="shortcut icon" href="{{ MEDIA_URL }}system_images/favicon/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% get_media_prefix %}system_images/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% get_media_prefix %}system_images/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% get_media_prefix %}system_images/favicon/favicon-16x16.png">
+    <link rel="manifest" href="{% get_media_prefix %}system_images/favicon/site.webmanifest">
+    <link rel="mask-icon" href="{% get_media_prefix %}system_images/favicon/apple-touch-icon.png" color="#17cf17">
+    <link rel="shortcut icon" href="{% get_media_prefix %}system_images/favicon/favicon.ico">
     <meta name="msapplication-TileColor" content="#17cf17">
     <meta name="theme-color" content="#17cf17">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
