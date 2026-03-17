@@ -34,7 +34,12 @@ if os.environ.get('VERCEL_URL'):
 # DATABASE - COMPLETELY OVERRIDE base.py
 # ========================================
 
-db_url = os.environ.get('DATABASE_URL') or os.environ.get('POSTGRES_URL')
+db_url = (
+    os.environ.get('DATABASE_URL') or 
+    os.environ.get('POSTGRES_URL') or 
+    os.environ.get('NEON_DATABASE_URL') or 
+    os.environ.get('STORAGE_URL')
+)
 
 if db_url:
     DATABASES = {
