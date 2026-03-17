@@ -81,34 +81,34 @@ class EWastePredictor:
                     # Restore original torch.load immediately after model loading
                     torch.load = original_load
                 
-            except ImportError as e:
-                logger.error(f"Failed to import ultralytics: {e}")
-                logger.error("Make sure ultralytics is installed: pip install ultralytics")
-                raise
+            except ImportError:
+                logger.warning("AI Libraries (torch/ultralytics) not found. This is expected in LITE environments like Vercel.")
+                self._model = "OFFLINE"
             except Exception as e:
                 logger.error(f"Failed to load YOLO model: {e}")
-                raise
+                self._model = "OFFLINE"
         
+        if self._model == "OFFLINE":
+            return None
         return self._model
     
     def predict(self, image_data, confidence_threshold=0.25):
         """
         Predict e-waste category from image
-        
-        Args:
-            image_data: Path to image file, PIL Image, numpy array, or file-like object
-            confidence_threshold: Minimum confidence (0-1) for predictions
-            
-        Returns:
-            dict: {
-                'success': bool,
-                'category': str,
-                'confidence': float,
-                'all_predictions': list,
-                'message': str,
-                'error': str (if failed)
-            }
         """
+        # Step 1: Check if model is available
+        model = self.model
+        
+        if model is None:
+            return {
+                'success': False,
+                'category': 'Unknown (LITE MODE)',
+                'confidence': 0.0,
+                'all_predictions': [],
+                'message': 'AI Prediction is disabled in this environment (Vercel 500MB limit). Please use a dedicated server for full AI features.',
+                'error': 'AI_LIBRARIES_MISSING'
+            }
+
         try:
             # Handle Django UploadedFile or other file-like objects
             if hasattr(image_data, 'read'):
