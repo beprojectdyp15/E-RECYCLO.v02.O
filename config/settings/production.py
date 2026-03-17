@@ -4,8 +4,9 @@ GMAIL SMTP Configuration
 """
 
 from .base import *
-import dj_database_url
 import os
+from decouple import config
+import dj_database_url
 
 # ========================================
 # DEBUG - allow override from Env Vars
@@ -95,21 +96,62 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='E-RECYCLO <noreply@er
 OTP_EXPIRY_MINUTES = config('OTP_EXPIRY_MINUTES', default=10, cast=int)
 
 # ========================================
-# STATIC FILES (WhiteNoise)
+# STATIC & MEDIA FILES (WhiteNoise & Supabase S3)
 # ========================================
 
+# WhiteNoise for static files
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Storage Configuration (Django 4.2+ Style)
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_S3_ENDPOINT_URL = os.environ.get('AWS_S3_ENDPOINT_URL')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME', 'media')
+AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'us-east-1')
+
+# If Supabase S3 keys are present, enable cloud storage
+if all([AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_S3_ENDPOINT_URL]):
+    # Define STORAGES for Django 4.2+
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+    
+    # Supabase Specific S3 Settings
+    AWS_QUERYSTRING_AUTH = False  # Critical for public URLs
+    AWS_S3_SIGNATURE_VERSION = 's3v4'
+    AWS_S3_FILE_OVERWRITE = False
+    
+    # Generate Public Media URL for Supabase
+    try:
+        # Extract project ID from endpoint: https://[project-id].storage.supabase.co
+        project_id = AWS_S3_ENDPOINT_URL.replace('https://', '').split('.storage')[0]
+        MEDIA_URL = f'https://{project_id}.supabase.co/storage/v1/object/public/{AWS_STORAGE_BUCKET_NAME}/'
+        # Important for django-storages to build correct URLs
+        AWS_S3_CUSTOM_DOMAIN = f'{project_id}.supabase.co/storage/v1/object/public/{AWS_STORAGE_BUCKET_NAME}'
+    except Exception:
+        MEDIA_URL = '/media/'
+        
+else:
+    # Local fallback
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-# ========================================
-# MEDIA FILES
-# ========================================
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # ========================================
 # REDIS CACHING
