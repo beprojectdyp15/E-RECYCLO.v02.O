@@ -691,8 +691,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-[2.5fr_1fr] gap-6 mt-8">
                             <div class="space-y-1">
                                 <label class="field-label">UID Number <span class="text-rose-500">*</span></label>
-                                <input type="text" name="aadhaar_number_doc" maxlength="12" 
-                                       pattern="[2-9]{1}[0-9]{11}"
+                                <input type="text" name="aadhaar_number" id="id_aadhaar_number" maxlength="12" 
                                        oninput="this.value = this.value.replace(/[^0-9]/g, '');"
                                        value="{{ form.aadhaar_number.value|default:'' }}" 
                                        class="input-module" placeholder="12-digit UID No">
@@ -720,13 +719,8 @@
                         <div class="grid grid-cols-1 sm:grid-cols-[2.5fr_1fr] gap-6 mt-8">
                             <div class="space-y-1">
                                 <label class="field-label">PAN Number <span class="text-rose-500">*</span></label>
-                                <input type="text" name="pan_number_doc" id="id_pan_number_doc" maxlength="10" 
-                                       pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$"
-                                       oninput="let panV = this.value.toUpperCase(); 
-                                                if(panV.length <= 5) panV = panV.replace(/[^A-Z]/g, '');
-                                                else if(panV.length <= 9) panV = panV.substring(0,5) + panV.substring(5).replace(/[^0-9]/g, '');
-                                                else panV = panV.substring(0,9) + panV.substring(9).replace(/[^A-Z]/g, '');
-                                                this.value = panV;"
+                                <input type="text" name="pan_number" id="id_pan_number" maxlength="10" 
+                                       oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');"
                                        value="{{ form.pan_number.value|default:'' }}" 
                                        class="input-module" placeholder="ABCDE1234F">
                             </div>
@@ -755,13 +749,8 @@
                         <div class="grid grid-cols-1 sm:grid-cols-[2.5fr_1fr] gap-6 mt-8">
                             <div class="space-y-1">
                                 <label class="field-label">GSTIN <span class="text-rose-500">*</span></label>
-                                <input type="text" name="gstin_number_doc" id="id_gstin_number_doc" maxlength="15" 
-                                       pattern="^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$"
-                                       oninput="let gstV = this.value.toUpperCase();
-                                                if(gstV.length <= 2) gstV = gstV.replace(/[^0-9]/g, '');
-                                                else if(gstV.length <= 7) gstV = gstV.substring(0,2) + gstV.substring(2).replace(/[^A-Z]/g, '');
-                                                else if(gstV.length <= 11) gstV = gstV.substring(0,7) + gstV.substring(7).replace(/[^0-9]/g, '');
-                                                this.value = gstV;"
+                                <input type="text" name="gstin_number" id="id_gstin_number" maxlength="15" 
+                                       oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');"
                                        value="{{ form.gstin_number.value|default:'' }}" 
                                        class="input-module" placeholder="27AABCU9603R1ZM">
                             </div>
@@ -820,11 +809,10 @@
                             <div class="grid grid-cols-1 sm:grid-cols-[2.5fr_1fr] gap-6">
                                 <div class="space-y-1">
                                     <label class="field-label">Registry ID <span class="text-rose-500">*</span></label>
-                                    <input type="text" name="ewaste_auth_id" id="id_ewaste_auth_id" 
-                                           oninput="updateAuthValidation()"
+                                    <input type="text" name="ewaste_auth_id" id="id_ewaste_auth_id" maxlength="25"
+                                           oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9\/\-]/g, '');"
                                            value="{{ form.ewaste_auth_id.value|default:'' }}" 
-                                           class="input-module" placeholder="MH/EW/2024/XXX"
-                                           {% if profile_completion.approval_status == 'approved' or profile_completion.approval_status == 'pending' %}readonly{% endif %}>
+                                           class="input-module" placeholder="MH/EW/2024/XXX">
                                 </div>
                                 <div class="space-y-1">
                                     <label class="field-label">Upload <span class="text-rose-500">*</span></label>
@@ -979,60 +967,6 @@
         const type = authTypeSelect.value;
         const config = authConfig[type] || authConfig['spcb'];
         authIdInput.placeholder = config.placeholder;
-        
-        let val = authIdInput.value.toUpperCase();
-        
-        // 1. Character Type Restriction & Auto-Masking Logic
-        if (type === 'cpcb') {
-            // Pattern: 16-000-07-AAUFPS4170-22 (Numeric-Numeric-Numeric-Alphanumeric-Numeric)
-            val = val.replace(/[^A-Z0-9]/g, ''); // Strip everything first
-            let masked = '';
-            if (val.length > 0) masked += val.substring(0, 2);
-            if (val.length > 2) masked += '-' + val.substring(2, 5);
-            if (val.length > 5) masked += '-' + val.substring(5, 7);
-            if (val.length > 7) masked += '-' + val.substring(7, 17);
-            if (val.length > 17) masked += '-' + val.substring(17, 19);
-            val = masked;
-        } 
-        else if (type === 'spcb') {
-            // Pattern: SPCB/MH/12345678
-            if (!val.startsWith('SPCB/')) {
-                val = 'SPCB/' + val.replace(/^SPCB\//g, '').replace(/[^A-Z0-9/]/g, '');
-            } else {
-                let parts = val.split('/');
-                if (parts[1]) parts[1] = parts[1].replace(/[^A-Z]/g, '').substring(0, 2);
-                if (parts[2]) parts[2] = parts[2].replace(/[^A-Z0-9]/g, '');
-                val = parts.filter((p, i) => i < 3).join('/');
-            }
-        }
-        else if (type === 'cto') {
-            // Pattern: MH/CONSENT/2024/XYZ
-            val = val.replace(/[^A-Z0-9/]/g, ''); 
-            if (val.length > 2 && val.charAt(2) !== '/') val = val.substring(0, 2) + '/' + val.substring(2);
-            if (val.length > 10 && !val.includes('/CONSENT/')) {
-                 if (val.startsWith(val.substring(0,3) + 'CONSENT')) val = val.substring(0,3) + 'CONSENT/' + val.substring(10);
-            }
-        }
-        else if (type === 'hazardous') {
-            // Pattern: HWM/TN/66554433
-            if (!val.startsWith('HWM/')) {
-                val = 'HWM/' + val.replace(/^HWM\//g, '').replace(/[^A-Z0-9/]/g, '');
-            }
-        }
-
-        authIdInput.value = val;
-
-        // 2. Visual Validation State
-        if (val) {
-            const regex = new RegExp(config.pattern);
-            if (!regex.test(val)) {
-                authIdInput.classList.add('!border-red-500');
-            } else {
-                authIdInput.classList.remove('!border-red-500');
-            }
-        } else {
-            authIdInput.classList.remove('!border-red-500');
-        }
     }
     authTypeSelect.addEventListener('change', (e) => {
         authIdInput.value = ''; // Reset on type change for safety
@@ -1176,31 +1110,8 @@
             }
         }
         
-        // 2. PAN validation
-        const pan = document.querySelector('input[name="pan_number"]');
-        if (pan && pan.value && !new RegExp(pan.pattern).test(pan.value.toUpperCase())) {
-            isValid = false;
-            if(!firstError) firstError = pan;
-            showToast("❌ INVALID PAN FORMAT (ABCDE1234F)");
-        }
-
-        // 3. GSTIN validation
-        const gstin = document.querySelector('input[name="gstin_number"]');
-        if (gstin && gstin.value && !new RegExp(gstin.pattern).test(gstin.value.toUpperCase())) {
-            isValid = false;
-            if(!firstError) firstError = gstin;
-            showToast("❌ INVALID GSTIN FORMAT");
-        }
-
-        // 4. E-waste Auth validation
-        const type = authTypeSelect.value;
-        const config = authConfig[type] || authConfig['spcb'];
-        const authVal = authIdInput.value.toUpperCase();
-        if (authVal && !new RegExp(config.pattern).test(authVal)) {
-            isValid = false;
-            if(!firstError) firstError = authIdInput;
-            showToast(`❌ INVALID REGISTRY ID FOR ${type.toUpperCase()}`);
-        }
+        // 2, 3, 4: Removed strict format validation to allow manual admin review
+        // (PAN, GSTIN, E-Waste Auth checks are now bypassable)
 
         if (!isValid) {
             e.preventDefault();
@@ -1209,7 +1120,7 @@
                 firstError.focus();
             }
         } else {
-            const action = e.submitter ? e.submitter.value : '';
+            const action = e.submitter ? e.submitter.value : (document.activeElement ? document.activeElement.value : '');
             if (action === 'submit') {
                 // Check for 100% completion
                 const completionPercentage = parseInt("{{ completion_percentage }}");
@@ -1392,34 +1303,6 @@
             document.getElementById('custom_auth_menu').classList.add('hidden');
         }
     }
-
-    // --- Dynamic Input Restrictions & Formatting ---
-    const enforcePattern = (id, regex, toUpper = true) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        
-        const handler = (e) => {
-            let val = el.value;
-            if (toUpper) val = val.toUpperCase();
-            
-            // Remove invalid characters
-            const sanitized = val.replace(regex, '');
-            if (val !== sanitized) {
-                el.value = sanitized;
-            } else if (toUpper) {
-                el.value = val;
-            }
-        };
-
-        el.addEventListener('input', handler);
-        el.addEventListener('blur', handler);
-    };
-
-    // Apply specific patterns
-    enforcePattern('id_gstin_number', /[^A-Z0-9]/g);
-    enforcePattern('id_pan_number', /[^A-Z0-9]/g);
-    enforcePattern('id_aadhaar_number', /[^0-9]/g);
-    enforcePattern('id_ewaste_auth_id', /[^A-Z0-9\/\-]/g);
 
     document.addEventListener('DOMContentLoaded', () => {
         const lat = document.getElementById('latitude')?.value || '';

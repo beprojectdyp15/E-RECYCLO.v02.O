@@ -55,3 +55,6 @@ six
 
 # -- Utilities --
 numpy==1.26.4
+
+# -- Payments --
+razorpay==2.0.1

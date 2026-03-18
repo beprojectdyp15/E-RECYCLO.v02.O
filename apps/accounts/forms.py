@@ -82,7 +82,9 @@ class RegistrationForm(forms.ModelForm):
                 'class': 'w-full px-4 py-2 border border-gray-300 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500',
                 'placeholder': '10-digit mobile number',
                 'id': 'phone_number',
-                'maxlength': '10'
+                'maxlength': '10',
+                'oninput': "this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);",
+                'pattern': '[0-9]{10}'
             }),
         }
     
@@ -228,7 +230,9 @@ class VendorProfileForm(forms.ModelForm):
             'alternate_phone': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500',
                 'placeholder': 'Alternate Phone Number (Optional)',
-                'maxlength': '10'
+                'maxlength': '10',
+                'oninput': "this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);",
+                'pattern': '[0-9]{10}'
             }),
             'latitude': forms.HiddenInput(attrs={
                 'id': 'latitude'
@@ -271,42 +275,16 @@ class VendorProfileForm(forms.ModelForm):
         }
     
     def clean_gstin_number(self):
-        gstin = self.cleaned_data.get('gstin_number', '').upper().strip()
-        if gstin:
-            import re
-            pattern = re.compile(r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$')
-            if not pattern.match(gstin):
-                raise ValidationError("Invalid GSTIN format. Example: 27AABCU9603R1ZM")
-        return gstin
+        return self.cleaned_data.get('gstin_number', '').upper().strip()
 
     def clean_pan_number(self):
-        pan = self.cleaned_data.get('pan_number', '').upper().strip()
-        if pan:
-            import re
-            pattern = re.compile(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$')
-            if not pattern.match(pan):
-                raise ValidationError("Invalid PAN format. Example: ABCDE1234F")
-        return pan
+        return self.cleaned_data.get('pan_number', '').upper().strip()
 
     def clean_aadhaar_number(self):
-        aadhaar = self.cleaned_data.get('aadhaar_number', '').strip()
-        if aadhaar:
-            import re
-            # 12 digits, doesn't start with 0 or 1
-            pattern = re.compile(r'^[2-9]{1}[0-9]{11}$')
-            if not pattern.match(aadhaar):
-                raise ValidationError("Invalid Aadhaar format. Must be 12 digits and cannot start with 0 or 1.")
-        return aadhaar
+        return self.cleaned_data.get('aadhaar_number', '').strip()
 
     def clean_ewaste_auth_id(self):
-        auth_id = self.cleaned_data.get('ewaste_auth_id', '').strip()
-        if auth_id:
-            # Basic alphanumeric check for IDs, could be more specific depending on auth_type
-            import re
-            pattern = re.compile(r'^[A-Z0-9/\-]+$')
-            if not pattern.match(auth_id.upper()):
-                raise ValidationError("Invalid Authorization ID format. Use Alphanumeric characters, slashes, or hyphens.")
-        return auth_id
+        return self.cleaned_data.get('ewaste_auth_id', '').strip()
     
     def clean_company_name(self):
         """Validate company name"""
@@ -367,6 +345,13 @@ class CollectorProfileForm(forms.ModelForm):
             'vehicle_type': forms.Select(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ',
                 'required': True
+            }),
+            'alternate_phone': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500',
+                'placeholder': 'Alternate Phone Number (Optional)',
+                'maxlength': '10',
+                'oninput': "this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);",
+                'pattern': '[0-9]{10}'
             }),
             'vehicle_number': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500',

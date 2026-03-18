@@ -1,0 +1,49 @@
+# apps/payments/migrations/0002_razorpay_integration.py
+from django.conf import settings
+from django.db import migrations, models
+import django.db.models.deletion
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        ('payments', '0003_alter_transaction_type'),
+    ]
+
+    operations = [
+        # Add razorpay_payout_id to existing WithdrawalRequest
+        migrations.AddField(
+            model_name='withdrawalrequest',
+            name='razorpay_payout_id',
+            field=models.CharField(
+                blank=True, max_length=100,
+                help_text='Razorpay Payout ID after processing'
+            ),
+        ),
+        # New RazorpayOrder model
+        migrations.CreateModel(
+            name='RazorpayOrder',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('razorpay_order_id',   models.CharField(max_length=100, unique=True)),
+                ('razorpay_payment_id', models.CharField(blank=True, max_length=100)),
+                ('amount',  models.DecimalField(decimal_places=2, max_digits=10)),
+                ('purpose', models.CharField(
+                    choices=[('wallet_topup', 'Wallet Top-up')],
+                    default='wallet_topup', max_length=30
+                )),
+                ('status',  models.CharField(
+                    choices=[('created', 'Created'), ('paid', 'Paid'), ('failed', 'Failed')],
+                    default='created', max_length=10
+                )),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('user', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE,
+                    related_name='razorpay_orders',
+                    to=settings.AUTH_USER_MODEL,
+                )),
+            ],
+            options={'db_table': 'payments_razorpayorder'},
+        ),
+    ]
