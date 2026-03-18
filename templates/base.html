@@ -91,9 +91,9 @@
         #sidebar.collapsed .logo-wrapper { justify-content: center; padding-left: 0; }
 
         .nav-text { 
-            font-size: 13.5px !important; 
-            font-weight: 700 !important;
-            letter-spacing: -0.01em;
+            font-size: 14.5px !important; 
+            font-weight: 800 !important; /* font-extrabold */
+            letter-spacing: -0.015em; 
             text-transform: none !important;
             transition: color 0.3s ease;
         }
@@ -102,9 +102,17 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             margin: 4px 14px;
-            color: #64748b;
-            padding: 10px 14px; /* Adjusted padding for new design */
-            border-radius: 0.75rem; /* Reduced from 1rem */
+            color: #475569; /* text-slate-600 */
+            padding: 10px 14px; 
+            border-radius: 0.75rem; 
+        }
+        
+        .dark .nav-link {
+            color: #cbd5e1; /* dark:text-slate-300 */
+        }
+        
+        .nav-link .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
         }
 
         .nav-link:hover {
@@ -123,6 +131,21 @@
             background: rgba(23, 207, 23, 0.1) !important;
             border: 1px solid rgba(23, 207, 23, 0.2);
             box-shadow: none !important;
+        }
+
+        /* Mobile Bottom Nav Styles */
+        .mobile-nav-link {
+            color: #475569; /* text-slate-600 */
+            transition: all 0.2s ease;
+        }
+        .dark .mobile-nav-link {
+            color: #cbd5e1; /* dark:text-slate-300 */
+        }
+        .mobile-nav-link.active {
+            color: #17cf17 !important;
+        }
+        .mobile-nav-link .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
         }
 
         .premium-shadow {
@@ -178,7 +201,7 @@
 <div class="flex h-screen overflow-hidden">
 
 <!-- SIDEBAR -->
-<aside id="sidebar" class="collapsed flex flex-col justify-between flex-shrink-0 relative z-30">
+<aside id="sidebar" class="hidden lg:flex collapsed flex-col justify-between flex-shrink-0 relative z-30">
     <div class="px-3 py-[20px] overflow-y-auto flex-1 min-w-0 mt-[4px]">
         <div class="logo-wrapper flex items-center h-[45px] gap-3.5 mb-[24px] pl-4">
             <div class="bg-primary size-10 rounded-2xl flex items-center justify-center text-white flex-shrink-0 shadow-lg shadow-primary/30">
@@ -305,16 +328,29 @@
 </aside>
 
 <!-- MAIN CONTENT -->
-<main class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark flex flex-col min-w-0">
+<main class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark flex flex-col min-w-0 pb-[80px] lg:pb-0">
     <!-- HEADER -->
-    <header class="sticky top-0 z-[100] bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800/60 px-6 py-[18px] flex items-center justify-between shrink-0 premium-shadow">
-        <div class="flex items-center gap-6">
+    <header class="sticky top-0 z-[100] bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800/60 px-4 lg:px-6 py-3 lg:py-[18px] flex items-center justify-between shrink-0 premium-shadow">
+        
+        <!-- Mobile Left Side (Logo) -->
+        <div class="flex lg:hidden items-center gap-3">
+            <div class="bg-primary size-10 rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/30 shrink-0">
+                <span class="material-symbols-outlined text-xl">eco</span>
+            </div>
+            <div>
+                <h1 class="text-slate-900 dark:text-white text-xl font-black tracking-tighter leading-none mb-1">eRecyclo</h1>
+                <p class="text-primary text-[8px] font-black uppercase tracking-widest leading-none">{% if user.is_client %}Client{% elif user.is_vendor %}Vendor{% elif user.is_collector %}Collector{% elif user.is_admin or user.is_superuser %}Admin{% endif %}</p>
+            </div>
+        </div>
+
+        <!-- Desktop Left Side (Sidebar Toggle + Title) -->
+        <div class="hidden lg:flex items-center gap-6">
             <button id="sidebarToggleBtn" onclick="toggleSidebar()" class="size-9 rounded-2xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-primary hover:shadow-lg transition-all border border-slate-100 dark:border-slate-800">
                 <span class="material-symbols-outlined text-2xl toggle-icon">chevron_left</span>
             </button>
-            <div class="hidden sm:block">
-                <h2 class="text-[15px] font-black text-slate-800 dark:text-white tracking-tight leading-none ">{% block page_title %}Dashboard{% endblock %}</h2>
-                <p class="text-[8px] font-bold text-slate-400 uppercase tracking-[0.15em] mt-2">{% block page_subtitle %}Overview{% endblock %}</p>
+            <div>
+                <h2 id="desktop-page-title" class="text-[15px] font-black text-slate-800 dark:text-white tracking-tight leading-none ">{% block page_title %}Dashboard{% endblock %}</h2>
+                <p id="desktop-page-subtitle" class="text-[8px] font-bold text-slate-400 uppercase tracking-[0.15em] mt-2">{% block page_subtitle %}Overview{% endblock %}</p>
             </div>
         </div>
 
@@ -338,7 +374,7 @@
                             {% if user.is_client %}Client{% elif user.is_vendor %}Vendor{% elif user.is_collector %}Collector{% elif user.is_admin or user.is_superuser %}Admin{% else %}User{% endif %}
                         </span>
                     </div>
-                    <div class="size-11 bg-primary/10 text-primary rounded-xl flex items-center justify-center font-black text-sm border border-primary/20 transition-colors duration-300 overflow-hidden">
+                    <div class="size-9 lg:size-11 bg-primary/10 text-primary rounded-xl flex items-center justify-center font-black text-sm border border-primary/20 transition-colors duration-300 overflow-hidden shrink-0">
                         {% if user.is_vendor and user.vendor_profile.profile_photo and 'default' not in user.vendor_profile.profile_photo.url %}
                             <img src="{{ user.vendor_profile.profile_photo.url }}" class="header-profile-img w-full h-full object-cover">
                         {% elif user.is_collector and user.collector_profile.profile_photo and 'default' not in user.collector_profile.profile_photo.url %}
@@ -400,7 +436,41 @@
     </div>
 
     <!-- PAGE CONTENT -->
-    <div class="flex-1 p-6">
+    <div class="flex-1 px-[20px] py-4 lg:p-6">
+        
+        <!-- MOBILE IN-PAGE TITLE (JS Mirror) -->
+        <div id="mobile-title-container" class="lg:hidden flex items-center gap-1 mb-5 mt-1 hidden">
+            <button onclick="window.history.back()" class="flex items-center justify-center text-slate-700 dark:text-slate-300 hover:text-primary transition-all shrink-0 active:scale-90 p-1">
+                <span class="material-symbols-outlined text-[20px] font-bold drop-shadow-sm">chevron_left</span>
+            </button>
+            <div class="flex-1 min-w-0">
+                <h2 id="mobile-page-title" class="text-[15px] font-black text-slate-800 dark:text-white tracking-tight leading-none mb-1 truncate"></h2>
+                <p id="mobile-page-subtitle" class="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none truncate"></p>
+            </div>
+        </div>
+        
+        <script>
+            // Mirrors the Django block content from the hidden desktop header down into the mobile flow
+            document.addEventListener('DOMContentLoaded', () => {
+                var dt = document.getElementById('desktop-page-title');
+                var ds = document.getElementById('desktop-page-subtitle');
+                var container = document.getElementById('mobile-title-container');
+                
+                if(dt && container) {
+                    var text = (dt.innerText || dt.textContent || '').trim().toLowerCase();
+                    if(text === 'dashboard' || text === 'overview') {
+                        // Keep container hidden natively on Dashboards
+                        container.style.display = 'none';
+                    } else {
+                        // Reveal container and clone elements for nested pages
+                        container.classList.remove('hidden');
+                        document.getElementById('mobile-page-title').innerHTML = dt.innerHTML;
+                        if(ds) document.getElementById('mobile-page-subtitle').innerHTML = ds.innerHTML;
+                    }
+                }
+            });
+        </script>
+
         {% block page_content %}{% endblock %}
     </div>
 
@@ -413,6 +483,113 @@
         </div>
     </footer>
 </main>
+
+<!-- MOBILE BOTTOM NAVIGATION -->
+<nav class="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-around px-2 pb-[env(safe-area-inset-bottom)] h-[70px] premium-shadow" style="box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.05);">
+    {% if user.is_client %}
+        {% url 'client:dashboard' as dash_url %}
+        {% url 'client:upload_ewaste' as upload_url %}
+        {% url 'client:my_uploads' as myup_url %}
+        {% url 'client:wallet' as wallet_url %}
+        
+        <a href="{{ dash_url }}" class="mobile-nav-link flex flex-col items-center justify-center w-full h-full gap-1 transition-all {% if request.path == dash_url %}active{% else %}hover:text-slate-700 dark:hover:text-slate-200{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">dashboard</span>
+            <span class="text-[8px] font-extrabold uppercase tracking-widest leading-none">Home</span>
+        </a>
+        <a href="{{ upload_url }}" class="mobile-nav-link flex flex-col items-center justify-center w-full h-full gap-1 transition-all {% if request.path == upload_url %}active{% else %}hover:text-slate-700 dark:hover:text-slate-200{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">recycling</span>
+            <span class="text-[8px] font-extrabold uppercase tracking-widest leading-none">Recycle</span>
+        </a>
+        <a href="{{ myup_url }}" class="mobile-nav-link flex flex-col items-center justify-center w-full h-full gap-1 transition-all {% if request.resolver_match.url_name in 'my_uploads,upload_detail,review_offer,request_return,transfer_to_vendor,accept_last_offer' %}active{% else %}hover:text-slate-700 dark:hover:text-slate-200{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">package_2</span>
+            <span class="text-[8px] font-extrabold uppercase tracking-widest leading-none">Track</span>
+        </a>
+        <a href="{{ wallet_url }}" class="mobile-nav-link flex flex-col items-center justify-center w-full h-full gap-1 transition-all {% if request.path == wallet_url %}active{% else %}hover:text-slate-700 dark:hover:text-slate-200{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">wallet</span>
+            <span class="text-[8px] font-extrabold uppercase tracking-widest leading-none">Wallet</span>
+        </a>
+        <a href="{% url 'accounts:profile' %}" class="mobile-nav-link flex flex-col items-center justify-center w-full h-full gap-1 transition-all {% if request.resolver_match.url_name in 'profile,edit_profile' %}active{% else %}hover:text-slate-700 dark:hover:text-slate-200{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">settings</span>
+            <span class="text-[8px] font-extrabold uppercase tracking-widest leading-none">Settings</span>
+        </a>
+
+    {% elif user.is_vendor %}
+        {% url 'vendor:dashboard' as vdash_url %}
+        {% url 'vendor:pending_requests' as vreq_url %}
+        {% url 'vendor:accepted_items' as vacc_url %}
+        {% url 'vendor:payment' as vpay_url %}
+        
+        <a href="{{ vdash_url }}" class="mobile-nav-link flex flex-col items-center justify-center w-full h-full gap-1 transition-all {% if request.path == vdash_url %}active{% else %}hover:text-slate-700 dark:hover:text-slate-200{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">dashboard</span>
+            <span class="text-[8px] font-extrabold uppercase tracking-widest leading-none">Home</span>
+        </a>
+        <a href="{{ vreq_url }}" class="mobile-nav-link flex flex-col items-center justify-center w-full h-full gap-1 transition-all {% if request.path == vreq_url %}active{% else %}hover:text-slate-700 dark:hover:text-slate-200{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">shopping_basket</span>
+            <span class="text-[8px] font-extrabold uppercase tracking-widest leading-none">Market</span>
+        </a>
+        <a href="{{ vacc_url }}" class="mobile-nav-link flex flex-col items-center justify-center w-full h-full gap-1 transition-all {% if request.resolver_match.url_name in 'accepted_items,item_detail,evaluate_item' %}active{% else %}hover:text-slate-700 dark:hover:text-slate-200{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">inventory</span>
+            <span class="text-[8px] font-extrabold uppercase tracking-widest leading-none">Inventory</span>
+        </a>
+        <a href="{{ vpay_url }}" class="mobile-nav-link flex flex-col items-center justify-center w-full h-full gap-1 transition-all {% if request.path == vpay_url %}active{% else %}hover:text-slate-700 dark:hover:text-slate-200{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">payments</span>
+            <span class="text-[8px] font-extrabold uppercase tracking-widest leading-none">Wallet</span>
+        </a>
+        <a href="{% url 'accounts:profile' %}" class="mobile-nav-link flex flex-col items-center justify-center w-full h-full gap-1 transition-all {% if request.resolver_match.url_name in 'profile,edit_profile,complete_vendor_profile' %}active{% else %}hover:text-slate-700 dark:hover:text-slate-200{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">settings</span>
+            <span class="text-[8px] font-extrabold uppercase tracking-widest leading-none">Settings</span>
+        </a>
+
+    {% elif user.is_collector %}
+        {% url 'collector:dashboard' as cdash_url %}
+        {% url 'collector:available_pickups' as cavail_url %}
+        {% url 'collector:my_pickups' as cmypick_url %}
+        {% url 'collector:earnings' as cearn_url %}
+        
+        <a href="{{ cdash_url }}" class="mobile-nav-link flex flex-col items-center justify-center w-full h-full gap-1 transition-all {% if request.path == cdash_url %}active{% else %}hover:text-slate-700 dark:hover:text-slate-200{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">dashboard_customize</span>
+            <span class="text-[8px] font-extrabold uppercase tracking-widest leading-none">Home</span>
+        </a>
+        <a href="{{ cavail_url }}" class="mobile-nav-link flex flex-col items-center justify-center w-full h-full gap-1 transition-all {% if request.path == cavail_url %}active{% else %}hover:text-slate-700 dark:hover:text-slate-200{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">explore</span>
+            <span class="text-[8px] font-extrabold uppercase tracking-widest leading-none">Find</span>
+        </a>
+        <a href="{{ cmypick_url }}" class="mobile-nav-link flex flex-col items-center justify-center w-full h-full gap-1 transition-all {% if request.resolver_match.url_name in 'my_pickups,pickup_detail,verify_pickup_otp' %}active{% else %}hover:text-slate-700 dark:hover:text-slate-200{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">local_shipping</span>
+            <span class="text-[8px] font-extrabold uppercase tracking-widest leading-none">Jobs</span>
+        </a>
+        <a href="{{ cearn_url }}" class="mobile-nav-link flex flex-col items-center justify-center w-full h-full gap-1 transition-all {% if request.path == cearn_url %}active{% else %}hover:text-slate-700 dark:hover:text-slate-200{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">payments</span>
+            <span class="text-[8px] font-extrabold uppercase tracking-widest leading-none">Earnings</span>
+        </a>
+        <a href="{% url 'accounts:profile' %}" class="mobile-nav-link flex flex-col items-center justify-center w-full h-full gap-1 transition-all {% if request.resolver_match.url_name in 'profile,edit_profile,complete_collector_profile' %}active{% else %}hover:text-slate-700 dark:hover:text-slate-200{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">settings</span>
+            <span class="text-[8px] font-extrabold uppercase tracking-widest leading-none">Settings</span>
+        </a>
+    
+    {% elif user.is_admin or user.is_superuser %}
+        {% url 'admin_custom:dashboard' as adash_url %}
+        {% url 'admin_custom:pending_approvals' as aapproval_url %}
+        {% url 'admin_custom:users' as ausers_url %}
+        
+        <a href="{{ adash_url }}" class="mobile-nav-link flex flex-col items-center justify-center w-full h-full gap-1 transition-all {% if request.path == adash_url %}active{% else %}hover:text-slate-700 dark:hover:text-slate-200{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">shield_person</span>
+            <span class="text-[8px] font-extrabold uppercase tracking-widest leading-none">Admin</span>
+        </a>
+        <a href="{{ aapproval_url }}" class="mobile-nav-link flex flex-col items-center justify-center w-full h-full gap-1 transition-all {% if request.path == aapproval_url %}active{% else %}hover:text-slate-700 dark:hover:text-slate-200{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">verified_user</span>
+            <span class="text-[8px] font-extrabold uppercase tracking-widest leading-none">Approvals</span>
+        </a>
+        <a href="{{ ausers_url }}" class="mobile-nav-link flex flex-col items-center justify-center w-full h-full gap-1 transition-all {% if request.path == ausers_url %}active{% else %}hover:text-slate-700 dark:hover:text-slate-200{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">group</span>
+            <span class="text-[8px] font-extrabold uppercase tracking-widest leading-none">Users</span>
+        </a>
+        <a href="{% url 'accounts:profile' %}" class="mobile-nav-link flex flex-col items-center justify-center w-full h-full gap-1 transition-all {% if request.resolver_match.url_name in 'profile,edit_profile' %}active{% else %}hover:text-slate-700 dark:hover:text-slate-200{% endif %}">
+            <span class="material-symbols-outlined text-[20px]">settings</span>
+            <span class="text-[8px] font-extrabold uppercase tracking-widest leading-none">Settings</span>
+        </a>
+    {% endif %}
+</nav>
 </div>
 
 <script>

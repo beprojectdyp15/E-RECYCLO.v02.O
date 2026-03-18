@@ -58,3 +58,10 @@ numpy==1.26.4
 
 # -- Payments --
 razorpay==2.0.1
+
+# -- AI/ML Packages (Bypass Vercel size limit) --
+# --extra-index-url https://download.pytorch.org/whl/cpu
+# torch==2.2.1+cpu
+# torchvision==0.17.1+cpu
+# ultralytics==8.1.0
+# opencv-python-headless==4.8.1.78
