@@ -200,6 +200,17 @@ SESSION_COOKIE_AGE = 7200  # 2 hours
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
+
+# ========================================
+# RAZORPAY CONFIGURATION
+# ========================================
+
+RAZORPAY_KEY_ID         = config("RAZORPAY_KEY_ID",         default="")
+RAZORPAY_KEY_SECRET     = config("RAZORPAY_KEY_SECRET",     default="")
+RAZORPAY_WEBHOOK_SECRET = config("RAZORPAY_WEBHOOK_SECRET", default="")
+RAZORPAY_ACCOUNT_NUMBER = config("RAZORPAY_ACCOUNT_NUMBER", default="")
+
+
 # ========================================
 # SECURITY SETTINGS
 # ========================================

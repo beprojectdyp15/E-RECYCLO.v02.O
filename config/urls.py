@@ -28,6 +28,7 @@ urlpatterns = [
     path('admin-panel/', include('apps.admin_custom.urls')),
     path('payments/', include('apps.payments.urls')),
     path('api/', include('apps.ai_services.urls')),
+    path("payments/", include("apps.payments.urls", namespace="payments")),
     
     # Favicon redirect for browsers that ignore the link tag
     path('favicon.ico', RedirectView.as_view(url=settings.MEDIA_URL + 'system_images/favicon/favicon.ico', permanent=True)),
