@@ -279,14 +279,24 @@ async function initiateTopUp() {
     btn.innerHTML = '<span class="material-symbols-outlined text-[16px] animate-spin">progress_activity</span> Initiating…';
 
     try {
-        var res  = await fetch('{% url "payments:topup_initiate" %}', {
+        const response = await fetch('{% url "payments:topup_initiate" %}', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
             body: JSON.stringify({ amount: amount }),
             credentials: 'same-origin',
         });
-        var data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Server error');
+        
+        let data;
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+            data = await response.json();
+        } else {
+            const text = await response.text();
+            console.error("Server returned non-JSON:", text.substring(0, 200));
+            throw new Error('Server returned an invalid response (HTML). Please check your Razorpay keys and Vercel configuration.');
+        }
+
+        if (!response.ok) throw new Error(data.error || 'Server error');
 
         var rzp = new Razorpay({
             key:         data.key_id,

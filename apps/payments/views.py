@@ -48,67 +48,68 @@ def topup_initiate(request):
     POST: Create a Razorpay order for vendor wallet top-up.
     Returns JSON {order_id, amount, currency, key_id} for Razorpay checkout.js.
     """
-    if not request.user.is_vendor:
-        return JsonResponse({'error': 'Access denied'}, status=403)
-
-    if request.method != 'POST':
-        return JsonResponse({'error': 'POST required'}, status=405)
-
     try:
-        data   = json.loads(request.body)
-        amount = int(float(data.get('amount', 0)))   # ₹ rupees
-    except (ValueError, KeyError, json.JSONDecodeError):
-        return JsonResponse({'error': 'Invalid amount'}, status=400)
+        if not request.user.is_vendor:
+            return JsonResponse({'error': 'Access denied: Only vendors can perform this action.'}, status=403)
 
-    if amount < 100:
-        return JsonResponse({'error': 'Minimum top-up is ₹100'}, status=400)
-    if amount > 500000:
-        return JsonResponse({'error': 'Maximum top-up is ₹5,00,000'}, status=400)
+        if request.method != 'POST':
+            return JsonResponse({'error': 'Invalid request method. POST is required.'}, status=405)
 
-    amount_paise = amount * 100   # Razorpay uses paise
+        try:
+            data   = json.loads(request.body)
+            amount = int(float(data.get('amount', 0)))   # ₹ rupees
+        except (ValueError, KeyError, json.JSONDecodeError):
+            return JsonResponse({'error': 'Invalid amount provided.'}, status=400)
 
-    try:
-        # Check if keys are set
-        if not settings.RAZORPAY_KEY_ID or not settings.RAZORPAY_KEY_SECRET:
-            logger.error("Razorpay keys are missing from settings.")
-            return JsonResponse({'error': 'Payment gateway is not configured on the server.'}, status=500)
+        if amount < 100:
+            return JsonResponse({'error': 'Minimum top-up is ₹100'}, status=400)
+        
+        amount_paise = amount * 100   # Razorpay uses paise
 
-        rzp_order = _rzp().order.create({
-            'amount':   amount_paise,
-            'currency': 'INR',
-            'receipt':  f'topup_{request.user.pk}_{timezone.now().strftime("%Y%m%d%H%M%S")}',
-            'notes': {
-                'user_id':   str(request.user.pk),
-                'user_email': request.user.email,
-                'purpose':   'wallet_topup',
+        try:
+            # Check if keys are set
+            if not settings.RAZORPAY_KEY_ID or not settings.RAZORPAY_KEY_SECRET:
+                logger.error("Razorpay keys are missing from settings.")
+                return JsonResponse({'error': 'Payment gateway is not configured on the server. Please check environment variables.'}, status=500)
+
+            rzp_order = _rzp().order.create({
+                'amount':   amount_paise,
+                'currency': 'INR',
+                'receipt':  f'topup_{request.user.pk}_{timezone.now().strftime("%Y%m%d%H%M%S")}',
+                'notes': {
+                    'user_id':   str(request.user.pk),
+                    'purpose':   'wallet_topup',
+                },
+                'payment_capture': 1,
+            })
+        except Exception as exc:
+            logger.exception('Razorpay order creation failed: %s', exc)
+            return JsonResponse({'error': f'Gateway Error: {str(exc)}'}, status=502)
+
+        # Store order in DB so webhook can look it up
+        RazorpayOrder.objects.create(
+            user=request.user,
+            razorpay_order_id=rzp_order['id'],
+            amount=amount,
+            purpose='wallet_topup',
+            status='created',
+        )
+
+        return JsonResponse({
+            'order_id':  rzp_order['id'],
+            'amount':    amount_paise,
+            'currency':  'INR',
+            'key_id':    settings.RAZORPAY_KEY_ID,
+            'name':      'eRecyclo',
+            'description': f'Wallet top-up ₹{amount}',
+            'prefill': {
+                'name':  request.user.get_full_name(),
+                'email': request.user.email,
             },
-            'payment_capture': 1,
         })
-    except Exception as exc:
-        logger.exception('Razorpay order creation failed: %s', exc)
-        return JsonResponse({'error': f'Gateway Error: {str(exc)}'}, status=502)
-
-    # Store order in DB so webhook can look it up
-    RazorpayOrder.objects.create(
-        user=request.user,
-        razorpay_order_id=rzp_order['id'],
-        amount=amount,
-        purpose='wallet_topup',
-        status='created',
-    )
-
-    return JsonResponse({
-        'order_id':  rzp_order['id'],
-        'amount':    amount_paise,
-        'currency':  'INR',
-        'key_id':    settings.RAZORPAY_KEY_ID,
-        'name':      'eRecyclo',
-        'description': f'Wallet top-up ₹{amount}',
-        'prefill': {
-            'name':  request.user.get_full_name(),
-            'email': request.user.email,
-        },
-    })
+    except Exception as e:
+        logger.exception("Final safety catch in topup_initiate: %s", e)
+        return JsonResponse({'error': 'A server-side error occurred. Please check logs.'}, status=500)
 
 
 @login_required
