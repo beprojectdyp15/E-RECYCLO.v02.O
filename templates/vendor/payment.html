@@ -595,56 +595,56 @@ async function initiateTopUp() {
     </div>
 
 {# ── Top-Up Modal (Full Screen Layer) ── #}
-<div id="topupModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center p-4">
-    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onclick="closeTopup()"></div>
-    <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl w-full max-w-md p-8 relative z-10 animate-in fade-in zoom-in duration-300 border border-slate-100 dark:border-slate-800">
+<div id="topupModal" class="hidden fixed inset-0 z-[99999] flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeTopup()"></div>
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md p-8 relative z-10 animate-in fade-in zoom-in duration-300">
         <button onclick="closeTopup()"
                 class="absolute top-4 right-4 size-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center hover:bg-slate-200 transition-all">
             <span class="material-symbols-outlined text-[16px]">close</span>
         </button>
-        <div class="flex items-center gap-4 mb-8">
-            <div class="size-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shadow-inner">
-                <span class="material-symbols-outlined text-2xl">account_balance_wallet</span>
+        <div class="flex items-center gap-4 mb-6">
+            <div class="size-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-primary text-2xl">account_balance_wallet</span>
             </div>
             <div>
-                <h3 class="text-[16px] font-black text-slate-800 dark:text-white leading-tight">Top Up Wallet</h3>
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Secure settlement via Razorpay</p>
+                <h3 class="text-[15px] font-extrabold text-slate-800 dark:text-white">Top Up Wallet</h3>
+                <p class="text-[11px] text-slate-400 mt-0.5">Secure payment via Razorpay · Min ₹100</p>
             </div>
         </div>
 
         {# Quick amount chips #}
-        <div class="grid grid-cols-3 gap-2 mb-6">
-            {% for amt in "500,1000,5000"|split:"," %}
+        <div class="flex flex-wrap gap-2 mb-4">
+            {% for amt in "500,1000,2000,5000,10000"|split:"," %}
             <button onclick="document.getElementById('topupAmount').value='{{ amt }}'"
-                    class="py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400
-                           text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500/10 hover:text-emerald-500 transition-all border border-slate-100 dark:border-slate-700/50">
+                    class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300
+                           text-[11px] font-bold hover:bg-primary/10 hover:text-primary transition-all border border-slate-200 dark:border-slate-700">
                 ₹{{ amt }}
             </button>
             {% endfor %}
         </div>
 
-        <div class="mb-6">
-            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Enter Amount (₹)</label>
+        <div class="mb-4">
+            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Enter Amount (₹)</label>
             <div class="relative">
-                <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-xl">₹</span>
-                <input id="topupAmount" type="number" min="100" max="500000" placeholder="0"
-                       class="w-full pl-10 pr-6 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700
-                              text-slate-800 dark:text-white font-black text-2xl focus:outline-none focus:border-emerald-500/50 transition-all tabular-nums">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">₹</span>
+                <input id="topupAmount" type="number" min="100" max="500000" placeholder="100"
+                       class="w-full pl-9 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700
+                              text-slate-800 dark:text-white font-extrabold text-xl focus:outline-none focus:border-primary transition-all">
             </div>
         </div>
 
-        <p id="topupError" class="hidden text-[10px] font-bold text-rose-500 mb-4 ml-1"></p>
+        <p id="topupError" class="hidden text-[11px] text-red-500 font-semibold mb-3"></p>
 
         <button onclick="initiateTopUp()"
-                class="w-full py-4.5 bg-emerald-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest
-                       flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all
-                       shadow-xl shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="w-full py-4 bg-primary text-white rounded-xl text-[11px] font-black uppercase tracking-widest
+                       flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] transition-all
+                       shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
                 id="topupPayBtn">
-            <span class="material-symbols-outlined text-[18px]">lock</span>
-            Complete Payment
+            <span class="material-symbols-outlined text-[16px]">lock</span>
+            Pay Securely
         </button>
-        <p class="text-center text-[9px] font-black text-slate-400 uppercase tracking-widest mt-5 opacity-60">
-            🔒 SSL Encrypted · 256-bit AES
+        <p class="text-center text-[10px] text-slate-400 mt-3">
+            🔒 256-bit encrypted · Powered by Razorpay · Supports UPI, Cards, Net Banking
         </p>
     </div>
 </div>

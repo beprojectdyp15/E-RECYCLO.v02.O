@@ -65,9 +65,14 @@ def topup_initiate(request):
     if amount > 500000:
         return JsonResponse({'error': 'Maximum top-up is ₹5,00,000'}, status=400)
 
-    amount_paise = amount * 100   # Razorpay uses paise (1 ₹ = 100 paise)
+    amount_paise = amount * 100   # Razorpay uses paise
 
     try:
+        # Check if keys are set
+        if not settings.RAZORPAY_KEY_ID or not settings.RAZORPAY_KEY_SECRET:
+            logger.error("Razorpay keys are missing from settings.")
+            return JsonResponse({'error': 'Payment gateway is not configured on the server.'}, status=500)
+
         rzp_order = _rzp().order.create({
             'amount':   amount_paise,
             'currency': 'INR',
@@ -77,11 +82,11 @@ def topup_initiate(request):
                 'user_email': request.user.email,
                 'purpose':   'wallet_topup',
             },
-            'payment_capture': 1,   # auto-capture
+            'payment_capture': 1,
         })
     except Exception as exc:
         logger.exception('Razorpay order creation failed: %s', exc)
-        return JsonResponse({'error': 'Payment gateway error. Please try again.'}, status=502)
+        return JsonResponse({'error': f'Gateway Error: {str(exc)}'}, status=502)
 
     # Store order in DB so webhook can look it up
     RazorpayOrder.objects.create(
