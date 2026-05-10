@@ -112,7 +112,7 @@
             <h3 class="text-4xl font-black text-slate-800 dark:text-white tracking-tighter">{{ total_uploads }}</h3>
         </div>
 
-        <div class="premium-card p-8 group hover:stat-glow-purple transition-all">
+        <a href="{% url 'payments:withdrawal_requests' %}" class="premium-card p-8 group hover:stat-glow-purple transition-all hover:border-purple-500">
             <div class="flex items-center justify-between mb-6">
                 <div class="size-14 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-500 transition-transform group-hover:scale-110">
                     <span class="material-symbols-outlined text-3xl">payments</span>
@@ -123,7 +123,8 @@
             </div>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Pending Withdrawals</p>
             <h3 class="text-4xl font-black text-slate-800 dark:text-white tracking-tighter">{{ pending_withdrawals }}</h3>
-        </div>
+            <p class="text-[9px] font-black text-purple-400 uppercase tracking-widest mt-3">Click to Review →</p>
+        </a>
     </div>
 
     <!-- ── CORE NAVIGATION OVERLAYS ── -->
@@ -165,6 +166,19 @@
             <div>
                 <h3 class="text-xl font-black text-slate-800 dark:text-white uppercase tracking-tight">System Explorer</h3>
                 <p class="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Atomic database CRUD</p>
+            </div>
+        </a>
+
+        <a href="{% url 'payments:withdrawal_requests' %}" class="premium-card p-10 flex flex-col items-center text-center gap-6 group hover:border-purple-500 transition-all">
+            <div class="size-20 rounded-[2rem] bg-purple-500 text-white flex items-center justify-center shadow-2xl shadow-purple-500/40 group-hover:scale-110 transition-transform relative">
+                <span class="material-symbols-outlined text-4xl">account_balance_wallet</span>
+                {% if pending_withdrawals %}
+                <span class="absolute -top-2 -right-2 size-7 rounded-full bg-red-500 text-white text-[10px] font-black flex items-center justify-center shadow-lg">{{ pending_withdrawals }}</span>
+                {% endif %}
+            </div>
+            <div>
+                <h3 class="text-xl font-black text-slate-800 dark:text-white uppercase tracking-tight">Withdrawal Requests</h3>
+                <p class="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Approve & process payouts</p>
             </div>
         </a>
     </div>

@@ -685,11 +685,18 @@ def wallet(request):
         status='completed'
     ).aggregate(total=Sum('vendor_final_value'))['total'] or Decimal('0.00')
     
+    # Fetch recent withdrawal requests so the wallet page can show status
+    from apps.payments.models import WithdrawalRequest
+    withdrawal_requests = WithdrawalRequest.objects.filter(
+        user=request.user
+    ).order_by('-created_at')[:5]
+
     context = {
         'page_title': 'My Wallet - E-RECYCLO',
         'wallet': wallet,
         'transactions': transactions,
         'total_earned': total_earned,
+        'withdrawal_requests': withdrawal_requests,
     }
     
     return render(request, 'client/wallet.html', context)

@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Top Up Wallet{% endblock %}
+{% block page_subtitle %}Add funds via Razorpay — UPI · Cards · Net Banking{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root { --premium-bg: #f8fafc; }
+    html.dark { --premium-bg: #0f172a; }
+    body { background-color: var(--premium-bg) !important; }
+
+    .tp-card {
+        background: #ffffff;
+        border: 1px solid rgba(0,0,0,0.05);
+        border-radius: 1.5rem;
+        box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+    }
+    .dark .tp-card { background:#1e293b; border-color:rgba(255,255,255,.05); }
+
+    .wallet-hero {
+        background: linear-gradient(140deg, #17cf17 5%, #228b22 35%, #0f172a 85%);
+        border-radius: 1.5rem; position:relative; overflow:hidden;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 1rem;
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #1e293b;
+        background: #f8fafc;
+        outline: none;
+        transition: all 0.2s;
+    }
+    .form-input:focus { border-color:#17cf17; box-shadow:0 0 0 3px rgba(23,207,23,.1); background:#fff; }
+    .dark .form-input { background:#0f172a; border-color:rgba(255,255,255,.1); color:#f1f5f9; }
+    .dark .form-input:focus { background:#0f172a; }
+
+    .pay-btn {
+        width:100%; padding:1rem; display:flex; align-items:center; justify-content:center; gap:.5rem;
+        background:linear-gradient(135deg,#17cf17,#15b515); color:#fff;
+        font-size:.85rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase;
+        border:none; border-radius:1rem; cursor:pointer; transition:all .2s;
+    }
+    .pay-btn:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 8px 20px rgba(23,207,23,.4); }
+    .pay-btn:disabled { opacity:.6; cursor:not-allowed; }
+
+    .quick-btn {
+        flex:1; padding:.6rem .5rem; text-align:center; border-radius:.75rem;
+        background:#f1f5f9; color:#475569; font-size:.7rem; font-weight:800;
+        border:1.5px solid #e2e8f0; cursor:pointer; transition:all .2s;
+    }
+    .quick-btn:hover { background:#f0fdf4; border-color:#17cf17; color:#15a015; }
+    .dark .quick-btn { background:#0f172a; border-color:rgba(255,255,255,.08); color:#94a3b8; }
+    .dark .quick-btn:hover { background:rgba(23,207,23,.08); border-color:#17cf17; color:#4ade80; }
+
+    .step-row { display:flex; align-items:center; gap:.75rem; padding:.75rem 0; border-bottom:1px solid #f1f5f9; }
+    .step-row:last-child { border-bottom:none; }
+    .dark .step-row { border-bottom-color:rgba(255,255,255,.05); }
+
+    #errBox { display:none; background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; border-radius:.75rem; padding:.75rem 1rem; font-size:.8rem; font-weight:600; margin-bottom:1rem; }
+    #okBox  { display:none; background:#d1fae5; border:1px solid #6ee7b7; color:#065f46; border-radius:.75rem; padding:.875rem 1rem; font-size:.85rem; font-weight:600; margin-bottom:1rem; }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="max-w-lg mx-auto px-4 py-8 space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
+
+    <!-- Balance hero -->
+    <div class="wallet-hero px-7 py-6 text-white flex items-center justify-between">
+        <div class="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-12 -mt-12 blur-3xl pointer-events-none"></div>
+        <div class="relative z-10">
+            <p class="text-[9px] font-black uppercase tracking-[0.2em] text-white/50 mb-1">Current Balance</p>
+            <p class="text-5xl font-black tracking-tighter leading-none">₹{{ wallet.balance|default:"0.00" }}</p>
+        </div>
+        <a href="{% url 'vendor:payment' %}"
+           class="relative z-10 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-[10px] font-black uppercase tracking-widest transition-colors border border-white/10">
+            <span class="material-symbols-outlined text-sm">arrow_back</span> Back
+        </a>
+    </div>
+
+    <!-- Top-up form -->
+    <div class="tp-card p-6">
+        <h2 class="text-sm font-black text-slate-800 dark:text-white mb-0.5">Add Money to Wallet</h2>
+        <p class="text-[11px] text-slate-400 mb-5">Secure payment via Razorpay. Min ₹10. Funds credited instantly.</p>
+
+        <div id="errBox"></div>
+        <div id="okBox"></div>
+
+        <div class="mb-4">
+            <label class="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Amount (₹)</label>
+            <input type="number" id="tp-amount" class="form-input" min="10" max="500000" placeholder="Min ₹10">
+        </div>
+
+        <div class="flex gap-2 mb-6">
+            {% for amt in quick_amounts %}
+            <button type="button" class="quick-btn"
+                    onclick="document.getElementById('tp-amount').value='{{ amt }}'">₹{{ amt }}</button>
+            {% endfor %}
+        </div>
+
+        <button type="button" class="pay-btn" id="tp-btn" onclick="initiateTopup()">
+            <span id="btn-txt"><span class="material-symbols-outlined text-base">lock</span> Pay Securely via Razorpay</span>
+            <span id="btn-spin" class="hidden">
+                <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                Opening gateway…
+            </span>
+        </button>
+        <p class="text-center text-[10px] text-slate-400 mt-3">🔒 256-bit SSL · Min ₹10 · Max ₹5,00,000</p>
+    </div>
+
+    <!-- How it works -->
+    <div class="tp-card p-6">
+        <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-4">How Top-Up Works</p>
+        <div>
+            <div class="step-row">
+                <div class="w-8 h-8 rounded-xl bg-green-100 dark:bg-green-900/20 flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-sm text-green-600">edit_note</span>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-slate-700 dark:text-slate-200">Enter amount & tap Pay</p>
+                    <p class="text-[10px] text-slate-400">Choose ₹100 or more</p>
+                </div>
+            </div>
+            <div class="step-row">
+                <div class="w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-sm text-blue-500">payment</span>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-slate-700 dark:text-slate-200">Complete on Razorpay</p>
+                    <p class="text-[10px] text-slate-400">UPI · Debit/Credit Card · Net Banking</p>
+                </div>
+            </div>
+            <div class="step-row">
+                <div class="w-8 h-8 rounded-xl bg-green-100 dark:bg-green-900/20 flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-sm text-green-600">check_circle</span>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-slate-700 dark:text-slate-200">Balance credited instantly</p>
+                    <p class="text-[10px] text-slate-400">Available immediately after payment</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+const CSRF = '{{ csrf_token }}';
+
+function showErr(msg) { const e=document.getElementById('errBox'); e.textContent='⚠️ '+msg; e.style.display='block'; document.getElementById('okBox').style.display='none'; }
+function showOk(msg)  { const e=document.getElementById('okBox');  e.innerHTML=msg; e.style.display='block'; document.getElementById('errBox').style.display='none'; }
+function setLoad(on)  {
+    document.getElementById('tp-btn').disabled = on;
+    document.getElementById('btn-txt').classList.toggle('hidden', on);
+    document.getElementById('btn-spin').classList.toggle('hidden', !on);
+}
+
+async function initiateTopup() {
+    document.getElementById('errBox').style.display='none';
+    document.getElementById('okBox').style.display='none';
+
+    const amount = parseInt(document.getElementById('tp-amount').value||'0');
+    if (!amount || amount < 10)     { showErr('Minimum top-up is ₹10.'); return; }
+    if (amount > 500000)            { showErr('Maximum top-up is ₹5,00,000.'); return; }
+
+    setLoad(true);
+    try {
+        const res  = await fetch('{% url "payments:topup_initiate" %}', {
+            method: 'POST',
+            headers: { 'Content-Type':'application/json', 'X-CSRFToken': CSRF },
+            body: JSON.stringify({ amount }),
+        });
+        const ct = res.headers.get('content-type')||'';
+        if (!ct.includes('application/json')) throw new Error('Server error — check Razorpay configuration.');
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error||'Failed to create payment order.');
+
+        const rzp = new Razorpay({
+            key:         data.key_id,
+            amount:      data.amount,
+            currency:    data.currency,
+            order_id:    data.order_id,
+            name:        'eRecyclo',
+            description: data.description,
+            prefill:     data.prefill,
+            theme:       { color:'#17cf17' },
+            modal: {
+                ondismiss: () => {
+                    setLoad(false);
+                    showErr('Payment cancelled. Your wallet was not charged.');
+                }
+            },
+            handler: async function(response) {
+                try {
+                    const vRes  = await fetch('{% url "payments:topup_verify" %}', {
+                        method: 'POST',
+                        headers: { 'Content-Type':'application/json', 'X-CSRFToken': CSRF },
+                        body: JSON.stringify({
+                            razorpay_order_id:   response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature:  response.razorpay_signature,
+                        }),
+                    });
+                    const vData = await vRes.json();
+                    if (vRes.ok && vData.status === 'ok') {
+                        showOk('✅ ₹' + amount + ' added to your wallet! New balance: ₹' + vData.new_balance + '. Redirecting…');
+                        setTimeout(() => window.location.href = '{% url "vendor:payment" %}', 2500);
+                    } else {
+                        showErr(vData.error||'Payment captured but verification failed. Contact support.');
+                    }
+                } catch(e) { showErr('Verification error: '+e.message); }
+                finally    { setLoad(false); }
+            },
+        });
+        rzp.open();
+    } catch(e) {
+        showErr(e.message||'Something went wrong. Please try again.');
+        setLoad(false);
+    }
+}
+</script>
+{% endblock %}

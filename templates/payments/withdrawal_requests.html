@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Withdrawal Requests{% endblock %}
+{% block page_subtitle %}Review and process client & collector payout requests{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root { --premium-bg: #f8fafc; }
+    html.dark { --premium-bg: #0f172a; }
+    body { background-color: var(--premium-bg) !important; }
+
+    .wr-card {
+        background: #ffffff;
+        border: 1px solid rgba(0,0,0,0.05);
+        border-radius: 1.25rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        transition: box-shadow 0.2s;
+    }
+    .wr-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    .dark .wr-card { background:#1e293b; border-color:rgba(255,255,255,.05); }
+
+    .status-pill {
+        display:inline-flex; align-items:center; padding:.2rem .65rem;
+        border-radius:9999px; font-size:.6rem; font-weight:800;
+        text-transform:uppercase; letter-spacing:.08em; white-space:nowrap;
+    }
+    .status-pending    { background:#fef3c7; color:#92400e; }
+    .status-approved   { background:#d1fae5; color:#065f46; }
+    .status-processing { background:#dbeafe; color:#1e40af; }
+    .status-completed  { background:#d1fae5; color:#065f46; }
+    .status-rejected   { background:#fee2e2; color:#991b1b; }
+    .dark .status-pending    { background:rgba(251,191,36,.15); color:#fbbf24; }
+    .dark .status-approved   { background:rgba(23,207,23,.15);  color:#4ade80; }
+    .dark .status-processing { background:rgba(59,130,246,.15); color:#60a5fa; }
+    .dark .status-completed  { background:rgba(23,207,23,.15);  color:#4ade80; }
+    .dark .status-rejected   { background:rgba(239,68,68,.15);  color:#f87171; }
+
+    .role-client    { background:#dcfce7; color:#166534; }
+    .role-collector { background:#dbeafe; color:#1e3a8a; }
+    .dark .role-client    { background:rgba(23,207,23,.12); color:#4ade80; }
+    .dark .role-collector { background:rgba(59,130,246,.12); color:#60a5fa; }
+
+    .filter-tab {
+        padding:.4rem 1rem; border-radius:.625rem; font-size:.65rem; font-weight:800;
+        text-transform:uppercase; letter-spacing:.08em; cursor:pointer;
+        transition:all .15s; border:1.5px solid transparent; text-decoration:none;
+        display:inline-block;
+    }
+    .filter-tab.active { background:#17cf17; color:#fff; border-color:#17cf17; }
+    .filter-tab:not(.active) { background:#f1f5f9; color:#64748b; border-color:#e2e8f0; }
+    .dark .filter-tab:not(.active) { background:#0f172a; color:#94a3b8; border-color:rgba(255,255,255,.08); }
+
+    .action-btn {
+        display:inline-flex; align-items:center; gap:.3rem; padding:.45rem .875rem;
+        border-radius:.625rem; font-size:.65rem; font-weight:800;
+        text-transform:uppercase; letter-spacing:.06em; border:none; cursor:pointer; transition:all .2s;
+    }
+    .btn-approve { background:#17cf17; color:#fff; }
+    .btn-approve:hover:not(:disabled) { background:#15b515; transform:translateY(-1px); box-shadow:0 4px 12px rgba(23,207,23,.3); }
+    .btn-reject  { background:#fee2e2; color:#dc2626; }
+    .btn-reject:hover:not(:disabled)  { background:#fecaca; }
+    .dark .btn-reject { background:rgba(239,68,68,.15); color:#f87171; }
+    .dark .btn-reject:hover:not(:disabled) { background:rgba(239,68,68,.25); }
+    .action-btn:disabled { opacity:.5; cursor:not-allowed; transform:none !important; }
+
+    #rejectModal {
+        display:none; position:fixed; inset:0; z-index:9999;
+        background:rgba(0,0,0,.5); backdrop-filter:blur(4px);
+        align-items:center; justify-content:center; padding:1rem;
+    }
+    #rejectModal.open { display:flex; }
+    .modal-box {
+        background:#fff; border-radius:1.25rem; padding:1.5rem;
+        width:100%; max-width:400px; box-shadow:0 25px 50px rgba(0,0,0,.2);
+    }
+    .dark .modal-box { background:#1e293b; }
+    .remarks-ta {
+        width:100%; padding:.75rem 1rem; border:1.5px solid #e2e8f0; border-radius:.75rem;
+        font-size:.875rem; color:#1e293b; background:#f8fafc; outline:none;
+        resize:vertical; min-height:80px; transition:border-color .2s;
+    }
+    .remarks-ta:focus { border-color:#dc2626; }
+    .dark .remarks-ta { background:#0f172a; border-color:rgba(255,255,255,.1); color:#f1f5f9; }
+
+    .toast {
+        position:fixed; bottom:1.5rem; right:1.5rem; z-index:99999;
+        padding:.875rem 1.25rem; border-radius:1rem; font-size:.8rem; font-weight:700;
+        box-shadow:0 10px 30px rgba(0,0,0,.15); display:none; max-width:340px;
+    }
+    .toast.success { background:#d1fae5; color:#065f46; border:1px solid #6ee7b7; }
+    .toast.error   { background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; }
+    .toast.show    { display:block; animation:slideUp .3s ease; }
+    @keyframes slideUp { from{transform:translateY(16px);opacity:0} to{transform:translateY(0);opacity:1} }
+</style>
+{% endblock %}
+
+{% block page_content %}
+<div class="max-w-5xl mx-auto px-4 py-8 space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
+
+    <!-- ── Stats row ── -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="wr-card p-4 text-center">
+            <p class="text-2xl font-black text-amber-500">{{ stats.pending }}</p>
+            <p class="text-[8px] font-black uppercase tracking-widest text-slate-400 mt-1">Pending</p>
+        </div>
+        <div class="wr-card p-4 text-center">
+            <p class="text-2xl font-black text-blue-500">{{ stats.processing }}</p>
+            <p class="text-[8px] font-black uppercase tracking-widest text-slate-400 mt-1">Processing</p>
+        </div>
+        <div class="wr-card p-4 text-center">
+            <p class="text-2xl font-black text-green-500">{{ stats.completed }}</p>
+            <p class="text-[8px] font-black uppercase tracking-widest text-slate-400 mt-1">Completed</p>
+        </div>
+        <div class="wr-card p-4 text-center">
+            <p class="text-xl font-black text-slate-700 dark:text-slate-200">₹{{ stats.total_amount|floatformat:0 }}</p>
+            <p class="text-[8px] font-black uppercase tracking-widest text-slate-400 mt-1">Total Requested</p>
+        </div>
+    </div>
+
+    <!-- ── Filter tabs ── -->
+    <div class="flex gap-2 flex-wrap">
+        <a href="?status=all"        class="filter-tab {% if current_filter == 'all'        %}active{% endif %}">All</a>
+        <a href="?status=pending"    class="filter-tab {% if current_filter == 'pending'    %}active{% endif %}">Pending</a>
+        <a href="?status=processing" class="filter-tab {% if current_filter == 'processing' %}active{% endif %}">Processing</a>
+        <a href="?status=completed"  class="filter-tab {% if current_filter == 'completed'  %}active{% endif %}">Completed</a>
+        <a href="?status=rejected"   class="filter-tab {% if current_filter == 'rejected'   %}active{% endif %}">Rejected</a>
+    </div>
+
+    <!-- ── Requests ── -->
+    {% if requests %}
+        {% for wr in requests %}
+        <div class="wr-card p-5" id="wr-{{ wr.pk }}">
+            <div class="flex flex-col sm:flex-row sm:items-start gap-4">
+
+                <!-- User info -->
+                <div class="flex items-start gap-3 flex-1">
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white font-black text-sm flex-shrink-0">
+                        {{ wr.user.first_name.0 }}{{ wr.user.last_name.0 }}
+                    </div>
+                    <div>
+                        <div class="flex flex-wrap items-center gap-1.5 mb-0.5">
+                            <p class="text-sm font-black text-slate-800 dark:text-white">{{ wr.user.get_full_name }}</p>
+                            {% if wr.user.is_collector %}
+                            <span class="status-pill role-collector">Collector</span>
+                            {% elif wr.user.is_client %}
+                            <span class="status-pill role-client">Client</span>
+                            {% endif %}
+                        </div>
+                        <p class="text-[10px] text-slate-400">{{ wr.user.email }}</p>
+                        <p class="text-[10px] text-slate-400">{{ wr.user.phone_number }}</p>
+                    </div>
+                </div>
+
+                <!-- Amount + status -->
+                <div class="flex flex-col items-start sm:items-end gap-1.5">
+                    <p class="text-2xl font-black text-slate-900 dark:text-white">₹{{ wr.amount }}</p>
+                    <span class="status-pill status-{{ wr.status }}">{{ wr.get_status_display }}</span>
+                    <p class="text-[9px] text-slate-400">{{ wr.created_at|date:"d M Y · g:i A" }}</p>
+                </div>
+            </div>
+
+            <!-- Payment details -->
+            <div class="mt-4 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="material-symbols-outlined text-sm text-slate-400">
+                        {% if wr.payment_method == 'upi' %}account_balance_wallet{% else %}account_balance{% endif %}
+                    </span>
+                    <span class="text-[9px] font-black uppercase tracking-wider text-slate-500">{{ wr.get_payment_method_display }}</span>
+                </div>
+                {% if wr.payment_method == 'upi' %}
+                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ wr.upi_id }}</p>
+                {% else %}
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                        <p><span class="text-slate-400">Name:</span> <span class="font-bold text-slate-700 dark:text-slate-200">{{ wr.account_holder_name }}</span></p>
+                        <p><span class="text-slate-400">Bank:</span> <span class="font-bold text-slate-700 dark:text-slate-200">{{ wr.bank_name }}</span></p>
+                        <p><span class="text-slate-400">Acc:</span>  <span class="font-bold text-slate-700 dark:text-slate-200">{{ wr.account_number }}</span></p>
+                        <p><span class="text-slate-400">IFSC:</span> <span class="font-bold text-slate-700 dark:text-slate-200">{{ wr.ifsc_code }}</span></p>
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if wr.admin_remarks %}
+            <p class="mt-2 text-[10px] text-slate-500 dark:text-slate-400 italic">Admin note: {{ wr.admin_remarks }}</p>
+            {% endif %}
+            {% if wr.razorpay_payout_id %}
+            <p class="mt-1 text-[10px] text-blue-500 font-mono">Payout ID: {{ wr.razorpay_payout_id }}</p>
+            {% endif %}
+
+            <!-- Action buttons (pending only) -->
+            {% if wr.status == 'pending' %}
+            <div class="mt-4 flex gap-3">
+                <button class="action-btn btn-approve" id="approve-{{ wr.pk }}"
+                        onclick="doApprove({{ wr.pk }})">
+                    <span class="material-symbols-outlined text-sm">check_circle</span> Approve & Pay
+                </button>
+                <button class="action-btn btn-reject" id="reject-{{ wr.pk }}"
+                        onclick="openReject({{ wr.pk }})">
+                    <span class="material-symbols-outlined text-sm">cancel</span> Reject
+                </button>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <!-- Pagination -->
+        {% if requests.has_other_pages %}
+        <div class="flex justify-center gap-2">
+            {% if requests.has_previous %}
+            <a href="?status={{ current_filter }}&page={{ requests.previous_page_number }}"
+               class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors">← Prev</a>
+            {% endif %}
+            <span class="px-4 py-2 text-xs font-bold text-slate-400">{{ requests.number }} / {{ requests.paginator.num_pages }}</span>
+            {% if requests.has_next %}
+            <a href="?status={{ current_filter }}&page={{ requests.next_page_number }}"
+               class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors">Next →</a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    {% else %}
+    <div class="wr-card p-14 text-center">
+        <span class="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-600">account_balance_wallet</span>
+        <p class="text-sm font-black text-slate-400 mt-3 uppercase tracking-widest">No withdrawal requests</p>
+        <p class="text-xs text-slate-400 mt-1">
+            {% if current_filter != 'all' %}Try a different filter above.{% else %}No requests have been submitted yet.{% endif %}
+        </p>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Reject modal -->
+<div id="rejectModal">
+    <div class="modal-box">
+        <h3 class="text-sm font-black text-slate-800 dark:text-white mb-1">Reject Withdrawal</h3>
+        <p class="text-xs text-slate-400 mb-4">The amount will be automatically refunded to the user's wallet.</p>
+        <input type="hidden" id="rejectId">
+        <label class="block text-[9px] font-black uppercase tracking-wider text-slate-400 mb-2">Reason (optional)</label>
+        <textarea class="remarks-ta" id="rejectRemarks" placeholder="e.g. Invalid UPI ID, suspicious request…"></textarea>
+        <div class="flex gap-3 mt-4">
+            <button type="button" class="action-btn btn-reject flex-1 justify-center" onclick="confirmReject()">
+                <span class="material-symbols-outlined text-sm">cancel</span> Confirm Reject
+            </button>
+            <button type="button" onclick="closeReject()"
+                class="action-btn flex-1 justify-center bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const CSRF = '{{ csrf_token }}';
+
+function toast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + type + ' show';
+    setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+function lockRow(pk, on) {
+    ['approve','reject'].forEach(a => {
+        const b = document.getElementById(a+'-'+pk);
+        if(b) b.disabled = on;
+    });
+}
+
+async function doApprove(pk) {
+    lockRow(pk, true);
+    try {
+        const res  = await fetch(`/payments/withdraw/${pk}/process/`, {
+            method: 'POST',
+            headers: { 'Content-Type':'application/json', 'X-CSRFToken': CSRF },
+            body: JSON.stringify({ action: 'approve' }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+            toast('✅ Payout initiated! ID: ' + (data.payout_id || 'N/A'), 'success');
+            updateRow(pk, 'processing', 'Processing');
+        } else {
+            toast('❌ ' + (data.error || 'Approval failed.'), 'error');
+            lockRow(pk, false);
+        }
+    } catch(e) {
+        toast('❌ Network error: ' + e.message, 'error');
+        lockRow(pk, false);
+    }
+}
+
+function openReject(pk) {
+    document.getElementById('rejectId').value = pk;
+    document.getElementById('rejectRemarks').value = '';
+    document.getElementById('rejectModal').classList.add('open');
+}
+function closeReject() {
+    document.getElementById('rejectModal').classList.remove('open');
+}
+async function confirmReject() {
+    const pk      = document.getElementById('rejectId').value;
+    const remarks = document.getElementById('rejectRemarks').value.trim();
+    closeReject();
+    lockRow(pk, true);
+    try {
+        const res  = await fetch(`/payments/withdraw/${pk}/process/`, {
+            method: 'POST',
+            headers: { 'Content-Type':'application/json', 'X-CSRFToken': CSRF },
+            body: JSON.stringify({ action: 'reject', remarks }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+            toast('✅ Request rejected and amount refunded to user.', 'success');
+            updateRow(pk, 'rejected', 'Rejected');
+        } else {
+            toast('❌ ' + (data.error || 'Rejection failed.'), 'error');
+            lockRow(pk, false);
+        }
+    } catch(e) {
+        toast('❌ Network error: ' + e.message, 'error');
+        lockRow(pk, false);
+    }
+}
+
+function updateRow(pk, status, label) {
+    const row = document.getElementById('wr-' + pk);
+    if (!row) return;
+    const badge = row.querySelector('.status-pill.status-pending');
+    if (badge) { badge.textContent = label; badge.className = 'status-pill status-' + status; }
+    const actions = row.querySelector('.mt-4.flex.gap-3');
+    if (actions) actions.remove();
+}
+
+document.getElementById('rejectModal').addEventListener('click', function(e) {
+    if (e.target === this) closeReject();
+});
+</script>
+{% endblock %}

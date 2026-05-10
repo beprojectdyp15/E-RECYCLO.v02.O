@@ -389,3 +389,11 @@ def model_delete(request, app_label, model_name, pk):
         'app_label': app_label,
         'model_meta_name': model_name,
     })
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Withdrawal requests redirect — forwards admin to payments app page
+# ─────────────────────────────────────────────────────────────────────────────
+@login_required
+def withdrawal_requests_redirect(request):
+    from django.urls import reverse
+    return redirect(reverse('payments:withdrawal_requests'))

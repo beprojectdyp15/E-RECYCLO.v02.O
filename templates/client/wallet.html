@@ -243,181 +243,13 @@
             <div class="flex flex-col gap-3 w-full md:w-auto">
                
 
-{# ── Withdraw Button (trigger) ── #}
-<button onclick="document.getElementById('withdrawModal').classList.remove('hidden')"
-        class="py-3 px-6 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[11px] font-black uppercase tracking-widest
-               flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md">
+{# ── Withdraw Button — links to dedicated page ── #}
+<a href="{% url 'payments:withdraw_page' %}"
+   class="py-3 px-6 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[11px] font-black uppercase tracking-widest
+          flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md">
     <span class="material-symbols-outlined text-[16px]">payments</span> Withdraw
-</button>
+</a>
 
-{# ── Withdrawal Modal ── #}
-<div id="withdrawModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
-     style="background:rgba(0,0,0,.45);">
-    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg p-8 relative max-h-[90vh] overflow-y-auto">
-        <button onclick="document.getElementById('withdrawModal').classList.add('hidden')"
-                class="absolute top-4 right-4 size-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center hover:bg-slate-200 transition-all">
-            <span class="material-symbols-outlined text-[16px]">close</span>
-        </button>
-        <div class="flex items-center gap-4 mb-6">
-            <div class="size-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
-                <span class="material-symbols-outlined text-slate-600 dark:text-slate-300 text-2xl">payments</span>
-            </div>
-            <div>
-                <h3 class="text-[15px] font-extrabold text-slate-800 dark:text-white">Withdraw Funds</h3>
-                <p class="text-[11px] text-slate-400 mt-0.5">
-                    Available: <span class="font-extrabold text-slate-700 dark:text-white">₹{{ wallet.balance|default:"0.00" }}</span>
-                    · Min ₹50
-                </p>
-            </div>
-        </div>
-
-        {# Amount #}
-        <div class="mb-5">
-            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Amount (₹)</label>
-            <div class="relative">
-                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">₹</span>
-                <input id="wdAmount" type="number" min="50" placeholder="0"
-                       class="w-full pl-9 pr-4 py-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700
-                              text-slate-800 dark:text-white font-extrabold text-xl focus:outline-none focus:border-primary transition-all">
-            </div>
-        </div>
-
-        {# Method toggle #}
-        <div class="mb-5">
-            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Payout Method</label>
-            <div class="flex gap-3">
-                <button onclick="setWdMethod('upi')" id="btnUpi"
-                        class="flex-1 py-3 rounded-xl border-2 border-primary bg-primary/5 text-primary text-[11px] font-black uppercase tracking-widest transition-all">
-                    📱 UPI
-                </button>
-                <button onclick="setWdMethod('bank')" id="btnBank"
-                        class="flex-1 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-500 text-[11px] font-black uppercase tracking-widest transition-all">
-                    🏦 Bank Transfer
-                </button>
-            </div>
-        </div>
-
-        {# UPI fields #}
-        <div id="wdUpiFields" class="space-y-4 mb-5">
-            <div>
-                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">UPI ID</label>
-                <input id="wdUpiId" type="text" placeholder="yourname@upi"
-                       class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700
-                              text-slate-800 dark:text-white font-semibold focus:outline-none focus:border-primary transition-all">
-            </div>
-        </div>
-
-        {# Bank fields #}
-        <div id="wdBankFields" class="hidden space-y-4 mb-5">
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Account Holder Name</label>
-                    <input id="wdHolderName" type="text" placeholder="Full name as in bank"
-                           class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white font-semibold focus:outline-none focus:border-primary transition-all">
-                </div>
-                <div>
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Bank Name</label>
-                    <input id="wdBankName" type="text" placeholder="e.g. SBI"
-                           class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white font-semibold focus:outline-none focus:border-primary transition-all">
-                </div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">Account Number</label>
-                    <input id="wdAccNo" type="text" placeholder="Account number"
-                           class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white font-semibold focus:outline-none focus:border-primary transition-all">
-                </div>
-                <div>
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2">IFSC Code</label>
-                    <input id="wdIfsc" type="text" placeholder="e.g. SBIN0001234"
-                           class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white font-semibold focus:outline-none focus:border-primary transition-all">
-                </div>
-            </div>
-        </div>
-
-        <p id="wdError" class="hidden text-[11px] text-red-500 font-semibold mb-3"></p>
-
-        <button onclick="submitWithdrawal()" id="wdSubmitBtn"
-                class="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[11px] font-black uppercase tracking-widest
-                       flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] transition-all shadow-md">
-            <span class="material-symbols-outlined text-[16px]">send_money</span>
-            Submit Request
-        </button>
-        <p class="text-center text-[10px] text-slate-400 mt-3">
-            Withdrawals are processed within 24 hours after admin approval.
-        </p>
-    </div>
-</div>
-
-<script>
-var wdMethod = 'upi';
-function setWdMethod(m) {
-    wdMethod = m;
-    var isUpi = m === 'upi';
-    document.getElementById('wdUpiFields').classList.toggle('hidden', !isUpi);
-    document.getElementById('wdBankFields').classList.toggle('hidden', isUpi);
-    document.getElementById('btnUpi').className  = 'flex-1 py-3 rounded-xl border-2 text-[11px] font-black uppercase tracking-widest transition-all '
-        + (isUpi  ? 'border-primary bg-primary/5 text-primary' : 'border-slate-200 dark:border-slate-700 text-slate-500');
-    document.getElementById('btnBank').className = 'flex-1 py-3 rounded-xl border-2 text-[11px] font-black uppercase tracking-widest transition-all '
-        + (!isUpi ? 'border-primary bg-primary/5 text-primary' : 'border-slate-200 dark:border-slate-700 text-slate-500');
-}
-
-async function submitWithdrawal() {
-    var errEl = document.getElementById('wdError');
-    var btn   = document.getElementById('wdSubmitBtn');
-    errEl.classList.add('hidden');
-    var amount = parseFloat(document.getElementById('wdAmount').value || '0');
-    if (!amount || amount < 50) {
-        errEl.textContent = 'Minimum withdrawal is ₹50';
-        errEl.classList.remove('hidden');
-        return;
-    }
-    var payload = { amount: amount, payment_method: wdMethod };
-    if (wdMethod === 'upi') {
-        payload.upi_id = document.getElementById('wdUpiId').value.trim();
-        if (!payload.upi_id || !payload.upi_id.includes('@')) {
-            errEl.textContent = 'Enter a valid UPI ID (e.g. name@upi)';
-            errEl.classList.remove('hidden');
-            return;
-        }
-    } else {
-        payload.account_holder_name = document.getElementById('wdHolderName').value.trim();
-        payload.bank_name           = document.getElementById('wdBankName').value.trim();
-        payload.account_number      = document.getElementById('wdAccNo').value.trim();
-        payload.ifsc_code           = document.getElementById('wdIfsc').value.trim();
-        if (!payload.account_holder_name || !payload.bank_name || !payload.account_number || !payload.ifsc_code) {
-            errEl.textContent = 'Please fill all bank details';
-            errEl.classList.remove('hidden');
-            return;
-        }
-    }
-    btn.disabled = true;
-    btn.innerHTML = '<span class="material-symbols-outlined text-[16px] animate-spin">progress_activity</span> Submitting…';
-    try {
-        var res  = await fetch('{% url "payments:request_withdrawal" %}', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
-            body: JSON.stringify(payload),
-            credentials: 'same-origin',
-        });
-        var data = await res.json();
-        if (res.ok && data.status === 'ok') {
-            document.getElementById('withdrawModal').classList.add('hidden');
-            window.location.reload();
-        } else {
-            errEl.textContent = data.error || 'Something went wrong.';
-            errEl.classList.remove('hidden');
-            btn.disabled = false;
-            btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">send_money</span> Submit Request';
-        }
-    } catch(e) {
-        errEl.textContent = 'Network error. Please try again.';
-        errEl.classList.remove('hidden');
-        btn.disabled = false;
-        btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">send_money</span> Submit Request';
-    }
-}
-</script>
 
                 <div class="flex items-center justify-center md:justify-start gap-8 px-2">
                     <div class="text-center md:text-left">
@@ -584,6 +416,56 @@ async function submitWithdrawal() {
             </div>
         </div>
     </div>
+
+    <!-- WITHDRAWAL REQUEST STATUS -->
+    {% if withdrawal_requests %}
+    <div class="premium-card overflow-hidden">
+        <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="size-10 rounded-xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center border border-amber-100 dark:border-amber-800/30">
+                    <span class="material-symbols-outlined text-amber-500">send_money</span>
+                </div>
+                <div>
+                    <h3 class="text-[11px] font-black text-slate-800 dark:text-white uppercase tracking-[0.2em] leading-none mb-1.5">Withdrawal Requests</h3>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">Recent payout status</p>
+                </div>
+            </div>
+            <a href="{% url 'payments:withdraw_page' %}" class="text-[9px] font-black uppercase tracking-widest text-primary hover:underline">View All</a>
+        </div>
+        <div class="divide-y divide-slate-50 dark:divide-slate-800/50">
+            {% for wr in withdrawal_requests %}
+            <div class="px-6 py-4 flex items-center gap-4">
+                <div class="size-9 rounded-xl flex-shrink-0 flex items-center justify-center
+                    {% if wr.status == 'completed' %}bg-green-100 dark:bg-green-900/20
+                    {% elif wr.status == 'rejected'  %}bg-red-100  dark:bg-red-900/20
+                    {% elif wr.status == 'processing'%}bg-blue-100 dark:bg-blue-900/20
+                    {% else %}bg-amber-100 dark:bg-amber-900/20{% endif %}">
+                    <span class="material-symbols-outlined text-sm
+                        {% if wr.status == 'completed' %}text-green-600
+                        {% elif wr.status == 'rejected'  %}text-red-500
+                        {% elif wr.status == 'processing'%}text-blue-500
+                        {% else %}text-amber-500{% endif %}">
+                        {% if wr.payment_method == 'upi' %}account_balance_wallet{% else %}account_balance{% endif %}
+                    </span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-black text-slate-800 dark:text-white">₹{{ wr.amount }}</p>
+                    <p class="text-[10px] text-slate-400 truncate">via {{ wr.get_payment_method_display }} · {{ wr.created_at|date:"d M Y" }}</p>
+                    {% if wr.admin_remarks %}<p class="text-[10px] text-slate-500 italic mt-0.5">{{ wr.admin_remarks }}</p>{% endif %}
+                </div>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider whitespace-nowrap
+                    {% if wr.status == 'completed'  %}bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400
+                    {% elif wr.status == 'rejected'  %}bg-red-100   text-red-700   dark:bg-red-900/20   dark:text-red-400
+                    {% elif wr.status == 'processing'%}bg-blue-100  text-blue-700  dark:bg-blue-900/20  dark:text-blue-400
+                    {% else %}bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400{% endif %}">
+                    {{ wr.get_status_display }}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <!-- TRANSACTION HISTORY SECTION -->
     <div class="premium-card overflow-hidden mb-28" style="margin-bottom: 77px;">
         <div class="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">

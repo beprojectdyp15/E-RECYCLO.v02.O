@@ -61,8 +61,8 @@ def topup_initiate(request):
         except (ValueError, KeyError, json.JSONDecodeError):
             return JsonResponse({'error': 'Invalid amount provided.'}, status=400)
 
-        if amount < 100:
-            return JsonResponse({'error': 'Minimum top-up is ₹100'}, status=400)
+        if amount < 10:
+            return JsonResponse({'error': 'Minimum top-up is ₹10'}, status=400)
         
         amount_paise = amount * 100   # Razorpay uses paise
 
@@ -371,7 +371,7 @@ def process_withdrawal(request, pk):
                 'contact': {
                     'name':    wr.user.get_full_name(),
                     'email':   wr.user.email,
-                    'contact': getattr(wr.user, 'phone', ''),
+                    'contact': getattr(wr.user, 'phone_number', '') or '',
                     'type':    'customer',
                 },
             }
@@ -386,7 +386,7 @@ def process_withdrawal(request, pk):
                 'contact': {
                     'name':    wr.user.get_full_name(),
                     'email':   wr.user.email,
-                    'contact': getattr(wr.user, 'phone', ''),
+                    'contact': getattr(wr.user, 'phone_number', '') or '',
                     'type':    'customer',
                 },
             }
@@ -403,3 +403,104 @@ def process_withdrawal(request, pk):
             return JsonResponse({'error': f'Payout failed: {str(exc)}'}, status=502)
 
     return JsonResponse({'error': 'POST required'}, status=405)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  NEW: VENDOR — Top-up page (dedicated page, replaces popup modal)
+# ══════════════════════════════════════════════════════════════════════════════
+
+@login_required
+def topup_page(request):
+    """
+    GET: Render the vendor top-up page.
+    This replaces the old popup/modal approach.
+    """
+    if not request.user.is_vendor:
+        messages.error(request, 'Only vendors can top up.')
+        return redirect('home')
+    try:
+        pc = request.user.profile_completion
+        if pc.approval_status != 'approved':
+            messages.error(request, 'Your profile must be approved to access wallet features.')
+            from django.urls import reverse
+            return redirect(f"{reverse('accounts:complete_vendor_profile')}?unapproved_redirect=true")
+    except Exception:
+        pass
+    wallet, _ = Wallet.objects.get_or_create(user=request.user)
+    return render(request, 'vendor/topup.html', {
+        'wallet': wallet,
+        'quick_amounts': [500, 1000, 2000, 5000],
+    })
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  NEW: CLIENT & COLLECTOR — Shared withdraw page (dedicated page, replaces popup)
+# ══════════════════════════════════════════════════════════════════════════════
+
+@login_required
+def withdraw_page(request):
+    """
+    GET: Shared withdraw page for both Client and Collector.
+    Role is auto-detected — page title and back-link adapt accordingly.
+    Replaces the old popup/modal approach.
+    """
+    if not (request.user.is_client or request.user.is_collector):
+        messages.error(request, 'Access denied.')
+        return redirect('home')
+    try:
+        wallet = request.user.wallet
+    except Exception:
+        wallet = None
+
+    withdrawal_requests = WithdrawalRequest.objects.filter(
+        user=request.user).order_by('-created_at')[:10]
+
+    is_collector = request.user.is_collector
+    return render(request, 'payments/withdraw.html', {
+        'wallet':              wallet,
+        'withdrawal_requests': withdrawal_requests,
+        'quick_amounts':       [100, 200, 500, 1000],
+        'is_collector':        is_collector,
+        'back_url':            'collector:earnings' if is_collector else 'client:wallet',
+        'back_label':          'Back to Earnings'   if is_collector else 'Back to Wallet',
+    })
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  NEW: ADMIN — Withdrawal requests list page
+# ══════════════════════════════════════════════════════════════════════════════
+
+@login_required
+def withdrawal_requests_page(request):
+    """
+    Admin page to list, filter and manage all withdrawal requests
+    from both clients and collectors.
+    """
+    from django.core.paginator import Paginator
+    from django.db.models import Sum as DSum
+
+    if not (request.user.is_staff or getattr(request.user, 'is_admin', False)):
+        messages.error(request, 'Admin access required.')
+        return redirect('home')
+
+    status_filter = request.GET.get('status', 'pending')
+    qs = WithdrawalRequest.objects.select_related('user').order_by('-created_at')
+    if status_filter != 'all':
+        qs = qs.filter(status=status_filter)
+
+    paginator     = Paginator(qs, 20)
+    requests_page = paginator.get_page(request.GET.get('page'))
+
+    all_wr = WithdrawalRequest.objects.all()
+    stats  = {
+        'pending':      all_wr.filter(status='pending').count(),
+        'processing':   all_wr.filter(status='processing').count(),
+        'completed':    all_wr.filter(status='completed').count(),
+        'rejected':     all_wr.filter(status='rejected').count(),
+        'total_amount': all_wr.aggregate(t=DSum('amount'))['t'] or 0,
+    }
+    return render(request, 'payments/withdrawal_requests.html', {
+        'requests':       requests_page,
+        'current_filter': status_filter,
+        'stats':          stats,
+    })

@@ -827,6 +827,12 @@ def earnings(request):
     
     earnings_obj, _ = CollectorEarnings.objects.get_or_create(collector=request.user)
     
+    # Fetch recent withdrawal requests so the earnings page can show status
+    from apps.payments.models import WithdrawalRequest
+    withdrawal_requests = WithdrawalRequest.objects.filter(
+        user=request.user
+    ).order_by('-created_at')[:5]
+
     return render(request, 'collector/earnings.html', {
         'wallet': wallet,
         'earnings': earnings_obj, # Still passed for other collector-specific stats if needed
@@ -836,6 +842,7 @@ def earnings(request):
         'avg_payout': avg_payout,
         'current_year': current_year,
         'completed_pickups_count': pickups_count,
+        'withdrawal_requests': withdrawal_requests,
     })
 
 
