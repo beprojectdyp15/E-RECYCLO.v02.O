@@ -95,6 +95,20 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='E-RECYCLO <noreply@er
 # OTP Settings
 OTP_EXPIRY_MINUTES = config('OTP_EXPIRY_MINUTES', default=10, cast=int)
 
+
+
+
+# ========================================
+# RAZORPAY CONFIGURATION
+# ========================================
+
+RAZORPAY_KEY_ID         = config("RAZORPAY_KEY_ID",         default="")
+RAZORPAY_KEY_SECRET     = config("RAZORPAY_KEY_SECRET",     default="")
+RAZORPAY_WEBHOOK_SECRET = config("RAZORPAY_WEBHOOK_SECRET", default="")
+RAZORPAY_ACCOUNT_NUMBER = config("RAZORPAY_ACCOUNT_NUMBER", default="")
+
+
+
 # ========================================
 # STATIC & MEDIA FILES (WhiteNoise & Supabase S3)
 # ========================================
